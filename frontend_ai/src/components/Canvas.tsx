@@ -2,6 +2,7 @@ import { useStore } from '../store/useStore'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Grid2D } from './Grid2D'
 import { Scene3D } from './Scene3D'
+import { BlueprintView } from './BlueprintView'
 import { CodeView } from './CodeView'
 import { Sparkles } from 'lucide-react'
 import { CityMetricsSidebar } from './CityMetricsSidebar'
@@ -69,6 +70,7 @@ export function Canvas() {
             {viewMode === '2D' && <Grid2D />}
             {viewMode === '3D' && <Scene3D />}
             {viewMode === 'CODE' && <CodeView />}
+            {viewMode === 'BLUEPRINT' && <BlueprintView />}
             
             {/* Real-time metrics overlay */}
             <CityMetricsSidebar />

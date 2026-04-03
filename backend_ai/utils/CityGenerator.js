@@ -97,7 +97,7 @@ export class CityGenerator {
       }
     }
 
-    // Convert string array to Array<{x, y, type, elevation}> strictly matching the frontend expectations
+    // Convert string array to Array<{x, y, type, elevation, subtype}> strictly matching the frontend expectations
     const finalGrid = [];
     for (let y = 0; y < this.height; y++) {
       const row = [];
@@ -116,11 +116,63 @@ export class CityGenerator {
            cellElevation += (Math.random() * 0.05);
         }
 
-        row.push({ x, y, type: this.grid[y][x], elevation: cellElevation });
+        // Assign context-aware subtype based on neighbors
+        const subtype = this.assignSubtype(x, y);
+
+        row.push({ x, y, type: this.grid[y][x], elevation: cellElevation, subtype });
       }
       finalGrid.push(row);
     }
     return finalGrid;
+  }
+
+  assignSubtype(x, y) {
+    const type = this.grid[y][x];
+    const nearWater = this.isAdjacentTo(x, y, 'water');
+    const nearRoad = this.isAdjacentTo(x, y, 'road');
+    const nearPark = this.isAdjacentTo(x, y, 'park');
+    const nearIndustrial = this.isAdjacentTo(x, y, 'industrial');
+    const isCenter = Math.abs(x - this.width / 2) < 3 && Math.abs(y - this.height / 2) < 3;
+    const isEdgeCell = this.isEdge(x, y);
+
+    switch (type) {
+      case 'commercial':
+        if (nearWater) return 'waterfront_dining';
+        if (isCenter) return 'office_tower';
+        if (nearPark) return 'boutique_retail';
+        if (nearIndustrial) return 'warehouse_outlet';
+        return 'office_building';
+
+      case 'residential':
+        if (nearWater) return 'waterfront_apartment';
+        if (nearPark) return 'garden_villa';
+        if (isCenter) return 'urban_apartment';
+        if (isEdgeCell) return 'suburban_house';
+        if (nearRoad) return 'townhouse';
+        return 'family_home';
+
+      case 'industrial':
+        if (nearWater) return 'port_facility';
+        if (isEdgeCell) return 'logistics_hub';
+        if (nearRoad) return 'manufacturing_plant';
+        return 'factory';
+
+      case 'park':
+        if (nearWater) return 'waterfront_promenade';
+        if (isCenter) return 'central_plaza';
+        if (isEdgeCell) return 'nature_reserve';
+        return 'community_garden';
+
+      case 'road':
+        if (nearWater) return 'bridge';
+        return 'street';
+
+      case 'water':
+        return 'river';
+
+      default:
+        return 'vacant_lot';
+    }
   }
 
   addWater() {

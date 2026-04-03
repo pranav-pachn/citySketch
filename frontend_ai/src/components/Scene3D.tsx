@@ -1,4 +1,4 @@
-import { useRef, useState, useMemo } from 'react'
+import { useRef, useState } from 'react'
 import { Canvas as R3FCanvas, useFrame } from '@react-three/fiber'
 import { OrbitControls, Environment, Grid, ContactShadows, Html } from '@react-three/drei'
 import { useStore } from '../store/useStore'
@@ -116,7 +116,7 @@ const CommercialSkyscraper = ({ x, z, seed }: { x: number, z: number, seed: numb
   )
 }
 
-const IndustrialFactory = ({ x, z, seed }: { x: number, z: number, seed: number }) => {
+const IndustrialFactory = ({ x, z }: { x: number, z: number }) => {
   const isNightMode = useStore(s => s.isNightMode)
   return (
     <group position={[x, 0, z]}>
@@ -251,7 +251,7 @@ function CityCell({ cell, offsetX, offsetZ }: { cell: GridCell, offsetX: number,
       case 'commercial':
         return <CommercialSkyscraper x={0} z={0} seed={seed} />
       case 'industrial':
-        return <IndustrialFactory x={0} z={0} seed={seed} />
+        return <IndustrialFactory x={0} z={0} />
       case 'park':
         return (
           <>
