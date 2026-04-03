@@ -1,0 +1,337 @@
+/**
+ * Integration Example: Using the City Description Parser in a React Component
+ * This shows a practical example of how to integrate parseText() into CitySketch
+ */
+
+import { useState } from 'react';
+import { parseText, ParsedCityData } from './cityDescriptionParser';
+
+/**
+ * Example: ChatInput Component Integration
+ * Demonstrates how to use the parser when user submits a city description
+ */
+export const ChatInputIntegration = () => {
+  const [userInput, setUserInput] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [parsedData, setParsedData] = useState<ParsedCityData | null>(null);
+  const [error, setError] = useState('');
+
+  // Handle form submission
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (!userInput.trim()) {
+      setError('Please enter a city description');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError('');
+
+      // STEP 1: Parse the natural language input into structured JSON
+      const cityData = parseText(userInput);
+      setParsedData(cityData);
+
+      // STEP 2: (Optional) Validate the parsed data
+      console.log('Parsed city data:', cityData);
+
+      // STEP 3: Send to backend layout engine to generate the city
+      // const response = await fetch('/api/generate-city', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify(cityData),
+      // });
+      // const layout = await response.json();
+      // Then update your store or state with the layout
+    } catch (err) {
+      setError('Failed to parse city description. Please try again.');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="chat-input-integration">
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          value={userInput}
+          onChange={(e) => setUserInput(e.target.value)}
+          placeholder="Describe your city... (e.g., '10 acre eco-friendly city with park and hospital')"
+          disabled={loading}
+        />
+        <button type="submit" disabled={loading}>
+          {loading ? 'Processing...' : 'Generate City'}
+        </button>
+      </form>
+
+      {error && <div className="error">{error}</div>}
+
+      {parsedData && (
+        <div className="parsed-results">
+          <h3>Parsed Configuration:</h3>
+          <div className="result-section">
+            <h4>Area</h4>
+            <p>{parsedData.area_in_acres} acres</p>
+          </div>
+
+          <div className="result-section">
+            <h4>Priority</h4>
+            <p>{parsedData.priority}</p>
+          </div>
+
+          <div className="result-section">
+            <h4>Zones</h4>
+            <ul>
+              {parsedData.zones.map((zone, idx) => (
+                <li key={idx}>
+                  {zone.type}: {zone.count} units
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="result-section">
+            <h4>Constraints</h4>
+            <ul>
+              {parsedData.constraints.eco && <li>✓ Eco-friendly</li>}
+              {parsedData.constraints.low_traffic && <li>✓ Low traffic</li>}
+              {parsedData.constraints.high_density && <li>✓ High density</li>}
+            </ul>
+            {!parsedData.constraints.eco &&
+              !parsedData.constraints.low_traffic &&
+              !parsedData.constraints.high_density && <p>No special constraints</p>}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+/**
+ * Example: Using parser in a custom hook
+ * Useful for extracting logic into a reusable hook
+ */
+export const useCityDescriptionParser = () => {
+  const [parsedData, setParsedData] = useState<ParsedCityData | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const parse = (description: string) => {
+    setIsLoading(true);
+    try {
+      // Simulate some processing time if needed
+      const result = parseText(description);
+      setParsedData(result);
+      return result;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const reset = () => {
+    setParsedData(null);
+  };
+
+  return {
+    parsedData,
+    isLoading,
+    parse,
+    reset,
+  };
+};
+
+/**
+ * Example: Using parser in a store/state management
+ * Shows how to integrate with Zustand (as used in CitySketch)
+ */
+export const cityDescriptionParserStoreExample = (set: any) => ({
+  cityData: null as ParsedCityData | null,
+  userDescription: '',
+
+  // Parse and store city data
+  parseAndStore: (description: string) => {
+    const parsed = parseText(description);
+    set({ cityData: parsed, userDescription: description });
+    return parsed;
+  },
+
+  // Clear parsed data
+  clearCityData: () => {
+    set({ cityData: null });
+  },
+
+  // Update user input preview
+  updateDescription: (description: string) => {
+    set({ userDescription: description });
+  },
+});
+
+/**
+ * Example: Direct parser usage in utilities
+ * Shows how to use the parser in utility functions
+ */
+export const cityGenerationService = {
+  /**
+   * Convert user input to city layout
+   */
+  generateCityLayout: async (userDescription: string) => {
+    // Step 1: Parse the description
+    const cityData = parseText(userDescription);
+
+    // Step 2: Call layout engine with parsed data
+    const response = await fetch('/api/generate-city', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(cityData),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to generate city');
+    }
+
+    const layout = await response.json();
+    return layout;
+  },
+
+  /**
+   * Validate city description before parsing
+   */
+  validateDescription: (description: string): boolean => {
+    return description && description.trim().length > 0;
+  },
+
+  /**
+   * Get suggestions based on parsed data
+   */
+  getSuggestions: (cityData: ParsedCityData) => {
+    const suggestions: string[] = [];
+
+    if (cityData.area_in_acres < 10) {
+      suggestions.push('Consider expanding area for more variety');
+    }
+
+    if (cityData.zones.length === 1) {
+      suggestions.push('Add more zone types for a diverse city');
+    }
+
+    if (!cityData.constraints.eco && !cityData.constraints.low_traffic) {
+      suggestions.push('Consider eco or low-traffic options');
+    }
+
+    return suggestions;
+  },
+};
+
+/**
+ * Example: Batch parsing multiple descriptions
+ * Useful for processing multiple city descriptions at once
+ */
+export const batchParseDescriptions = (descriptions: string[]) => {
+  return descriptions.map((desc) => ({
+    input: desc,
+    parsed: parseText(desc),
+  }));
+};
+
+/**
+ * Example: Creating a feedback loop
+ * Shows how to parse, validate, and potentially re-parse based on feedback
+ */
+export const cityGenerationWithFeedback = {
+  parse: (description: string) => parseText(description),
+
+  validate: (parsed: ParsedCityData) => {
+    const errors: string[] = [];
+
+    if (parsed.area_in_acres <= 0) {
+      errors.push('Area must be greater than 0');
+    }
+
+    if (parsed.zones.length === 0) {
+      errors.push('Must have at least one zone');
+    }
+
+    return {
+      valid: errors.length === 0,
+      errors,
+    };
+  },
+
+  refine: (parsed: ParsedCityData, feedback: string) => {
+    // Re-parse with additional feedback
+    const combinedDescription = `${feedback}`;
+    return parseText(combinedDescription);
+  },
+};
+
+/**
+ * USAGE EXAMPLES
+ */
+
+// Example 1: Simple parsing
+const exampleSimple = () => {
+  const input = 'Design a 15 acre eco-friendly city with park';
+  const result = parseText(input);
+  console.log(result);
+};
+
+// Example 2: Using the hook in a component
+const ComponentExample = () => {
+  const { parsedData, parse } = useCityDescriptionParser();
+
+  return (
+    <div>
+      <button onClick={() => parse('10 acre commercial zone')}>
+        Parse Description
+      </button>
+      {parsedData && <pre>{JSON.stringify(parsedData, null, 2)}</pre>}
+    </div>
+  );
+};
+
+// Example 3: Batch processing
+const batchExample = () => {
+  const descriptions = [
+    'Small eco park 5 acres',
+    'Large commercial 100 acres high density',
+    'Hospital district 20 acres low traffic',
+  ];
+
+  const results = batchParseDescriptions(descriptions);
+  results.forEach((item) => {
+    console.log(`Input: ${item.input}`);
+    console.log(`Output:`, item.parsed);
+  });
+};
+
+// Example 4: Using with service calls
+const serviceCallExample = async () => {
+  try {
+    const layout = await cityGenerationService.generateCityLayout(
+      'Create a 25 acre eco-friendly city with hospital and park'
+    );
+    console.log('Generated layout:', layout);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
+// Example 5: Feedback and refinement
+const feedbackExample = () => {
+  const initial = parseText('big city with parks');
+  const validation = cityGenerationWithFeedback.validate(initial);
+
+  if (!validation.valid) {
+    console.log('Validation errors:', validation.errors);
+  }
+
+  const refined = cityGenerationWithFeedback.refine(
+    initial,
+    'actually make it 15 acres with high density'
+  );
+  console.log('Refined result:', refined);
+};
+
+export default ChatInputIntegration;

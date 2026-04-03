@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { useStore } from '../store/useStore'
-import { Grid3X3, Box, Code, Maximize2, Copy, Download, Moon, Sun, Minimize2, PenTool, FileJson, ChevronDown } from 'lucide-react'
+import { Grid3X3, Box, Code, Maximize2, Copy, Download, Moon, Sun, Minimize2, PenTool, FileJson, ChevronDown, Save } from 'lucide-react'
 import type { ViewMode } from '../types'
 
 const viewOptions: { id: ViewMode; label: string; icon: React.ReactNode }[] = [
@@ -21,6 +21,7 @@ export function WorkspaceHeader() {
   const setNightMode = useStore((s) => s.setNightMode)
   const isCanvasMaximized = useStore((s) => s.isCanvasMaximized)
   const setCanvasMaximized = useStore((s) => s.setCanvasMaximized)
+  const saveCurrentLayout = useStore((s) => s.saveCurrentLayout)
 
   const [showExportMenu, setShowExportMenu] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -131,6 +132,9 @@ export function WorkspaceHeader() {
           <div className="workspace-utils">
             <button className="util-btn" onClick={handleCopyJSON} title="Copy JSON">
               <Copy size={15} strokeWidth={1.5} />
+            </button>
+            <button className="util-btn" onClick={saveCurrentLayout} title="Save to history">
+              <Save size={15} strokeWidth={1.5} />
             </button>
             <div className="relative" ref={menuRef}>
               <button 

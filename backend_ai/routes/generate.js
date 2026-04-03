@@ -3,10 +3,33 @@ import { OpenAI } from 'openai'
 import Groq from 'groq-sdk'
 import { supabase } from '../supabaseClient.js'
 import { CityGenerator } from '../utils/CityGenerator.js'
+import { addLocalHistoryItem } from '../utils/historyStore.js'
 import dotenv from 'dotenv'
 
 // Force reload of env vars so server doesn't need to be restarted immediately
 dotenv.config({ override: true })
+
+const keyRotationState = {
+  openrouter: 0,
+  gemini: 0,
+  groq: 0,
+}
+
+function parseKeyPool(...values) {
+  return values
+    .flatMap((value) => (value || '').split(/[\s,]+/))
+    .map((key) => key.trim())
+    .filter(Boolean)
+}
+
+function getRotatedKeys(provider, keys) {
+  if (!keys.length) return []
+
+  const startIndex = keyRotationState[provider] % keys.length
+  keyRotationState[provider] = (startIndex + 1) % keys.length
+
+  return [...keys.slice(startIndex), ...keys.slice(0, startIndex)]
+}
 
 function inferPromptOverrides(prompt) {
   const text = prompt.toLowerCase()
@@ -46,6 +69,7 @@ function inferPromptOverrides(prompt) {
   const industrialHint = /logging|sawmill|lumber|mill town|industrial|factory|warehouse/.test(text)
   const residentialHint = /residential|housing|homes|suburb/.test(text)
   const commercialHint = /commercial|business district|offices|retail|mall/.test(text)
+    const hospitalHint = /hospital|hospitals|clinic|clinics|medical|healthcare|health center|medical center/.test(text)
 
   if (industrialHint) {
     overrides.primaryZone = 'industrial'
@@ -54,6 +78,10 @@ function inferPromptOverrides(prompt) {
   } else if (commercialHint) {
     overrides.primaryZone = 'commercial'
   }
+
+    if (hospitalHint) {
+      overrides.hospitalZone = true
+    }
 
   const noParkHint = /without parks|no parks|no green space/.test(text)
   const centralParkHint = /central park|single central park/.test(text)
@@ -84,21 +112,73 @@ function inferPromptOverrides(prompt) {
   return overrides
 }
 
+function promptRequestsHospital(prompt) {
+  return /hospital|hospitals|clinic|clinics|medical|healthcare|health center|medical center/.test(
+    String(prompt || '').toLowerCase()
+  )
+}
+
+function ensureHospitalInGrid(grid) {
+  if (!Array.isArray(grid) || grid.length === 0) return
+
+  const rows = grid.length
+  const cols = Array.isArray(grid[0]) ? grid[0].length : 0
+  if (!cols) return
+
+  const hasHospital = grid.some((row) => row.some((cell) => cell?.type === 'hospital'))
+  if (hasHospital) return
+
+  const isWithin = (x, y) => y >= 0 && y < rows && x >= 0 && x < cols
+  const isRoadAdjacent = (x, y) => {
+    const dirs = [
+      [-1, 0],
+      [1, 0],
+      [0, -1],
+      [0, 1],
+    ]
+    return dirs.some(([dx, dy]) => {
+      const nx = x + dx
+      const ny = y + dy
+      return isWithin(nx, ny) && grid[ny][nx]?.type === 'road'
+    })
+  }
+
+  const preferredTypes = ['residential', 'commercial', 'empty', 'park']
+
+  for (const type of preferredTypes) {
+    for (let y = 0; y < rows; y++) {
+      for (let x = 0; x < cols; x++) {
+        const cell = grid[y][x]
+        if (!cell || cell.type !== type) continue
+        if (!isRoadAdjacent(x, y)) continue
+        grid[y][x] = { ...cell, type: 'hospital' }
+        return
+      }
+    }
+  }
+}
+
 export const generateRoute = Router()
 
+generateRoute.get('/generate', (_req, res) => {
+  res.status(200).json({
+    message: 'Use POST /api/generate with JSON body: { "prompt": "..." }',
+  })
+})
+
 generateRoute.post('/generate', async (req, res) => {
-  const { prompt } = req.body
+  const { prompt, saveToHistory = true } = req.body || {}
 
   if (!prompt) {
     return res.status(400).json({ error: 'Prompt is required' })
   }
 
-  // Pick the best available API Key
-  const openRouterKey = process.env.OPENROUTER_API_KEY
-  const geminiKey = process.env.GEMINI_API_KEY
-  const groqKey = process.env.GROQ_API_KEY
-  
-  if (!openRouterKey && !geminiKey && !groqKey) {
+  // Build key pools. Supports either *_API_KEY or *_API_KEYS with comma/newline-separated values.
+  const openRouterKeys = parseKeyPool(process.env.OPENROUTER_API_KEYS, process.env.OPENROUTER_API_KEY)
+  const geminiKeys = parseKeyPool(process.env.GEMINI_API_KEYS, process.env.GEMINI_API_KEY)
+  const groqKeys = parseKeyPool(process.env.GROQ_API_KEYS, process.env.GROQ_API_KEY)
+
+  if (!openRouterKeys.length && !geminiKeys.length && !groqKeys.length) {
     return res.status(500).json({ error: 'No API keys configured in .env' })
   }
 
@@ -112,6 +192,7 @@ The user will provide a descriptive prompt for a city. You must read it and outp
   "density": "high" | "medium" | "low",
   "parkStyle": "central" | "scattered" | "bordering" | "none",
   "roadStyle": "grid" | "organic"
+  "hospitalZone": boolean,
 }
 
 Do NOT output an array. Just output the JSON configuration object.
@@ -122,65 +203,77 @@ Example: {"waterStyle":"coastal_left", "primaryZone":"commercial", "density":"hi
     let modelUsed = ''
 
     // 1. Try OpenRouter (Gemini 2.0 Flash/Pro) - BEST AT LOGIC
-    if (!rawContent && openRouterKey) {
-      try {
-        console.log('Attempting OpenRouter (Gemini 2.0 Flash)')
-        const openai = new OpenAI({ baseURL: "https://openrouter.ai/api/v1", apiKey: openRouterKey })
-        const completion = await openai.chat.completions.create({
-          model: "google/gemini-2.0-flash-exp:free",
-          messages: [
-            { role: "system", content: systemPrompt },
-            { role: "user", content: prompt }
-          ],
-          temperature: 0.1,
-        })
-        rawContent = completion.choices[0].message.content
-        modelUsed = 'openrouter/gemini-2.0'
-      } catch (err) {
-        console.error('OpenRouter Failed:', err.message)
+    if (!rawContent && openRouterKeys.length) {
+      const rotatedOpenRouterKeys = getRotatedKeys('openrouter', openRouterKeys)
+      for (const openRouterKey of rotatedOpenRouterKeys) {
+        try {
+          console.log('Attempting OpenRouter auto-routing with rotated key')
+          const openai = new OpenAI({ baseURL: "https://openrouter.ai/api/v1", apiKey: openRouterKey })
+          const completion = await openai.chat.completions.create({
+            model: "openrouter/auto",
+            messages: [
+              { role: "system", content: systemPrompt },
+              { role: "user", content: prompt }
+            ],
+            temperature: 0.1,
+          })
+          rawContent = completion.choices[0].message.content
+          modelUsed = 'openrouter/auto'
+          break
+        } catch (err) {
+          console.error('OpenRouter key failed:', err.message)
+        }
       }
     }
 
     // 2. Try Native Gemini
-    if (!rawContent && geminiKey) {
-      try {
-        console.log('Attempting Native Google Gemini API')
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key=${geminiKey}`
-        const response = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: systemPrompt + "\n\nUser Prompt: " + prompt }] }],
-            generationConfig: { temperature: 0.1 }
+    if (!rawContent && geminiKeys.length) {
+      const rotatedGeminiKeys = getRotatedKeys('gemini', geminiKeys)
+      for (const geminiKey of rotatedGeminiKeys) {
+        try {
+          console.log('Attempting Native Google Gemini API with rotated key')
+          const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`
+          const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: systemPrompt + "\n\nUser Prompt: " + prompt }] }],
+              generationConfig: { temperature: 0.1 }
+            })
           })
-        })
-        const jsonResponse = await response.json()
-        if (jsonResponse.error) throw new Error(jsonResponse.error.message)
-        rawContent = jsonResponse.candidates?.[0]?.content?.parts?.[0]?.text
-        modelUsed = 'gemini-1.5-pro'
-      } catch (err) {
-        console.error('Native Gemini Failed:', err.message)
+          const jsonResponse = await response.json()
+          if (jsonResponse.error) throw new Error(jsonResponse.error.message)
+          rawContent = jsonResponse.candidates?.[0]?.content?.parts?.[0]?.text
+          modelUsed = 'gemini-1.5-flash'
+          break
+        } catch (err) {
+          console.error('Gemini key failed:', err.message)
+        }
       }
     }
 
     // 3. Try Groq (Llama 3) - FASTEST BUT WEAKER SPATIAL LOGIC
-    if (!rawContent && groqKey) {
-      try {
-        console.log('Attempting Groq Fallback (Llama 3)')
-        const groq = new Groq({ apiKey: groqKey })
-        const completion = await groq.chat.completions.create({
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: prompt },
-          ],
-          model: 'llama-3.3-70b-versatile',
-          temperature: 0.1,
-          response_format: { type: 'json_object' }
-        })
-        rawContent = completion.choices[0]?.message?.content
-        modelUsed = 'groq/llama-3.3-70b'
-      } catch (err) {
-        console.error('Groq Failed:', err.message)
+    if (!rawContent && groqKeys.length) {
+      const rotatedGroqKeys = getRotatedKeys('groq', groqKeys)
+      for (const groqKey of rotatedGroqKeys) {
+        try {
+          console.log('Attempting Groq Fallback (Llama 3) with rotated key')
+          const groq = new Groq({ apiKey: groqKey })
+          const completion = await groq.chat.completions.create({
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: prompt },
+            ],
+            model: 'llama-3.3-70b-versatile',
+            temperature: 0.1,
+            response_format: { type: 'json_object' }
+          })
+          rawContent = completion.choices[0]?.message?.content
+          modelUsed = 'groq/llama-3.3-70b'
+          break
+        } catch (err) {
+          console.error('Groq key failed:', err.message)
+        }
       }
     }
 
@@ -191,8 +284,16 @@ Example: {"waterStyle":"coastal_left", "primaryZone":"commercial", "density":"hi
     // Safely parse JSON
     let config = {}
     try {
-      const cleanedContent = rawContent.replace(/```json/g, '').replace(/```/g, '').trim()
-      config = JSON.parse(cleanedContent)
+        let cleanedContent = rawContent.replace(/```json/g, '').replace(/```/g, '').trim()
+        // Extract JSON object by finding first { and last }
+        const jsonStart = cleanedContent.indexOf('{')
+        const jsonEnd = cleanedContent.lastIndexOf('}')
+      
+        if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
+          cleanedContent = cleanedContent.substring(jsonStart, jsonEnd + 1)
+        }
+      
+        config = JSON.parse(cleanedContent)
     } catch (e) {
       console.error('JSON Parse error', e)
       console.log('Raw output was:', rawContent)
@@ -211,30 +312,70 @@ Example: {"waterStyle":"coastal_left", "primaryZone":"commercial", "density":"hi
       roadStyle: overrides.roadStyle || config.roadStyle || 'grid',
       forestDensity: overrides.forestDensity || 'normal',
       riverScale: overrides.riverScale || 'normal',
+      hospitalZone: overrides.hospitalZone || config.hospitalZone || false,
     })
 
     const grid = engine.generate()
 
-    // Insert into Supabase
-    const { data, error } = await supabase
-      .from('city_layouts')
-      .insert({
-        prompt: prompt,
-        grid: grid,
-        ai_model: modelUsed
+    if (promptRequestsHospital(prompt)) {
+      ensureHospitalInGrid(grid)
+    }
+
+    if (!saveToHistory) {
+      return res.json({
+        id: null,
+        prompt,
+        layoutData: grid,
+        timestamp: Date.now(),
+        ai_model: modelUsed,
+        saved: false,
       })
-      .select()
-      .single()
+    }
 
-    if (error) throw error
+    // Persist in Supabase first; fallback to local history file if DB table is unavailable.
+    let payload = null
 
-    // Return the generated grid and db row info to frontend
-    res.json({
-      id: data.id,
-      prompt: data.prompt,
-      layoutData: data.grid,
-      timestamp: new Date(data.created_at).getTime(),
-    })
+    try {
+      const { data, error } = await supabase
+        .from('city_layouts')
+        .insert({
+          prompt: prompt,
+          grid: grid,
+          ai_model: modelUsed
+        })
+        .select()
+        .single()
+
+      if (error) throw error
+
+      payload = {
+        id: data.id,
+        prompt: data.prompt,
+        layoutData: data.grid,
+        timestamp: new Date(data.created_at).getTime(),
+        saved: true,
+      }
+    } catch (dbError) {
+      console.warn('Supabase insert failed, using local history fallback:', dbError.message || dbError)
+      const fallbackItem = {
+        id: crypto.randomUUID(),
+        prompt,
+        layoutData: grid,
+        timestamp: Date.now(),
+        ai_model: modelUsed,
+      }
+      await addLocalHistoryItem(fallbackItem)
+      payload = {
+        id: fallbackItem.id,
+        prompt: fallbackItem.prompt,
+        layoutData: fallbackItem.layoutData,
+        timestamp: fallbackItem.timestamp,
+        saved: true,
+      }
+    }
+
+    // Return generated grid and persistence result to frontend.
+    res.json(payload)
   } catch (error) {
     console.error('Generation Error:', error)
     res.status(500).json({ error: error.message || 'Failed to generate layout' })

@@ -13,7 +13,8 @@ export class CityGenerator {
       parkStyle: config.parkStyle || 'scattered',
       roadStyle: config.roadStyle || 'grid',
       forestDensity: config.forestDensity || 'normal',
-      riverScale: config.riverScale || 'normal'
+      riverScale: config.riverScale || 'normal',
+      hospitalZone: config.hospitalZone || false
     };
   }
 
@@ -49,6 +50,7 @@ export class CityGenerator {
     this.addStrategicRiverCrossings();
     this.ensureRoadConnectivity();
     this.addCoreZoning();
+    this.addHospitalZone();
     this.addParks();
     this.fillResidential();
     this.enforceZoningRules();
@@ -436,6 +438,76 @@ export class CityGenerator {
     }
   }
 
+  addHospitalZone() {
+    if (!this.config.hospitalZone) return;
+
+    const targetCells = this.config.density === 'high' ? 4 : this.config.density === 'low' ? 2 : 3;
+    const centerX = Math.floor(this.width / 2);
+    const centerY = Math.floor(this.height / 2);
+    const candidates = [];
+
+    for (let y = 0; y < this.height; y++) {
+      for (let x = 0; x < this.width; x++) {
+        if (this.grid[y][x] !== 'empty') continue;
+
+        const adjacentRoad = this.isAdjacentTo(x, y, 'road') ? 1 : 0;
+        if (!adjacentRoad) continue;
+
+        const adjacentResidential = this.isAdjacentTo(x, y, 'residential') ? 1 : 0;
+        const adjacentIndustrial = this.isAdjacentTo(x, y, 'industrial') ? 1 : 0;
+        const adjacentWater = this.isAdjacentTo(x, y, 'water') ? 1 : 0;
+        if (adjacentIndustrial) continue;
+
+        const centerDistance = Math.abs(x - centerX) + Math.abs(y - centerY);
+
+        const score =
+          adjacentRoad * 6 +
+          adjacentResidential * 4 -
+          adjacentIndustrial * 8 -
+          adjacentWater * 3 -
+          centerDistance * 0.35 +
+          Math.random() * 0.25;
+
+        candidates.push({ x, y, score });
+      }
+    }
+
+    if (!candidates.length) {
+      return;
+    }
+
+    candidates.sort((a, b) => b.score - a.score);
+
+    const anchor = candidates[0];
+    const placements = [{ x: anchor.x, y: anchor.y }];
+    const offsets = [
+      [1, 0],
+      [0, 1],
+      [-1, 0],
+      [0, -1],
+      [1, 1],
+      [-1, 1],
+      [1, -1],
+      [-1, -1],
+    ];
+
+    for (const [dx, dy] of offsets) {
+      if (placements.length >= targetCells) break;
+
+      const x = anchor.x + dx;
+      const y = anchor.y + dy;
+      if (x < 0 || x >= this.width || y < 0 || y >= this.height) continue;
+      if (this.grid[y][x] !== 'empty') continue;
+      if (this.isAdjacentTo(x, y, 'industrial')) continue;
+
+      placements.push({ x, y });
+    }
+
+    for (const placement of placements) {
+      this.grid[placement.y][placement.x] = 'hospital';
+    }
+  }
+
   addParks() {
     if (this.config.forestDensity === 'high') {
       this.addDenseForests();
@@ -606,6 +678,24 @@ export class CityGenerator {
     for (const c of conversions) {
       if (this.grid[c.y][c.x] === 'water') continue;
       this.grid[c.y][c.x] = c.replacement;
+    }
+
+    // Keep hospital zones connected to roads and away from industry pressure.
+    for (let y = 0; y < this.height; y++) {
+      for (let x = 0; x < this.width; x++) {
+        if (this.grid[y][x] !== 'hospital') continue;
+
+        if (!this.isAdjacentTo(x, y, 'road')) {
+          const nearestRoad = this.findNearestRoad(x, y);
+          if (nearestRoad) {
+            this.carveRoadPath(x, y, nearestRoad.x, nearestRoad.y);
+          }
+        }
+
+        if (this.isAdjacentTo(x, y, 'industrial')) {
+          this.grid[y][x] = 'park';
+        }
+      }
     }
 
     // Ensure industrial zones always have a road path.
