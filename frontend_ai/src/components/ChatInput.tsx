@@ -1,6 +1,6 @@
 import { useRef, useEffect, useCallback } from 'react'
 import { useStore } from '../store/useStore'
-import { ArrowUp } from 'lucide-react'
+import { ArrowUp, Save } from 'lucide-react'
 
 export function ChatInput() {
   const prompt = useStore((s) => s.prompt)
@@ -25,7 +25,7 @@ export function ChatInput() {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
       if (!isLoading && prompt.trim()) {
-        submitPrompt()
+        submitPrompt(false)
       }
     }
   }
@@ -45,16 +45,24 @@ export function ChatInput() {
           spellCheck={false}
         />
         <button
-          onClick={submitPrompt}
+          onClick={() => submitPrompt(true)}
+          disabled={isLoading || !prompt.trim()}
+          className="chat-save"
+          title="Generate and save"
+        >
+          <Save size={16} strokeWidth={1.8} />
+        </button>
+        <button
+          onClick={() => submitPrompt(false)}
           disabled={isLoading || !prompt.trim()}
           className="chat-submit"
-          title="Generate"
+          title="Generate without saving"
         >
           <ArrowUp size={18} strokeWidth={2} />
         </button>
       </div>
       <p className="chat-hint">
-        Press Enter to generate · Shift+Enter for new line
+        Press Enter to generate only · Use Save button to generate and save
       </p>
     </div>
   )

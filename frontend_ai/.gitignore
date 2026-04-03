@@ -8,9 +8,25 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
+nodemodules
 dist
 dist-ssr
 *.local
+coverage
+.nyc_output
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Build/cache artifacts
+.cache
+.parcel-cache
+.vite
+*.tsbuildinfo
+tmp/
+temp/
 
 # Editor directories and files
 .vscode/*
