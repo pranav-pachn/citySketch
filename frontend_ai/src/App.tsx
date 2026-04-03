@@ -100,57 +100,74 @@ export default function App() {
                   onClick={() => setIsExplanationOpen(false)}
                   className="absolute inset-0 z-[115] bg-black/40 backdrop-blur-sm"
                 />
-                <motion.aside
-                  initial={{ x: 420, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  exit={{ x: 420, opacity: 0 }}
-                  transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                  className="absolute right-0 top-0 z-[120] flex h-full w-[380px] max-w-[92vw] flex-col border-l border-zinc-800 bg-zinc-950/95 p-5 text-white shadow-2xl backdrop-blur-md"
-                >
-                  <div className="mb-6 flex items-start justify-between gap-3">
-                    <div>
-                      <div className="text-[11px] font-semibold uppercase tracking-wider text-blue-400">
-                        Explanation
+                                  <motion.aside
+                    initial={{ x: 420, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    exit={{ x: 420, opacity: 0 }}
+                    transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                    className="absolute right-0 top-0 z-[120] flex h-full w-[400px] max-w-[92vw] flex-col border-l border-zinc-800/80 bg-zinc-950 p-6 text-white shadow-[0_0_40px_-10px_rgba(0,0,0,0.5)] backdrop-blur-xl"
+                  >
+                    <div className="mb-8 flex items-start justify-between gap-3">
+                      <div>
+                        <div className="text-xs font-bold uppercase tracking-widest text-blue-500 mb-1.5 flex items-center gap-2">
+                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                           Explanation
+                        </div>
+                        <div className="text-2xl font-extrabold tracking-tight text-zinc-50">Planning Rationale</div>
                       </div>
-                      <div className="mt-1 text-xl font-bold tracking-tight text-zinc-100">Planning Rationale</div>
+                      <button
+                        type="button"
+                        onClick={() => setIsExplanationOpen(false)}
+                        className="flex h-8 w-8 items-center justify-center rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400 transition-all hover:scale-105 hover:bg-zinc-800 hover:text-zinc-100 focus:outline-none"
+                        aria-label="Close panel"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                      </button>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => setIsExplanationOpen(false)}
-                      className="flex h-8 w-8 items-center justify-center rounded-md text-zinc-400 transition hover:bg-zinc-800 hover:text-zinc-100"
-                      aria-label="Close panel"
-                    >
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                    </button>
-                  </div>
 
-                  <div className="rounded-xl border border-blue-500/20 bg-blue-500/10 p-5 shadow-inner">
-                    <div className="text-[11px] font-semibold uppercase tracking-widest text-blue-300">
-                      Selected Cell Reason
-                    </div>
-                    <div className="mt-3 text-[15px] leading-relaxed text-zinc-100">
-                      {explanation || 'Click a cell to see the planning reason behind that zone.'}
-                    </div>
-                  </div>
+                    <div className="flex flex-1 flex-col gap-5 overflow-y-auto pr-2 pb-6 styled-scrollbar">
+                      <div className="group relative rounded-2xl border border-blue-500/20 bg-gradient-to-br from-blue-500/10 to-blue-900/5 p-5 shadow-lg transition-all hover:bg-blue-500/15">
+                        <div className="absolute top-0 left-0 h-full w-1 rounded-l-2xl bg-blue-500/50"></div>
+                        <div className="flex items-center gap-2.5 mb-2.5">
+                          <div className="h-2 w-2 rounded-full bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.8)]"></div>
+                          <div className="text-[11px] font-bold uppercase tracking-widest text-blue-300">
+                            Selected Cell Reason
+                          </div>
+                        </div>
+                        <div className="text-[15px] font-medium leading-relaxed text-blue-50 pl-4 border-l-2 border-transparent">
+                          {explanation || 'Click a cell to see the planning reason behind that zone.'}
+                        </div>
+                      </div>
 
-                  <div className="mt-4 rounded-xl border border-zinc-800/80 bg-zinc-900/50 p-4">
-                    <div className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
-                      Why This Exists
-                    </div>
-                    <div className="mt-2 text-[13px] leading-relaxed text-zinc-300">
-                      This panel helps users read the city like an urban-planning sketch, translating each zone placement into a simple planning decision.
-                    </div>
-                  </div>
+                      <div className="rounded-2xl border border-zinc-800/60 bg-zinc-900/30 p-5 mt-2 transition-colors hover:bg-zinc-900/50">
+                        <div className="flex items-center gap-2 mb-2">
+                           <div className="text-zinc-500">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                           </div>
+                           <div className="text-[11px] font-bold uppercase tracking-widest text-zinc-400">
+                             Why This Exists
+                           </div>
+                        </div>
+                        <div className="text-[13px] leading-relaxed text-zinc-300 pl-4 border-l-2 border-transparent">
+                          This panel helps users read the city like an <span className="text-zinc-100 font-medium">urban-planning sketch</span>, translating each zone placement into a simple planning decision.
+                        </div>
+                      </div>
 
-                  <div className="mt-4 rounded-xl border border-zinc-800/80 bg-zinc-900/50 p-4">
-                    <div className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
-                      Interaction Hint
+                      <div className="rounded-2xl border border-zinc-800/60 bg-zinc-900/30 p-5 transition-colors hover:bg-zinc-900/50">
+                        <div className="flex items-center gap-2 mb-2">
+                           <div className="text-zinc-500">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 Z"></path></svg>
+                           </div>
+                           <div className="text-[11px] font-bold uppercase tracking-widest text-zinc-400">
+                             Interaction Hint
+                           </div>
+                        </div>
+                        <div className="text-[13px] leading-relaxed text-zinc-400 pl-4 border-l-2 border-transparent">
+                          Click different cells in the <span className="rounded bg-zinc-800 px-1.5 py-0.5 text-xs font-medium text-zinc-200">2D grid</span> to compare why homes, parks, roads, and hospitals were placed where they are.
+                        </div>
+                      </div>
                     </div>
-                    <div className="mt-2 text-[13px] leading-relaxed text-zinc-400">
-                      Click different cells in the 2D grid to compare why homes, parks, roads, and hospitals were placed where they are.
-                    </div>
-                  </div>
-                </motion.aside>
+                  </motion.aside>
               </>
             )}
           </AnimatePresence>
@@ -163,4 +180,5 @@ export default function App() {
     </div>
   )
 }
+
 
