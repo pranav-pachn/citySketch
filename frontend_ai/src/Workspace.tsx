@@ -178,4 +178,6 @@ export default function App() {
       </main>
       <Toasts />
     </div>
+  )
+}
 
