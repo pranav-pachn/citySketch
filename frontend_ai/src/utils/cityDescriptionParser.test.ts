@@ -3,7 +3,7 @@
  * Demonstrates parsing of various natural language inputs
  */
 
-import { parseText, parserUtils } from './cityDescriptionParser';
+import { parseText } from './cityDescriptionParser';
 
 // ============================================================================
 // Test Cases

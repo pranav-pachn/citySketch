@@ -8,16 +8,9 @@ import { CellDetail } from './components/CellDetail'
 import { Toasts } from './components/Toast'
 import { Minimize2 } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { calculateScores } from './utils/scoring.js'
 import { getExplanation } from './utils/explain.js'
 import type { GridCell } from './types'
 import './index.css'
-
-interface CityScores {
-  sustainability?: string
-  traffic?: string
-  walkability?: string
-}
 
 export default function App() {
   const setViewMode = useStore((s) => s.setViewMode)
@@ -28,7 +21,6 @@ export default function App() {
   const isCanvasMaximized = useStore((s) => s.isCanvasMaximized)
   const setCanvasMaximized = useStore((s) => s.setCanvasMaximized)
   const layoutData = useStore((s) => s.layoutData)
-  const [scores, setScores] = useState<CityScores>({})
   const [explanation, setExplanation] = useState('')
   const [isExplanationOpen, setIsExplanationOpen] = useState(false)
 
@@ -40,14 +32,10 @@ export default function App() {
   // Recompute planning metrics whenever a fresh layout arrives or changes.
   useEffect(() => {
     if (!layoutData) {
-      setScores({})
       setExplanation('')
       setIsExplanationOpen(false)
       return
     }
-
-    const newScores = calculateScores(layoutData)
-    setScores(newScores)
   }, [layoutData])
 
   // Keyboard shortcuts
@@ -99,42 +87,6 @@ export default function App() {
               <Minimize2 size={18} />
             </button>
           )}
-          {layoutData && (
-            <div className="absolute bottom-4 left-4 z-[105] w-[340px] max-w-[calc(100%-2rem)]">
-              <div className="rounded-2xl border border-emerald-400/20 bg-[#0f172a]/92 p-4 text-white shadow-2xl backdrop-blur">
-                <div className="mb-3 flex items-start justify-between">
-                  <div>
-                    <div className="text-[11px] uppercase tracking-[0.24em] text-emerald-300/80">
-                      Scoring
-                    </div>
-                    <div className="mt-1 text-lg font-semibold">Urban Metrics</div>
-                  </div>
-                  <div className="rounded-full border border-emerald-400/30 bg-emerald-400/10 px-2 py-1 text-[10px] uppercase tracking-[0.2em] text-emerald-200">
-                    Live
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-3 gap-2 text-sm">
-                  <div className="rounded-xl border border-white/8 bg-white/5 p-3">
-                    <div className="text-[11px] uppercase tracking-wide text-zinc-400">Sustainability</div>
-                    <div className="mt-1 text-lg font-semibold">{scores.sustainability ?? '0.00'}</div>
-                  </div>
-                  <div className="rounded-xl border border-white/8 bg-white/5 p-3">
-                    <div className="text-[11px] uppercase tracking-wide text-zinc-400">Traffic</div>
-                    <div className="mt-1 text-lg font-semibold">{scores.traffic ?? '0.00'}</div>
-                  </div>
-                  <div className="rounded-xl border border-white/8 bg-white/5 p-3">
-                    <div className="text-[11px] uppercase tracking-wide text-zinc-400">Walkability</div>
-                    <div className="mt-1 text-lg font-semibold">{scores.walkability ?? 'Low'}</div>
-                  </div>
-                </div>
-
-                <div className="mt-3 text-xs leading-5 text-zinc-300">
-                  Evaluates the layout as an urban-planning system using park coverage, road density, and residential access to green space.
-                </div>
-              </div>
-            </div>
-          )}
           <AnimatePresence>
             {layoutData && isExplanationOpen && (
               <>
@@ -146,54 +98,55 @@ export default function App() {
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.2 }}
                   onClick={() => setIsExplanationOpen(false)}
-                  className="absolute inset-0 z-[115] bg-black/35 backdrop-blur-[1px]"
+                  className="absolute inset-0 z-[115] bg-black/40 backdrop-blur-sm"
                 />
                 <motion.aside
                   initial={{ x: 420, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
                   exit={{ x: 420, opacity: 0 }}
-                  transition={{ type: 'spring', stiffness: 260, damping: 26 }}
-                  className="absolute right-0 top-0 z-[120] flex h-full w-[380px] max-w-[92vw] flex-col border-l border-cyan-400/20 bg-[#0b1220]/96 p-5 text-white shadow-[0_0_40px_rgba(0,0,0,0.45)] backdrop-blur-xl"
+                  transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                  className="absolute right-0 top-0 z-[120] flex h-full w-[380px] max-w-[92vw] flex-col border-l border-zinc-800 bg-zinc-950/95 p-5 text-white shadow-2xl backdrop-blur-md"
                 >
-                  <div className="mb-4 flex items-start justify-between gap-3">
+                  <div className="mb-6 flex items-start justify-between gap-3">
                     <div>
-                      <div className="text-[11px] uppercase tracking-[0.24em] text-cyan-300/80">
+                      <div className="text-[11px] font-semibold uppercase tracking-wider text-blue-400">
                         Explanation
                       </div>
-                      <div className="mt-1 text-xl font-semibold">Planning Rationale</div>
+                      <div className="mt-1 text-xl font-bold tracking-tight text-zinc-100">Planning Rationale</div>
                     </div>
                     <button
                       type="button"
                       onClick={() => setIsExplanationOpen(false)}
-                      className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs uppercase tracking-[0.2em] text-zinc-200 transition hover:bg-white/10"
+                      className="flex h-8 w-8 items-center justify-center rounded-md text-zinc-400 transition hover:bg-zinc-800 hover:text-zinc-100"
+                      aria-label="Close panel"
                     >
-                      Close
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                     </button>
                   </div>
 
-                  <div className="rounded-2xl border border-cyan-400/20 bg-cyan-400/8 p-4">
-                    <div className="text-[11px] uppercase tracking-wide text-cyan-200/80">
+                  <div className="rounded-xl border border-blue-500/20 bg-blue-500/10 p-5 shadow-inner">
+                    <div className="text-[11px] font-semibold uppercase tracking-widest text-blue-300">
                       Selected Cell Reason
                     </div>
-                    <div className="mt-2 text-base leading-7 text-white">
+                    <div className="mt-3 text-[15px] leading-relaxed text-zinc-100">
                       {explanation || 'Click a cell to see the planning reason behind that zone.'}
                     </div>
                   </div>
 
-                  <div className="mt-4 rounded-2xl border border-white/8 bg-white/5 p-4">
-                    <div className="text-[11px] uppercase tracking-wide text-zinc-400">
+                  <div className="mt-4 rounded-xl border border-zinc-800/80 bg-zinc-900/50 p-4">
+                    <div className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
                       Why This Exists
                     </div>
-                    <div className="mt-2 text-sm leading-6 text-zinc-200">
+                    <div className="mt-2 text-[13px] leading-relaxed text-zinc-300">
                       This panel helps users read the city like an urban-planning sketch, translating each zone placement into a simple planning decision.
                     </div>
                   </div>
 
-                  <div className="mt-4 rounded-2xl border border-white/8 bg-black/20 p-4">
-                    <div className="text-[11px] uppercase tracking-wide text-zinc-400">
+                  <div className="mt-4 rounded-xl border border-zinc-800/80 bg-zinc-900/50 p-4">
+                    <div className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
                       Interaction Hint
                     </div>
-                    <div className="mt-2 text-sm leading-6 text-zinc-300">
+                    <div className="mt-2 text-[13px] leading-relaxed text-zinc-400">
                       Click different cells in the 2D grid to compare why homes, parks, roads, and hospitals were placed where they are.
                     </div>
                   </div>
@@ -210,3 +163,4 @@ export default function App() {
     </div>
   )
 }
+

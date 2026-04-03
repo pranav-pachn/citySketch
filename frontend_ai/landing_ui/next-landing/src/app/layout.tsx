@@ -13,8 +13,8 @@ const unbounded = Unbounded({
 });
 
 export const metadata: Metadata = {
-  title: "Sketch.ai Landing",
-  description: "Premium landing page for Sketch.ai built with Next.js, Tailwind, shadcn/ui, motion, and 3D visuals.",
+  title: "CitySketch Landing",
+  description: "Premium landing page for CitySketch built with Next.js, Tailwind, shadcn/ui, motion, and 3D visuals.",
 };
 
 export default function RootLayout({

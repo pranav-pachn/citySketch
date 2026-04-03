@@ -237,9 +237,9 @@ export function LandingPage() {
 
             <div className="connection-pill hidden lg:flex">
               <span className={cn("status-dot", integration?.frontend.connected && "online")} />
-              <span>frontend_ai</span>
+              <span>App</span>
               <span className={cn("status-dot", integration?.backend.connected && "online")} />
-              <span>backend_ai</span>
+              <span>API</span>
             </div>
 
             <Tooltip>
@@ -250,7 +250,7 @@ export function LandingPage() {
                   </a>
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>Open frontend_ai workspace</TooltipContent>
+              <TooltipContent>Open CitySketch workspace</TooltipContent>
             </Tooltip>
           </div>
         </header>
@@ -284,7 +284,7 @@ export function LandingPage() {
                 transition={{ delay: 0.16 }}
                 className="hero-sub"
               >
-                Sketch.ai transforms language into coherent urban structure with road logic, zoning realism,
+                CitySketch transforms language into coherent urban structure with road logic, zoning realism,
                 water constraints, and export-ready artifacts in minutes.
               </motion.p>
 
@@ -517,7 +517,7 @@ export function LandingPage() {
 
                 <div className="access-trust">
                   <ShieldCheck size={14} />
-                  frontend_ai {integration?.frontend.connected ? "online" : "offline"} · backend_ai {integration?.backend.connected ? "online" : "offline"}
+                  System {integration?.frontend.connected && integration?.backend.connected ? "online" : "checking status..."}
                 </div>
               </CardContent>
             </Card>
@@ -525,7 +525,7 @@ export function LandingPage() {
         </main>
 
         <footer className="footer-shell gs-reveal">
-          <p>Sketch.ai</p>
+          <p>CitySketch</p>
           <p>Spatial intelligence for urban futures</p>
         </footer>
       </div>
