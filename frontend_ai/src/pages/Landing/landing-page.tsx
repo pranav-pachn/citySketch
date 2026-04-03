@@ -1,6 +1,5 @@
-"use client";
-
 import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -17,7 +16,7 @@ import {
   WandSparkles,
 } from "lucide-react";
 
-import { HeroScene } from "@/components/hero-scene";
+import { HeroScene } from "./hero-scene";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -81,8 +80,7 @@ const pipeline = [
   },
 ];
 
-const WORKSPACE_URL =
-  process.env.NEXT_PUBLIC_FRONTEND_APP_URL ?? "http://localhost:5173";
+// Using react-router-dom Link instead of WORKSPACE_URL
 
 type ServiceStatus = {
   url: string;
@@ -245,9 +243,9 @@ export function LandingPage() {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button variant="outline" className="request-btn" asChild>
-                  <a href={WORKSPACE_URL} target="_blank" rel="noreferrer">
+                  <Link to="/app">
                     Generate layouts
-                  </a>
+                  </Link>
                 </Button>
               </TooltipTrigger>
               <TooltipContent>Open frontend_ai workspace</TooltipContent>
@@ -296,10 +294,10 @@ export function LandingPage() {
                 className="hero-actions"
               >
                 <Button size="lg" asChild>
-                  <a href={WORKSPACE_URL} target="_blank" rel="noreferrer">
+                  <Link to="/app">
                     Launch studio
                     <ArrowRight size={16} />
-                  </a>
+                  </Link>
                 </Button>
                 <Button size="lg" variant="outline" asChild>
                   <a href="#engine">See engine logic</a>
@@ -506,10 +504,10 @@ export function LandingPage() {
               </CardHeader>
               <CardContent className="flex flex-wrap items-center gap-3">
                 <Button size="lg" asChild>
-                  <a href={WORKSPACE_URL} target="_blank" rel="noreferrer">
+                  <Link to="/app">
                     Start building
                     <ArrowRight size={16} />
-                  </a>
+                  </Link>
                 </Button>
                 <Button size="lg" variant="outline" asChild>
                   <a href="#product">View product map</a>
