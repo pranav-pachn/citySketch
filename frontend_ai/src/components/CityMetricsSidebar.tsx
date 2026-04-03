@@ -22,6 +22,7 @@ export function CityMetricsSidebar() {
     const counts = {
       residential: 0,
       commercial: 0,
+      hospital: 0,
       industrial: 0,
       park: 0,
       road: 0,
@@ -48,7 +49,7 @@ export function CityMetricsSidebar() {
     // Walkability Score: Ratio of amenities (park + commercial) to residential
     // Base 40, up to +60 based on ratio
     const amenityRatio = counts.residential > 0 
-      ? (counts.park + counts.commercial) / counts.residential 
+      ? (counts.park + counts.commercial + counts.hospital) / counts.residential 
       : 1
     const walkabilityRaw = 40 + (Math.min(amenityRatio, 1.5) / 1.5) * 60
     const walkability = Math.round(Math.max(0, Math.min(100, walkabilityRaw)))
@@ -75,6 +76,7 @@ export function CityMetricsSidebar() {
     switch(type) {
       case 'residential': return 'bg-blue-500'
       case 'commercial': return 'bg-amber-500'
+      case 'hospital': return 'bg-red-500'
       case 'industrial': return 'bg-purple-500'
       case 'park': return 'bg-emerald-500'
       case 'road': return 'bg-zinc-500'

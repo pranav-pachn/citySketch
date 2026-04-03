@@ -3,7 +3,7 @@ export type ViewMode = '2D' | '3D' | 'CODE'
 export interface GridCell {
   x: number
   y: number
-  type: 'road' | 'residential' | 'commercial' | 'park' | 'industrial' | 'water' | 'empty'
+  type: 'road' | 'residential' | 'commercial' | 'park' | 'hospital' | 'industrial' | 'water' | 'empty'
   label?: string
   elevation?: number
 }

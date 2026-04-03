@@ -1,7 +1,7 @@
 import { useStore } from '../store/useStore'
 import { motion } from 'framer-motion'
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch'
-import { Building2, Home, Trees, Waves, Factory, Route } from 'lucide-react'
+import { Building2, Home, Trees, Waves, Factory, Route, Stethoscope } from 'lucide-react'
 import type { GridCell } from '../types'
 
 const CELL_STYLES: Record<GridCell['type'], { color: string, icon: any, label: string }> = {
@@ -9,13 +9,19 @@ const CELL_STYLES: Record<GridCell['type'], { color: string, icon: any, label: s
   residential: { color: '#3b82f6', icon: Home, label: 'RES' },
   commercial: { color: '#f59e0b', icon: Building2, label: 'COM' },
   park: { color: '#22c55e', icon: Trees, label: 'PRK' },
+  hospital: { color: '#ef4444', icon: Stethoscope, label: 'HSP' },
   industrial: { color: '#a855f7', icon: Factory, label: 'IND' },
   water: { color: '#06b6d4', icon: Waves, label: 'H2O' },
   empty: { color: '#27272a', icon: null, label: '' },
 }
 
-export function Grid2D() {
+interface Grid2DProps {
+  onCellExplain?: (cellType: GridCell['type']) => void
+}
+
+export function Grid2D({ onCellExplain }: Grid2DProps) {
   const layoutData = useStore((s) => s.layoutData)
+  const generationId = useStore((s) => s.generationId)
   const selectedCell = useStore((s) => s.selectedCell)
   const setSelectedCell = useStore((s) => s.setSelectedCell)
   const hoveredCell = useStore((s) => s.hoveredCell)
@@ -57,13 +63,19 @@ export function Grid2D() {
               const style = CELL_STYLES[cell.type]
               const Icon = style.icon
 
+              const shouldAnimate = generationId > 0
+              const revealDelay = shouldAnimate ? Math.min(i * 0.015, 0.9) : 0
+
               return (
                 <motion.div
-                  key={`${cell.x}-${cell.y}`}
-                  initial={{ opacity: 0, scale: 0.9 }}
+                  key={`${cell.x}-${cell.y}-${generationId}`}
+                  initial={shouldAnimate ? { opacity: 0, scale: 0.75, y: 8 } : false}
                   animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.3, delay: i * 0.002 }}
-                  onClick={() => setSelectedCell(isSelected ? null : cell)}
+                  transition={{ duration: 0.3, delay: revealDelay, ease: 'easeOut' }}
+                  onClick={() => {
+                    setSelectedCell(isSelected ? null : cell)
+                    onCellExplain?.(cell.type)
+                  }}
                   onMouseEnter={() => setHoveredCell(cell)}
                   onMouseLeave={() => setHoveredCell(null)}
                   className={`blueprint-cell ${isSelected ? 'selected' : ''}`}
@@ -100,17 +112,18 @@ export function Grid2D() {
 
       {/* Blueprint Legend Floating */}
       <div className="blueprint-legend">
-        {Object.entries(CELL_STYLES)
-          .filter(([type]) => type !== 'empty')
-          .map(([type, style]) => {
-            const Icon = style.icon
-            return (
-               <div key={type} className="legend-item-bp">
-                 {Icon && <Icon size={14} color={style.color} strokeWidth={2} />}
-                 <span className="legend-label-bp">{type}</span>
-               </div>
-            )
-          })}
+        <div className="legend-item-bp">
+          <span className="zone-pick-swatch" style={{ backgroundColor: CELL_STYLES.park.color }} />
+          <span className="legend-label-bp">Green = Park</span>
+        </div>
+        <div className="legend-item-bp">
+          <span className="zone-pick-swatch" style={{ backgroundColor: CELL_STYLES.residential.color }} />
+          <span className="legend-label-bp">Blue = Residential</span>
+        </div>
+        <div className="legend-item-bp">
+          <span className="zone-pick-swatch" style={{ backgroundColor: CELL_STYLES.hospital.color }} />
+          <span className="legend-label-bp">Red = Hospital</span>
+        </div>
       </div>
     </motion.div>
   )

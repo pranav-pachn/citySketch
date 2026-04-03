@@ -37,6 +37,7 @@ interface AppState {
   // Loading
   isLoading: boolean
   setIsLoading: (loading: boolean) => void
+  generationId: number
 
   // History
   history: HistoryItem[]
@@ -56,7 +57,8 @@ interface AppState {
   updateCellType: (x: number, y: number, type: GridCell['type']) => void
 
   // Actions
-  submitPrompt: () => Promise<void>
+  submitPrompt: (saveToHistory?: boolean) => Promise<void>
+  saveCurrentLayout: () => Promise<void>
   newSession: () => void
   fetchHistory: () => Promise<void>
   isNightMode: boolean
@@ -94,6 +96,7 @@ export const useStore = create<AppState>((set, get) => ({
 
   isLoading: false,
   setIsLoading: (loading) => set({ isLoading: loading }),
+  generationId: 0,
 
   history: [],
   activeHistoryId: null,
@@ -157,7 +160,7 @@ export const useStore = create<AppState>((set, get) => ({
     set({ layoutData: newData, history: newHistory, selectedCell: { x, y, type } })
   },
 
-  submitPrompt: async () => {
+  submitPrompt: async (saveToHistory = false) => {
     const { prompt, setIsLoading, addHistory, setActiveHistoryId, setLayoutData, addToast } = get()
     if (!prompt.trim()) return
 
@@ -167,7 +170,7 @@ export const useStore = create<AppState>((set, get) => ({
       const res = await fetch('http://localhost:3001/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt }),
+        body: JSON.stringify({ prompt, saveToHistory }),
       })
 
       if (!res.ok) {
@@ -177,14 +180,60 @@ export const useStore = create<AppState>((set, get) => ({
       const data = await res.json()
 
       setLayoutData(data.layoutData)
-      addHistory(data)
-      setActiveHistoryId(data.id)
-      set({ prompt: '', isLoading: false, selectedCell: null, detailOpen: false })
-      addToast('Layout generated')
+      if (saveToHistory && data?.id) {
+        addHistory(data)
+        setActiveHistoryId(data.id)
+      } else {
+        setActiveHistoryId(null)
+      }
+      set((state) => ({
+        prompt: '',
+        isLoading: false,
+        selectedCell: null,
+        detailOpen: false,
+        generationId: state.generationId + 1,
+      }))
+      addToast(saveToHistory ? 'Layout generated and saved' : 'Layout generated (not saved)')
     } catch (error) {
       console.error('Generation failed:', error)
       set({ isLoading: false })
       addToast('AI Generation Failed. Try again.', 'info')
+    }
+  },
+
+  saveCurrentLayout: async () => {
+    const { layoutData, prompt, activeHistoryId, history, addHistory, setActiveHistoryId, addToast } = get()
+
+    if (!layoutData) {
+      addToast('Nothing to save yet', 'info')
+      return
+    }
+
+    const activeItem = history.find((h) => h.id === activeHistoryId)
+    const promptForSave = prompt.trim() || activeItem?.prompt || `Manual save ${new Date().toLocaleString()}`
+
+    try {
+      const res = await fetch('http://localhost:3001/api/history', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: promptForSave,
+          layoutData,
+          ai_model: 'manual',
+        }),
+      })
+
+      if (!res.ok) {
+        throw new Error('Failed to save history snapshot')
+      }
+
+      const saved = await res.json()
+      addHistory(saved)
+      setActiveHistoryId(saved.id)
+      addToast('Layout saved to history')
+    } catch (error) {
+      console.error('Failed to save layout snapshot', error)
+      addToast('History save failed', 'info')
     }
   },
 

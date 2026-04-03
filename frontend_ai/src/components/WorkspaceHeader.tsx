@@ -1,5 +1,5 @@
 import { useStore } from '../store/useStore'
-import { Grid3X3, Box, Code, Maximize2, Copy, Download, Moon, Sun, Minimize2 } from 'lucide-react'
+import { Grid3X3, Box, Code, Maximize2, Copy, Download, Moon, Sun, Minimize2, Save } from 'lucide-react'
 import type { ViewMode } from '../types'
 
 const viewOptions: { id: ViewMode; label: string; icon: React.ReactNode }[] = [
@@ -19,6 +19,7 @@ export function WorkspaceHeader() {
   const setNightMode = useStore((s) => s.setNightMode)
   const isCanvasMaximized = useStore((s) => s.isCanvasMaximized)
   const setCanvasMaximized = useStore((s) => s.setCanvasMaximized)
+  const saveCurrentLayout = useStore((s) => s.saveCurrentLayout)
 
   const activeItem = history.find((h) => h.id === activeHistoryId)
   const title = activeItem
@@ -71,6 +72,9 @@ export function WorkspaceHeader() {
           <div className="workspace-utils">
             <button className="util-btn" onClick={handleCopyJSON} title="Copy JSON">
               <Copy size={15} strokeWidth={1.5} />
+            </button>
+            <button className="util-btn" onClick={saveCurrentLayout} title="Save to history">
+              <Save size={15} strokeWidth={1.5} />
             </button>
             <button className="util-btn" onClick={handleExportJSON} title="Export JSON">
               <Download size={15} strokeWidth={1.5} />

@@ -5,6 +5,11 @@ import { Scene3D } from './Scene3D'
 import { CodeView } from './CodeView'
 import { Sparkles } from 'lucide-react'
 import { CityMetricsSidebar } from './CityMetricsSidebar'
+import type { GridCell } from '../types'
+
+interface CanvasProps {
+  onCellExplain?: (cellType: GridCell['type']) => void
+}
 
 function LoadingSkeleton() {
   return (
@@ -24,7 +29,7 @@ function LoadingSkeleton() {
   )
 }
 
-export function Canvas() {
+export function Canvas({ onCellExplain }: CanvasProps) {
   const viewMode = useStore((s) => s.viewMode)
   const layoutData = useStore((s) => s.layoutData)
   const isLoading = useStore((s) => s.isLoading)
@@ -66,7 +71,7 @@ export function Canvas() {
             transition={{ duration: 0.15 }}
             className="canvas-content"
           >
-            {viewMode === '2D' && <Grid2D />}
+            {viewMode === '2D' && <Grid2D onCellExplain={onCellExplain} />}
             {viewMode === '3D' && <Scene3D />}
             {viewMode === 'CODE' && <CodeView />}
             

@@ -1,0 +1,1833 @@
+[
+  {
+    "id": "f364701e-10e7-4290-89e6-f30b664fbbe1",
+    "prompt": "Test save",
+    "layoutData": [
+      [
+        {
+          "x": 0,
+          "y": 0,
+          "type": "park",
+          "elevation": 0.1
+        }
+      ]
+    ],
+    "timestamp": 1775204868590,
+    "ai_model": "test"
+  },
+  {
+    "id": "4ef22cfb-ae9e-43cf-9c4e-96ee90d9d107",
+    "prompt": "test save",
+    "layoutData": [
+      [
+        {
+          "x": 0,
+          "y": 0,
+          "type": "residential",
+          "elevation": 0.0103920315293083
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "type": "empty",
+          "elevation": 0.018305326874057015
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "type": "empty",
+          "elevation": 0.04995136017206795
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "type": "empty",
+          "elevation": 0.038132163166830185
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "type": "empty",
+          "elevation": 0.0270961446287184
+        },
+        {
+          "x": 5,
+          "y": 0,
+          "type": "empty",
+          "elevation": 0.02418129561203243
+        },
+        {
+          "x": 6,
+          "y": 0,
+          "type": "empty",
+          "elevation": 0.04068431335548294
+        },
+        {
+          "x": 7,
+          "y": 0,
+          "type": "road",
+          "elevation": 0.05
+        },
+        {
+          "x": 8,
+          "y": 0,
+          "type": "residential",
+          "elevation": 0.03335758450643589
+        },
+        {
+          "x": 9,
+          "y": 0,
+          "type": "empty",
+          "elevation": 0.025944614371283883
+        },
+        {
+          "x": 10,
+          "y": 0,
+          "type": "empty",
+          "elevation": 0.005545104725061623
+        },
+        {
+          "x": 11,
+          "y": 0,
+          "type": "empty",
+          "elevation": 0.03761307206354567
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 1,
+          "type": "empty",
+          "elevation": 0.03429161578851366
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "type": "empty",
+          "elevation": 0.1809742685771312
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "type": "empty",
+          "elevation": 0.18263405314811526
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "type": "empty",
+          "elevation": 0.1502955270934572
+        },
+        {
+          "x": 4,
+          "y": 1,
+          "type": "empty",
+          "elevation": 0.18726393637184774
+        },
+        {
+          "x": 5,
+          "y": 1,
+          "type": "empty",
+          "elevation": 0.17375926242495376
+        },
+        {
+          "x": 6,
+          "y": 1,
+          "type": "road",
+          "elevation": 0.075
+        },
+        {
+          "x": 7,
+          "y": 1,
+          "type": "road",
+          "elevation": 0.075
+        },
+        {
+          "x": 8,
+          "y": 1,
+          "type": "residential",
+          "elevation": 0.1844898728648193
+        },
+        {
+          "x": 9,
+          "y": 1,
+          "type": "residential",
+          "elevation": 0.1765475053077414
+        },
+        {
+          "x": 10,
+          "y": 1,
+          "type": "residential",
+          "elevation": 0.1645556777247041
+        },
+        {
+          "x": 11,
+          "y": 1,
+          "type": "residential",
+          "elevation": 0.003954701715504938
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 2,
+          "type": "empty",
+          "elevation": 0.02051571737279988
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "type": "residential",
+          "elevation": 0.16188331399774322
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "type": "empty",
+          "elevation": 0.3010537881572406
+        },
+        {
+          "x": 3,
+          "y": 2,
+          "type": "empty",
+          "elevation": 0.3068881100733921
+        },
+        {
+          "x": 4,
+          "y": 2,
+          "type": "residential",
+          "elevation": 0.3217935042852698
+        },
+        {
+          "x": 5,
+          "y": 2,
+          "type": "empty",
+          "elevation": 0.33081696520321324
+        },
+        {
+          "x": 6,
+          "y": 2,
+          "type": "road",
+          "elevation": 0.15
+        },
+        {
+          "x": 7,
+          "y": 2,
+          "type": "empty",
+          "elevation": 0.31697929288949617
+        },
+        {
+          "x": 8,
+          "y": 2,
+          "type": "residential",
+          "elevation": 0.31386683317474406
+        },
+        {
+          "x": 9,
+          "y": 2,
+          "type": "residential",
+          "elevation": 0.31316833690476387
+        },
+        {
+          "x": 10,
+          "y": 2,
+          "type": "empty",
+          "elevation": 0.17392947373658585
+        },
+        {
+          "x": 11,
+          "y": 2,
+          "type": "empty",
+          "elevation": 0.04817884450932978
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 3,
+          "type": "road",
+          "elevation": 0.05
+        },
+        {
+          "x": 1,
+          "y": 3,
+          "type": "road",
+          "elevation": 0.075
+        },
+        {
+          "x": 2,
+          "y": 3,
+          "type": "road",
+          "elevation": 0.15
+        },
+        {
+          "x": 3,
+          "y": 3,
+          "type": "road",
+          "elevation": 0.22499999999999998
+        },
+        {
+          "x": 4,
+          "y": 3,
+          "type": "road",
+          "elevation": 0.22499999999999998
+        },
+        {
+          "x": 5,
+          "y": 3,
+          "type": "road",
+          "elevation": 0.22499999999999998
+        },
+        {
+          "x": 6,
+          "y": 3,
+          "type": "road",
+          "elevation": 0.22499999999999998
+        },
+        {
+          "x": 7,
+          "y": 3,
+          "type": "residential",
+          "elevation": 0.4900430992519559
+        },
+        {
+          "x": 8,
+          "y": 3,
+          "type": "empty",
+          "elevation": 0.4979153919726767
+        },
+        {
+          "x": 9,
+          "y": 3,
+          "type": "road",
+          "elevation": 0.15
+        },
+        {
+          "x": 10,
+          "y": 3,
+          "type": "road",
+          "elevation": 0.075
+        },
+        {
+          "x": 11,
+          "y": 3,
+          "type": "road",
+          "elevation": 0.05
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 4,
+          "type": "road",
+          "elevation": 0.05
+        },
+        {
+          "x": 1,
+          "y": 4,
+          "type": "empty",
+          "elevation": 0.16309083987294598
+        },
+        {
+          "x": 2,
+          "y": 4,
+          "type": "empty",
+          "elevation": 0.3181865248429216
+        },
+        {
+          "x": 3,
+          "y": 4,
+          "type": "empty",
+          "elevation": 0.4685365024874052
+        },
+        {
+          "x": 4,
+          "y": 4,
+          "type": "road",
+          "elevation": 0.22499999999999998
+        },
+        {
+          "x": 5,
+          "y": 4,
+          "type": "road",
+          "elevation": 0.22499999999999998
+        },
+        {
+          "x": 6,
+          "y": 4,
+          "type": "residential",
+          "elevation": 0.4786872301503279
+        },
+        {
+          "x": 7,
+          "y": 4,
+          "type": "residential",
+          "elevation": 0.4876955452616069
+        },
+        {
+          "x": 8,
+          "y": 4,
+          "type": "road",
+          "elevation": 0.22499999999999998
+        },
+        {
+          "x": 9,
+          "y": 4,
+          "type": "road",
+          "elevation": 0.15
+        },
+        {
+          "x": 10,
+          "y": 4,
+          "type": "residential",
+          "elevation": 0.1836142718786899
+        },
+        {
+          "x": 11,
+          "y": 4,
+          "type": "residential",
+          "elevation": 0.04505982724206643
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 5,
+          "type": "empty",
+          "elevation": 0.04706290202087507
+        },
+        {
+          "x": 1,
+          "y": 5,
+          "type": "empty",
+          "elevation": 0.1871851483390636
+        },
+        {
+          "x": 2,
+          "y": 5,
+          "type": "empty",
+          "elevation": 0.333557414386212
+        },
+        {
+          "x": 3,
+          "y": 5,
+          "type": "empty",
+          "elevation": 0.3361285905653358
+        },
+        {
+          "x": 4,
+          "y": 5,
+          "type": "residential",
+          "elevation": 0.31444432350966434
+        },
+        {
+          "x": 5,
+          "y": 5,
+          "type": "road",
+          "elevation": 0.15
+        },
+        {
+          "x": 6,
+          "y": 5,
+          "type": "road",
+          "elevation": 0.15
+        },
+        {
+          "x": 7,
+          "y": 5,
+          "type": "road",
+          "elevation": 0.15
+        },
+        {
+          "x": 8,
+          "y": 5,
+          "type": "road",
+          "elevation": 0.15
+        },
+        {
+          "x": 9,
+          "y": 5,
+          "type": "empty",
+          "elevation": 0.3117773461449093
+        },
+        {
+          "x": 10,
+          "y": 5,
+          "type": "empty",
+          "elevation": 0.1688144808151285
+        },
+        {
+          "x": 11,
+          "y": 5,
+          "type": "empty",
+          "elevation": 0.04858889367588152
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 6,
+          "type": "residential",
+          "elevation": 0.042957981009683115
+        },
+        {
+          "x": 1,
+          "y": 6,
+          "type": "empty",
+          "elevation": 0.1900195773649023
+        },
+        {
+          "x": 2,
+          "y": 6,
+          "type": "empty",
+          "elevation": 0.1561336698112523
+        },
+        {
+          "x": 3,
+          "y": 6,
+          "type": "empty",
+          "elevation": 0.15508469216374635
+        },
+        {
+          "x": 4,
+          "y": 6,
+          "type": "empty",
+          "elevation": 0.19058464641311895
+        },
+        {
+          "x": 5,
+          "y": 6,
+          "type": "residential",
+          "elevation": 0.15379960999633344
+        },
+        {
+          "x": 6,
+          "y": 6,
+          "type": "road",
+          "elevation": 0.075
+        },
+        {
+          "x": 7,
+          "y": 6,
+          "type": "road",
+          "elevation": 0.075
+        },
+        {
+          "x": 8,
+          "y": 6,
+          "type": "empty",
+          "elevation": 0.19708637105452456
+        },
+        {
+          "x": 9,
+          "y": 6,
+          "type": "empty",
+          "elevation": 0.18469696239983635
+        },
+        {
+          "x": 10,
+          "y": 6,
+          "type": "empty",
+          "elevation": 0.15474685041689548
+        },
+        {
+          "x": 11,
+          "y": 6,
+          "type": "empty",
+          "elevation": 0.04512804930324225
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 7,
+          "type": "empty",
+          "elevation": 0.014625857529056974
+        },
+        {
+          "x": 1,
+          "y": 7,
+          "type": "empty",
+          "elevation": 0.013886481033593424
+        },
+        {
+          "x": 2,
+          "y": 7,
+          "type": "empty",
+          "elevation": 0.04588241519103051
+        },
+        {
+          "x": 3,
+          "y": 7,
+          "type": "residential",
+          "elevation": 0.02513187633296443
+        },
+        {
+          "x": 4,
+          "y": 7,
+          "type": "residential",
+          "elevation": 0.04933224671575109
+        },
+        {
+          "x": 5,
+          "y": 7,
+          "type": "empty",
+          "elevation": 0.04947396222184051
+        },
+        {
+          "x": 6,
+          "y": 7,
+          "type": "empty",
+          "elevation": 0.005934596800293246
+        },
+        {
+          "x": 7,
+          "y": 7,
+          "type": "road",
+          "elevation": 0.05
+        },
+        {
+          "x": 8,
+          "y": 7,
+          "type": "residential",
+          "elevation": 0.04895605504386985
+        },
+        {
+          "x": 9,
+          "y": 7,
+          "type": "empty",
+          "elevation": 0.0024991804747505953
+        },
+        {
+          "x": 10,
+          "y": 7,
+          "type": "empty",
+          "elevation": 0.015258286717583626
+        },
+        {
+          "x": 11,
+          "y": 7,
+          "type": "empty",
+          "elevation": 0.04559141797302379
+        }
+      ]
+    ],
+    "timestamp": 1775199634320,
+    "ai_model": "openrouter/auto"
+  },
+  {
+    "id": "a140f064-7f33-4a6a-b564-61e66d66341a",
+    "prompt": "Manual QA Save",
+    "layoutData": [
+      [
+        {
+          "x": 0,
+          "y": 0,
+          "type": "road"
+        }
+      ]
+    ],
+    "timestamp": 1775199375082,
+    "ai_model": "manual"
+  },
+  {
+    "id": "c4bc4e29-bad7-4307-a364-e5d8f2bbd013",
+    "prompt": "Design a 10-acre city with park, hospital, and low traffic",
+    "layoutData": [
+      [
+        {
+          "x": 0,
+          "y": 0,
+          "type": "park",
+          "elevation": 0.03240079435692785
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "type": "empty",
+          "elevation": 0.022491131071185833
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "type": "empty",
+          "elevation": 0.04635107655948856
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "type": "empty",
+          "elevation": 0.01146095778900056
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "type": "empty",
+          "elevation": 0.008554965169065976
+        },
+        {
+          "x": 5,
+          "y": 0,
+          "type": "empty",
+          "elevation": 0.04930592731265968
+        },
+        {
+          "x": 6,
+          "y": 0,
+          "type": "empty",
+          "elevation": 0.0069420394535030135
+        },
+        {
+          "x": 7,
+          "y": 0,
+          "type": "road",
+          "elevation": 0.05
+        },
+        {
+          "x": 8,
+          "y": 0,
+          "type": "empty",
+          "elevation": 0.005016921608237468
+        },
+        {
+          "x": 9,
+          "y": 0,
+          "type": "empty",
+          "elevation": 0.041391390044764845
+        },
+        {
+          "x": 10,
+          "y": 0,
+          "type": "empty",
+          "elevation": 0.0023539112486527184
+        },
+        {
+          "x": 11,
+          "y": 0,
+          "type": "empty",
+          "elevation": 0.036296280618259895
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 1,
+          "type": "empty",
+          "elevation": 0.046874566984857036
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "type": "empty",
+          "elevation": 0.19185972512890653
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "type": "empty",
+          "elevation": 0.18874973058219405
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "type": "empty",
+          "elevation": 0.19875420978033892
+        },
+        {
+          "x": 4,
+          "y": 1,
+          "type": "empty",
+          "elevation": 0.1595851125722524
+        },
+        {
+          "x": 5,
+          "y": 1,
+          "type": "residential",
+          "elevation": 0.17033374683449168
+        },
+        {
+          "x": 6,
+          "y": 1,
+          "type": "road",
+          "elevation": 0.075
+        },
+        {
+          "x": 7,
+          "y": 1,
+          "type": "road",
+          "elevation": 0.075
+        },
+        {
+          "x": 8,
+          "y": 1,
+          "type": "empty",
+          "elevation": 0.15496466905786735
+        },
+        {
+          "x": 9,
+          "y": 1,
+          "type": "empty",
+          "elevation": 0.1823194553152841
+        },
+        {
+          "x": 10,
+          "y": 1,
+          "type": "empty",
+          "elevation": 0.19701794564403258
+        },
+        {
+          "x": 11,
+          "y": 1,
+          "type": "empty",
+          "elevation": 0.015614712848055434
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 2,
+          "type": "empty",
+          "elevation": 0.003992972784196624
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "type": "residential",
+          "elevation": 0.1824386655721367
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "type": "empty",
+          "elevation": 0.30516009722018783
+        },
+        {
+          "x": 3,
+          "y": 2,
+          "type": "park",
+          "elevation": 0.31767360507511005
+        },
+        {
+          "x": 4,
+          "y": 2,
+          "type": "residential",
+          "elevation": 0.3358489809468258
+        },
+        {
+          "x": 5,
+          "y": 2,
+          "type": "residential",
+          "elevation": 0.33135885776646473
+        },
+        {
+          "x": 6,
+          "y": 2,
+          "type": "road",
+          "elevation": 0.15
+        },
+        {
+          "x": 7,
+          "y": 2,
+          "type": "empty",
+          "elevation": 0.3486680741927028
+        },
+        {
+          "x": 8,
+          "y": 2,
+          "type": "empty",
+          "elevation": 0.3158147516041949
+        },
+        {
+          "x": 9,
+          "y": 2,
+          "type": "empty",
+          "elevation": 0.3115018104018823
+        },
+        {
+          "x": 10,
+          "y": 2,
+          "type": "empty",
+          "elevation": 0.15847791585720497
+        },
+        {
+          "x": 11,
+          "y": 2,
+          "type": "residential",
+          "elevation": 0.015600892119609645
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 3,
+          "type": "park",
+          "elevation": 0.03518849500999145
+        },
+        {
+          "x": 1,
+          "y": 3,
+          "type": "road",
+          "elevation": 0.075
+        },
+        {
+          "x": 2,
+          "y": 3,
+          "type": "road",
+          "elevation": 0.15
+        },
+        {
+          "x": 3,
+          "y": 3,
+          "type": "road",
+          "elevation": 0.22499999999999998
+        },
+        {
+          "x": 4,
+          "y": 3,
+          "type": "empty",
+          "elevation": 0.45358046241150407
+        },
+        {
+          "x": 5,
+          "y": 3,
+          "type": "residential",
+          "elevation": 0.4960269886496994
+        },
+        {
+          "x": 6,
+          "y": 3,
+          "type": "road",
+          "elevation": 0.22499999999999998
+        },
+        {
+          "x": 7,
+          "y": 3,
+          "type": "residential",
+          "elevation": 0.46187563997676545
+        },
+        {
+          "x": 8,
+          "y": 3,
+          "type": "park",
+          "elevation": 0.4920014560318636
+        },
+        {
+          "x": 9,
+          "y": 3,
+          "type": "park",
+          "elevation": 0.3000180537774531
+        },
+        {
+          "x": 10,
+          "y": 3,
+          "type": "road",
+          "elevation": 0.075
+        },
+        {
+          "x": 11,
+          "y": 3,
+          "type": "road",
+          "elevation": 0.05
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 4,
+          "type": "road",
+          "elevation": 0.05
+        },
+        {
+          "x": 1,
+          "y": 4,
+          "type": "road",
+          "elevation": 0.075
+        },
+        {
+          "x": 2,
+          "y": 4,
+          "type": "residential",
+          "elevation": 0.3320852723755858
+        },
+        {
+          "x": 3,
+          "y": 4,
+          "type": "road",
+          "elevation": 0.22499999999999998
+        },
+        {
+          "x": 4,
+          "y": 4,
+          "type": "road",
+          "elevation": 0.22499999999999998
+        },
+        {
+          "x": 5,
+          "y": 4,
+          "type": "road",
+          "elevation": 0.22499999999999998
+        },
+        {
+          "x": 6,
+          "y": 4,
+          "type": "road",
+          "elevation": 0.22499999999999998
+        },
+        {
+          "x": 7,
+          "y": 4,
+          "type": "residential",
+          "elevation": 0.4679258942508478
+        },
+        {
+          "x": 8,
+          "y": 4,
+          "type": "park",
+          "elevation": 0.4696719384571245
+        },
+        {
+          "x": 9,
+          "y": 4,
+          "type": "road",
+          "elevation": 0.15
+        },
+        {
+          "x": 10,
+          "y": 4,
+          "type": "road",
+          "elevation": 0.075
+        },
+        {
+          "x": 11,
+          "y": 4,
+          "type": "empty",
+          "elevation": 0.028965089730873295
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 5,
+          "type": "empty",
+          "elevation": 0.0021271644641379984
+        },
+        {
+          "x": 1,
+          "y": 5,
+          "type": "residential",
+          "elevation": 0.18942974413003788
+        },
+        {
+          "x": 2,
+          "y": 5,
+          "type": "empty",
+          "elevation": 0.30611666953956107
+        },
+        {
+          "x": 3,
+          "y": 5,
+          "type": "residential",
+          "elevation": 0.30324494108037703
+        },
+        {
+          "x": 4,
+          "y": 5,
+          "type": "park",
+          "elevation": 0.308908266628004
+        },
+        {
+          "x": 5,
+          "y": 5,
+          "type": "road",
+          "elevation": 0.15
+        },
+        {
+          "x": 6,
+          "y": 5,
+          "type": "road",
+          "elevation": 0.15
+        },
+        {
+          "x": 7,
+          "y": 5,
+          "type": "road",
+          "elevation": 0.15
+        },
+        {
+          "x": 8,
+          "y": 5,
+          "type": "road",
+          "elevation": 0.15
+        },
+        {
+          "x": 9,
+          "y": 5,
+          "type": "road",
+          "elevation": 0.15
+        },
+        {
+          "x": 10,
+          "y": 5,
+          "type": "empty",
+          "elevation": 0.1597338023791392
+        },
+        {
+          "x": 11,
+          "y": 5,
+          "type": "park",
+          "elevation": 0.020966151148852887
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 6,
+          "type": "empty",
+          "elevation": 0.006398919092097566
+        },
+        {
+          "x": 1,
+          "y": 6,
+          "type": "empty",
+          "elevation": 0.1823397930260157
+        },
+        {
+          "x": 2,
+          "y": 6,
+          "type": "empty",
+          "elevation": 0.15913436216247198
+        },
+        {
+          "x": 3,
+          "y": 6,
+          "type": "empty",
+          "elevation": 0.15308443020570908
+        },
+        {
+          "x": 4,
+          "y": 6,
+          "type": "empty",
+          "elevation": 0.16480664263372377
+        },
+        {
+          "x": 5,
+          "y": 6,
+          "type": "empty",
+          "elevation": 0.19575106311199042
+        },
+        {
+          "x": 6,
+          "y": 6,
+          "type": "road",
+          "elevation": 0.075
+        },
+        {
+          "x": 7,
+          "y": 6,
+          "type": "empty",
+          "elevation": 0.17125654698217857
+        },
+        {
+          "x": 8,
+          "y": 6,
+          "type": "empty",
+          "elevation": 0.17295814127139916
+        },
+        {
+          "x": 9,
+          "y": 6,
+          "type": "empty",
+          "elevation": 0.19983608663242017
+        },
+        {
+          "x": 10,
+          "y": 6,
+          "type": "empty",
+          "elevation": 0.16945027059910295
+        },
+        {
+          "x": 11,
+          "y": 6,
+          "type": "empty",
+          "elevation": 0.03759092308570149
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 7,
+          "type": "empty",
+          "elevation": 0.015712356277876895
+        },
+        {
+          "x": 1,
+          "y": 7,
+          "type": "empty",
+          "elevation": 0.004794314702403691
+        },
+        {
+          "x": 2,
+          "y": 7,
+          "type": "empty",
+          "elevation": 0.02257726926819749
+        },
+        {
+          "x": 3,
+          "y": 7,
+          "type": "empty",
+          "elevation": 0.03895818992487309
+        },
+        {
+          "x": 4,
+          "y": 7,
+          "type": "empty",
+          "elevation": 0.04096964833268957
+        },
+        {
+          "x": 5,
+          "y": 7,
+          "type": "empty",
+          "elevation": 0.010020572831386222
+        },
+        {
+          "x": 6,
+          "y": 7,
+          "type": "road",
+          "elevation": 0.05
+        },
+        {
+          "x": 7,
+          "y": 7,
+          "type": "road",
+          "elevation": 0.05
+        },
+        {
+          "x": 8,
+          "y": 7,
+          "type": "residential",
+          "elevation": 0.017351202535379685
+        },
+        {
+          "x": 9,
+          "y": 7,
+          "type": "empty",
+          "elevation": 0.03365996349150727
+        },
+        {
+          "x": 10,
+          "y": 7,
+          "type": "empty",
+          "elevation": 0.03973879367024896
+        },
+        {
+          "x": 11,
+          "y": 7,
+          "type": "empty",
+          "elevation": 0.010924168322351213
+        }
+      ]
+    ],
+    "timestamp": 1775198242190,
+    "ai_model": "openrouter/auto"
+  },
+  {
+    "id": "bfe5e5e6-1558-47a1-a9a3-d7bc0891cab1",
+    "prompt": "A compact residential city with a river",
+    "layoutData": [
+      [
+        {
+          "x": 0,
+          "y": 0,
+          "type": "empty",
+          "elevation": 0.6307280003927309
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "type": "empty",
+          "elevation": 0.6061735491969126
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "type": "empty",
+          "elevation": 0.6008319170805574
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "type": "empty",
+          "elevation": 0.6328847092466314
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "type": "empty",
+          "elevation": 0.6059142869514642
+        },
+        {
+          "x": 5,
+          "y": 0,
+          "type": "empty",
+          "elevation": 0.6142128586503606
+        },
+        {
+          "x": 6,
+          "y": 0,
+          "type": "road",
+          "elevation": 0.375
+        },
+        {
+          "x": 7,
+          "y": 0,
+          "type": "residential",
+          "elevation": 0.6078959673395414
+        },
+        {
+          "x": 8,
+          "y": 0,
+          "type": "empty",
+          "elevation": 0.6271007950048245
+        },
+        {
+          "x": 9,
+          "y": 0,
+          "type": "empty",
+          "elevation": 0.6100873563679703
+        },
+        {
+          "x": 10,
+          "y": 0,
+          "type": "empty",
+          "elevation": 0.6169552083982032
+        },
+        {
+          "x": 11,
+          "y": 0,
+          "type": "empty",
+          "elevation": 0.6493360912881867
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 1,
+          "type": "empty",
+          "elevation": 0.49583794625711214
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "type": "park",
+          "elevation": 0.48678980866573757
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "type": "empty",
+          "elevation": 0.49388104505546754
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "type": "empty",
+          "elevation": 0.4575708596550187
+        },
+        {
+          "x": 4,
+          "y": 1,
+          "type": "empty",
+          "elevation": 0.49543500651565925
+        },
+        {
+          "x": 5,
+          "y": 1,
+          "type": "residential",
+          "elevation": 0.46250397298486184
+        },
+        {
+          "x": 6,
+          "y": 1,
+          "type": "road",
+          "elevation": 0.3
+        },
+        {
+          "x": 7,
+          "y": 1,
+          "type": "residential",
+          "elevation": 0.4592097492774499
+        },
+        {
+          "x": 8,
+          "y": 1,
+          "type": "residential",
+          "elevation": 0.4820550727480949
+        },
+        {
+          "x": 9,
+          "y": 1,
+          "type": "park",
+          "elevation": 0.4506170244902606
+        },
+        {
+          "x": 10,
+          "y": 1,
+          "type": "empty",
+          "elevation": 0.4700050279813839
+        },
+        {
+          "x": 11,
+          "y": 1,
+          "type": "park",
+          "elevation": 0.49350560149140155
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 2,
+          "type": "empty",
+          "elevation": 0.3484051901620369
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "type": "empty",
+          "elevation": 0.31984806239973834
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "type": "park",
+          "elevation": 0.34992336672313334
+        },
+        {
+          "x": 3,
+          "y": 2,
+          "type": "empty",
+          "elevation": 0.3026945579611657
+        },
+        {
+          "x": 4,
+          "y": 2,
+          "type": "empty",
+          "elevation": 0.3475159168498211
+        },
+        {
+          "x": 5,
+          "y": 2,
+          "type": "residential",
+          "elevation": 0.3483935239089977
+        },
+        {
+          "x": 6,
+          "y": 2,
+          "type": "road",
+          "elevation": 0.22499999999999998
+        },
+        {
+          "x": 7,
+          "y": 2,
+          "type": "residential",
+          "elevation": 0.32784465276916047
+        },
+        {
+          "x": 8,
+          "y": 2,
+          "type": "residential",
+          "elevation": 0.30099230101935015
+        },
+        {
+          "x": 9,
+          "y": 2,
+          "type": "residential",
+          "elevation": 0.32164630827758806
+        },
+        {
+          "x": 10,
+          "y": 2,
+          "type": "residential",
+          "elevation": 0.32554246729775366
+        },
+        {
+          "x": 11,
+          "y": 2,
+          "type": "park",
+          "elevation": 0.3440882626375306
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 3,
+          "type": "residential",
+          "elevation": 0.19322199668308898
+        },
+        {
+          "x": 1,
+          "y": 3,
+          "type": "park",
+          "elevation": 0.19153027479352466
+        },
+        {
+          "x": 2,
+          "y": 3,
+          "type": "empty",
+          "elevation": 0.17764495323387428
+        },
+        {
+          "x": 3,
+          "y": 3,
+          "type": "park",
+          "elevation": 0.19805442502561632
+        },
+        {
+          "x": 4,
+          "y": 3,
+          "type": "residential",
+          "elevation": 0.1751326798271252
+        },
+        {
+          "x": 5,
+          "y": 3,
+          "type": "residential",
+          "elevation": 0.154525598174946
+        },
+        {
+          "x": 6,
+          "y": 3,
+          "type": "road",
+          "elevation": 0.15
+        },
+        {
+          "x": 7,
+          "y": 3,
+          "type": "residential",
+          "elevation": 0.17966967822128585
+        },
+        {
+          "x": 8,
+          "y": 3,
+          "type": "residential",
+          "elevation": 0.17574475414758287
+        },
+        {
+          "x": 9,
+          "y": 3,
+          "type": "residential",
+          "elevation": 0.19252379419052007
+        },
+        {
+          "x": 10,
+          "y": 3,
+          "type": "residential",
+          "elevation": 0.19879224681573926
+        },
+        {
+          "x": 11,
+          "y": 3,
+          "type": "park",
+          "elevation": 0.15645155909879263
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 4,
+          "type": "water",
+          "elevation": 0
+        },
+        {
+          "x": 1,
+          "y": 4,
+          "type": "water",
+          "elevation": 0
+        },
+        {
+          "x": 2,
+          "y": 4,
+          "type": "water",
+          "elevation": 0
+        },
+        {
+          "x": 3,
+          "y": 4,
+          "type": "water",
+          "elevation": 0
+        },
+        {
+          "x": 4,
+          "y": 4,
+          "type": "water",
+          "elevation": 0
+        },
+        {
+          "x": 5,
+          "y": 4,
+          "type": "water",
+          "elevation": 0
+        },
+        {
+          "x": 6,
+          "y": 4,
+          "type": "road",
+          "elevation": 0.075
+        },
+        {
+          "x": 7,
+          "y": 4,
+          "type": "water",
+          "elevation": 0
+        },
+        {
+          "x": 8,
+          "y": 4,
+          "type": "water",
+          "elevation": 0
+        },
+        {
+          "x": 9,
+          "y": 4,
+          "type": "water",
+          "elevation": 0
+        },
+        {
+          "x": 10,
+          "y": 4,
+          "type": "water",
+          "elevation": 0
+        },
+        {
+          "x": 11,
+          "y": 4,
+          "type": "water",
+          "elevation": 0
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 5,
+          "type": "empty",
+          "elevation": 0.19892200312203037
+        },
+        {
+          "x": 1,
+          "y": 5,
+          "type": "empty",
+          "elevation": 0.15962846824544671
+        },
+        {
+          "x": 2,
+          "y": 5,
+          "type": "empty",
+          "elevation": 0.16041572090209966
+        },
+        {
+          "x": 3,
+          "y": 5,
+          "type": "residential",
+          "elevation": 0.18264602206744748
+        },
+        {
+          "x": 4,
+          "y": 5,
+          "type": "residential",
+          "elevation": 0.1903990945930172
+        },
+        {
+          "x": 5,
+          "y": 5,
+          "type": "residential",
+          "elevation": 0.15465239580115828
+        },
+        {
+          "x": 6,
+          "y": 5,
+          "type": "road",
+          "elevation": 0.15
+        },
+        {
+          "x": 7,
+          "y": 5,
+          "type": "residential",
+          "elevation": 0.1691861613477022
+        },
+        {
+          "x": 8,
+          "y": 5,
+          "type": "empty",
+          "elevation": 0.19994047010218893
+        },
+        {
+          "x": 9,
+          "y": 5,
+          "type": "empty",
+          "elevation": 0.18242514272117805
+        },
+        {
+          "x": 10,
+          "y": 5,
+          "type": "empty",
+          "elevation": 0.16332831451510885
+        },
+        {
+          "x": 11,
+          "y": 5,
+          "type": "residential",
+          "elevation": 0.19295640722469726
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 6,
+          "type": "empty",
+          "elevation": 0.34174004966404575
+        },
+        {
+          "x": 1,
+          "y": 6,
+          "type": "empty",
+          "elevation": 0.31341585095308255
+        },
+        {
+          "x": 2,
+          "y": 6,
+          "type": "empty",
+          "elevation": 0.3237200671916061
+        },
+        {
+          "x": 3,
+          "y": 6,
+          "type": "residential",
+          "elevation": 0.3202274641562912
+        },
+        {
+          "x": 4,
+          "y": 6,
+          "type": "empty",
+          "elevation": 0.3027266089592594
+        },
+        {
+          "x": 5,
+          "y": 6,
+          "type": "empty",
+          "elevation": 0.3194611074811738
+        },
+        {
+          "x": 6,
+          "y": 6,
+          "type": "road",
+          "elevation": 0.22499999999999998
+        },
+        {
+          "x": 7,
+          "y": 6,
+          "type": "residential",
+          "elevation": 0.32955017669864506
+        },
+        {
+          "x": 8,
+          "y": 6,
+          "type": "empty",
+          "elevation": 0.33041844031162293
+        },
+        {
+          "x": 9,
+          "y": 6,
+          "type": "empty",
+          "elevation": 0.3491439996152666
+        },
+        {
+          "x": 10,
+          "y": 6,
+          "type": "empty",
+          "elevation": 0.33007418498991076
+        },
+        {
+          "x": 11,
+          "y": 6,
+          "type": "empty",
+          "elevation": 0.3339594710556165
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 7,
+          "type": "empty",
+          "elevation": 0.46036395433381266
+        },
+        {
+          "x": 1,
+          "y": 7,
+          "type": "empty",
+          "elevation": 0.4550941557356207
+        },
+        {
+          "x": 2,
+          "y": 7,
+          "type": "empty",
+          "elevation": 0.4730344137855809
+        },
+        {
+          "x": 3,
+          "y": 7,
+          "type": "empty",
+          "elevation": 0.4757923777204309
+        },
+        {
+          "x": 4,
+          "y": 7,
+          "type": "residential",
+          "elevation": 0.4933959554836029
+        },
+        {
+          "x": 5,
+          "y": 7,
+          "type": "residential",
+          "elevation": 0.49820661947452854
+        },
+        {
+          "x": 6,
+          "y": 7,
+          "type": "road",
+          "elevation": 0.3
+        },
+        {
+          "x": 7,
+          "y": 7,
+          "type": "empty",
+          "elevation": 0.45061103207684816
+        },
+        {
+          "x": 8,
+          "y": 7,
+          "type": "empty",
+          "elevation": 0.49767081145863934
+        },
+        {
+          "x": 9,
+          "y": 7,
+          "type": "empty",
+          "elevation": 0.45219277730298724
+        },
+        {
+          "x": 10,
+          "y": 7,
+          "type": "empty",
+          "elevation": 0.46810479545048517
+        },
+        {
+          "x": 11,
+          "y": 7,
+          "type": "empty",
+          "elevation": 0.4944709998607663
+        }
+      ]
+    ],
+    "timestamp": 1775197369947,
+    "ai_model": "openrouter/auto"
+  }
+]

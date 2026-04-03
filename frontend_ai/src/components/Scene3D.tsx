@@ -1,4 +1,4 @@
-import { useRef, useState, useMemo } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { Canvas as R3FCanvas, useFrame } from '@react-three/fiber'
 import { OrbitControls, Environment, Grid, ContactShadows, Html } from '@react-three/drei'
 import { useStore } from '../store/useStore'
@@ -9,10 +9,11 @@ const CELL_SIZE = 1.2
 
 /* ═══════ Palette ═══════ */
 const ZONE_PALETTE = {
-  road:        { base: '#2d3748', highlight: '#4a5568' },
-  residential: { base: '#f7fafc', roof: '#4a5568' },
-  commercial:  { base: '#90cdf4', trim: '#2b6cb0' },
-  park:        { base: '#48bb78', trunk: '#7b341e', foliage: '#2f855a' },
+  road:        { base: '#9ca3af', highlight: '#6b7280' },
+  residential: { base: '#3b82f6', roof: '#1d4ed8' },
+  commercial:  { base: '#ef4444', trim: '#b91c1c' },
+  hospital:    { base: '#dc2626', cross: '#ffffff' },
+  park:        { base: '#22c55e', trunk: '#7b341e', foliage: '#15803d' },
   industrial:  { base: '#a0aec0', smokestack: '#718096' },
   water:       { base: '#4299e1', wave: '#63b3ed' },
   empty:       { base: '#1a202c' }
@@ -139,6 +140,27 @@ const IndustrialFactory = ({ x, z, seed }: { x: number, z: number, seed: number 
   )
 }
 
+const HospitalClinic = ({ x, z, seed }: { x: number, z: number, seed: number }) => {
+  const roofHeight = 0.5 + seededRandom(seed) * 0.2
+
+  return (
+    <group position={[x, 0, z]}>
+      <mesh position={[0, roofHeight / 2, 0]} castShadow receiveShadow>
+        <boxGeometry args={[0.72, roofHeight, 0.72]} />
+        <meshStandardMaterial color={ZONE_PALETTE.hospital.base} roughness={0.5} />
+      </mesh>
+      <mesh position={[0, roofHeight + 0.08, 0]} castShadow>
+        <boxGeometry args={[0.18, 0.42, 0.08]} />
+        <meshStandardMaterial color={ZONE_PALETTE.hospital.cross} />
+      </mesh>
+      <mesh position={[0, roofHeight + 0.08, 0]} castShadow>
+        <boxGeometry args={[0.08, 0.18, 0.08]} />
+        <meshStandardMaterial color={ZONE_PALETTE.hospital.cross} />
+      </mesh>
+    </group>
+  )
+}
+
 const RoamingCar = ({ seed }: { seed: number }) => {
   const ref = useRef<THREE.Group>(null)
   const isNightMode = useStore(s => s.isNightMode)
@@ -216,7 +238,7 @@ const WaterTile = ({ elevation = 0 }: { elevation?: number }) => (
 
 /* ═══════ Single Cell Group ═══════ */
 
-function CityCell({ cell, offsetX, offsetZ }: { cell: GridCell, offsetX: number, offsetZ: number }) {
+function CityCell({ cell, offsetX, offsetZ, revealOrder, generationId }: { cell: GridCell, offsetX: number, offsetZ: number, revealOrder: number, generationId: number }) {
   const selectedCell = useStore((s) => s.selectedCell)
   const setSelectedCell = useStore((s) => s.setSelectedCell)
   const hoveredCell = useStore((s) => s.hoveredCell)
@@ -228,12 +250,29 @@ function CityCell({ cell, offsetX, offsetZ }: { cell: GridCell, offsetX: number,
   const elevation = cell.elevation || 0
 
   const groupRef = useRef<THREE.Group>(null)
+  const [isVisible, setIsVisible] = useState(generationId === 0)
+  const displayZoneName = cell.type === 'hospital' ? 'Hospital' : cell.type
+
+  useEffect(() => {
+    if (generationId === 0) {
+      setIsVisible(true)
+      return
+    }
+
+    setIsVisible(false)
+    const revealDelay = Math.min(revealOrder * 28, 1400)
+    const timeout = window.setTimeout(() => setIsVisible(true), revealDelay)
+    return () => window.clearTimeout(timeout)
+  }, [generationId, revealOrder])
 
   // Smooth hover floating
   useFrame((_, delta) => {
     if (!groupRef.current) return
     const targetY = (isHovered ? 0.2 : 0) + elevation
     easing.damp(groupRef.current.position, 'y', targetY, 0.15, delta)
+
+    const targetScale = isVisible ? 1 : 0.01
+    easing.damp3(groupRef.current.scale, [targetScale, targetScale, targetScale], 0.2, delta)
   })
 
   // Render logic based on type
@@ -250,6 +289,8 @@ function CityCell({ cell, offsetX, offsetZ }: { cell: GridCell, offsetX: number,
         )
       case 'commercial':
         return <CommercialSkyscraper x={0} z={0} seed={seed} />
+      case 'hospital':
+        return <HospitalClinic x={0} z={0} seed={seed} />
       case 'industrial':
         return <IndustrialFactory x={0} z={0} seed={seed} />
       case 'park':
@@ -273,17 +314,21 @@ function CityCell({ cell, offsetX, offsetZ }: { cell: GridCell, offsetX: number,
   const getBaseColor = () => {
     if (isSelected) return '#ffffff'
     if (cell.type === 'park' || cell.type === 'road' || cell.type === 'water') return ZONE_PALETTE.empty.base
+    if (cell.type === 'residential') return ZONE_PALETTE.residential.base
+    if (cell.type === 'commercial') return ZONE_PALETTE.commercial.base
+    if (cell.type === 'hospital') return ZONE_PALETTE.hospital.base
     return '#2d3748'
   }
 
   // Determine tooltip color map
   const tailwindColorMap: Record<string, string> = {
-    commercial: 'bg-blue-500',
-    residential: 'bg-zinc-300',
+    commercial: 'bg-red-500',
+    residential: 'bg-blue-500',
+    hospital: 'bg-red-600',
     industrial: 'bg-slate-500',
     park: 'bg-green-500',
     water: 'bg-blue-400',
-    road: 'bg-zinc-800'
+    road: 'bg-gray-400'
   }
 
   return (
@@ -320,12 +365,12 @@ function CityCell({ cell, offsetX, offsetZ }: { cell: GridCell, offsetX: number,
 
         {/* 3D Tooltip when Hovered */}
         {isHovered && cell.type !== 'empty' && (
-          <Html position={[0, cell.type === 'commercial' ? 2.5 : 1, 0]} center style={{ pointerEvents: 'none' }}>
+          <Html position={[0, cell.type === 'commercial' || cell.type === 'hospital' ? 2.5 : 1, 0]} center style={{ pointerEvents: 'none' }}>
             <div className="bg-zinc-900/95 backdrop-blur-md text-white px-3 py-2 rounded-lg shadow-2xl border border-zinc-700/50 text-xs min-w-[130px] transform transition-all duration-200 pointer-events-none">
               <div className="font-bold mb-1 uppercase tracking-widest text-[10px] text-zinc-400">Sector {cell.x}-{cell.y}</div>
               <div className="flex items-center gap-2">
                 <div className={`w-2.5 h-2.5 rounded-full ${tailwindColorMap[cell.type] || 'bg-zinc-500'}`} />
-                <span className="capitalize font-semibold text-sm">{cell.type} Zone</span>
+                <span className="capitalize font-semibold text-sm">{displayZoneName} Zone</span>
               </div>
             </div>
           </Html>
@@ -367,6 +412,7 @@ function AutoRotate() {
 function CityScene() {
   const layoutData = useStore((s) => s.layoutData)
   const isNightMode = useStore((s) => s.isNightMode)
+  const generationId = useStore((s) => s.generationId)
 
   if (!layoutData) return null
 
@@ -412,10 +458,12 @@ function CityScene() {
       {layoutData.map((row) => 
         row.map((cell) => (
           <CityCell
-            key={`${cell.x}-${cell.y}`}
+            key={`${cell.x}-${cell.y}-${generationId}`}
             cell={cell}
             offsetX={cell.x * CELL_SIZE}
             offsetZ={cell.y * CELL_SIZE}
+            revealOrder={cell.y * cols + cell.x}
+            generationId={generationId}
           />
         ))
       )}
@@ -484,6 +532,15 @@ export function Scene3D() {
       <div className="absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-3">
         <div className="text-xs text-zinc-500 font-medium tracking-wide pointer-events-none uppercase bg-white/80 dark:bg-zinc-900/80 px-4 py-1.5 rounded-full backdrop-blur-sm border border-zinc-200 dark:border-zinc-800 shadow-sm">
           Drag to pan • Scroll to zoom
+        </div>
+      </div>
+
+      <div className="absolute top-4 right-4 bg-white/90 text-zinc-900 border border-zinc-200 rounded-xl px-3 py-2 shadow-lg backdrop-blur-sm pointer-events-none">
+        <div className="text-[10px] font-bold tracking-wider uppercase text-zinc-500 mb-2">3D Legend</div>
+        <div className="flex flex-col gap-1.5 text-xs font-semibold">
+          <div className="flex items-center gap-2"><span className="w-2.5 h-2.5 rounded-full bg-green-500" />Green = Park</div>
+          <div className="flex items-center gap-2"><span className="w-2.5 h-2.5 rounded-full bg-blue-500" />Blue = Residential</div>
+          <div className="flex items-center gap-2"><span className="w-2.5 h-2.5 rounded-full bg-red-600" />Red = Hospital</div>
         </div>
       </div>
 
