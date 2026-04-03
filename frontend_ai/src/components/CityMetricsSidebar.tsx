@@ -1,15 +1,8 @@
 import { useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useStore } from '../store/useStore'
-import { Activity, Users, Leaf, Navigation } from 'lucide-react'
-
-// Helper to format large numbers
-const compactNum = (num: number) => {
-  return new Intl.NumberFormat('en-US', {
-    notation: 'compact',
-    maximumFractionDigits: 1
-  }).format(num)
-}
+import { Activity, Leaf, Navigation, Route, Building2, Sparkles } from 'lucide-react'
+import { calculateScores } from '../utils/scoring'
 
 export function CityMetricsSidebar() {
   const [isOpen, setIsOpen] = useState(false)
@@ -17,57 +10,9 @@ export function CityMetricsSidebar() {
 
   const metrics = useMemo(() => {
     if (!layoutData) return null
-
-    let totalBlocks = 0
-    const counts = {
-      residential: 0,
-      commercial: 0,
-      hospital: 0,
-      industrial: 0,
-      park: 0,
-      road: 0,
-      water: 0
-    }
-
-    // Traverse the 2D array
-    layoutData.forEach((row) => {
-      row.forEach((cell) => {
-        totalBlocks++
-        const type = cell.type.toLowerCase() as keyof typeof counts
-        if (counts[type] !== undefined) counts[type]++
-      })
-    })
-
-    if (totalBlocks === 0) return null
-
-    // Heuristics Engine
-    const hectarePerBlock = 1 // Assume 1 hectare per city block
-    const resHectares = counts.residential * hectarePerBlock
-    const popDensity = resHectares > 0 ? 150 : 0 // 150 people per hectare of residential
-    const population = resHectares * popDensity
-
-    // Walkability Score: Ratio of amenities (park + commercial) to residential
-    // Base 40, up to +60 based on ratio
-    const amenityRatio = counts.residential > 0 
-      ? (counts.park + counts.commercial + counts.hospital) / counts.residential 
-      : 1
-    const walkabilityRaw = 40 + (Math.min(amenityRatio, 1.5) / 1.5) * 60
-    const walkability = Math.round(Math.max(0, Math.min(100, walkabilityRaw)))
-
-    // CO2 Efficiency: Starts at 100, drops with Industry/Roads, goes up slightly with Parks
-    const co2Raw = 100 
-      - (counts.industrial / totalBlocks) * 100 * 1.5 
-      - (counts.road / totalBlocks) * 100 * 0.5 
-      + (counts.park / totalBlocks) * 100 * 0.5
-    const co2Efficiency = Math.round(Math.max(0, Math.min(100, co2Raw)))
-
-    return {
-      totalBlocks,
-      counts,
-      population,
-      walkability,
-      co2Efficiency
-    }
+    const scoreData = calculateScores(layoutData)
+    if (scoreData.totalCells === 0) return null
+    return scoreData
   }, [layoutData])
 
   if (!metrics) return null
@@ -111,53 +56,91 @@ export function CityMetricsSidebar() {
             <div className="flex items-center gap-2 pb-4 border-b border-zinc-800/80">
               <Activity size={14} className="text-zinc-400" />
               <h3 className="text-zinc-200 text-xs font-semibold tracking-wider uppercase">
-                City Metrics
+                Urban Score Panel
               </h3>
             </div>
 
-        {/* Top-Level KPIs */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="flex flex-col gap-1">
-            <div className="flex items-center gap-1.5 text-zinc-400">
-              <Users size={12} />
-              <span className="text-[10px] uppercase font-medium tracking-wide">Est. Pop</span>
-            </div>
-            <span className="text-2xl font-semibold text-zinc-100 tracking-tight">
-              {compactNum(metrics.population)}
-            </span>
-          </div>
-          
-          <div className="flex flex-col gap-1">
-            <div className="flex items-center gap-1.5 text-zinc-400">
-              <Navigation size={12} />
-              <span className="text-[10px] uppercase font-medium tracking-wide">Walkability</span>
-            </div>
-            <div className="flex items-end gap-1">
-              <span className="text-2xl font-semibold text-zinc-100 tracking-tight">
-                {metrics.walkability}
-              </span>
-              <span className="text-zinc-500 text-xs mb-1">/100</span>
-            </div>
-          </div>
-        </div>
-
-        {/* CO2 Efficiency Bar */}
-        <div className="flex flex-col gap-2">
+        {/* Liveability Summary */}
+        <div className="flex flex-col gap-2 border border-zinc-800/70 rounded-lg p-3 bg-zinc-900/60">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1.5 text-zinc-400">
-              <Leaf size={12} />
-              <span className="text-[10px] uppercase font-medium tracking-wide">CO2 Efficiency</span>
+              <Sparkles size={12} />
+              <span className="text-[10px] uppercase font-medium tracking-wide">Liveability Summary</span>
             </div>
-            <span className="text-xs font-medium text-emerald-400">{metrics.co2Efficiency}%</span>
+            <span className="text-xs font-medium text-blue-300">{metrics.metrics.liveability.display}</span>
           </div>
           <div className="h-1.5 w-full bg-zinc-800 rounded-full overflow-hidden">
             <motion.div 
               initial={{ width: 0 }}
-              animate={{ width: `${metrics.co2Efficiency}%` }}
+              animate={{ width: `${metrics.metrics.liveability.value}%` }}
               transition={{ duration: 1, delay: 0.2 }}
-              className="h-full bg-emerald-500 rounded-full"
+              className="h-full bg-blue-500 rounded-full"
             />
           </div>
+          <span className="text-[10px] text-zinc-500 leading-4">
+            {metrics.metrics.liveability.formula}
+          </span>
+        </div>
+
+        {/* Heuristic Metrics */}
+        <div className="grid grid-cols-1 gap-3">
+          {[
+            {
+              key: 'sustainability',
+              label: 'Sustainability',
+              icon: Leaf,
+              color: 'bg-emerald-500',
+              value: metrics.metrics.sustainability.value,
+              display: metrics.metrics.sustainability.display,
+              formula: metrics.metrics.sustainability.formula,
+            },
+            {
+              key: 'traffic',
+              label: 'Traffic',
+              icon: Route,
+              color: 'bg-amber-500',
+              value: metrics.metrics.traffic.value,
+              display: metrics.metrics.traffic.display,
+              formula: metrics.metrics.traffic.formula,
+            },
+            {
+              key: 'walkability',
+              label: 'Walkability',
+              icon: Navigation,
+              color: 'bg-cyan-500',
+              value: metrics.metrics.walkability.value,
+              display: metrics.metrics.walkability.display,
+              formula: `${metrics.metrics.walkability.formula} | avg distance: ${metrics.metrics.walkability.averageDistance}`,
+            },
+            {
+              key: 'density',
+              label: 'Density',
+              icon: Building2,
+              color: 'bg-blue-500',
+              value: metrics.metrics.density.value,
+              display: metrics.metrics.density.display,
+              formula: metrics.metrics.density.formula,
+            },
+          ].map((item) => (
+            <div key={item.key} className="flex flex-col gap-1.5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5 text-zinc-400">
+                  <item.icon size={12} />
+                  <span className="text-[10px] uppercase font-medium tracking-wide">{item.label}</span>
+                </div>
+                <span className="text-xs font-medium text-zinc-200">{item.display}</span>
+              </div>
+              <div className="h-1.5 w-full bg-zinc-800 rounded-full overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${item.value}%` }}
+                  transition={{ duration: 0.8 }}
+                  className={`h-full rounded-full ${item.color}`}
+                />
+              </div>
+              <span className="text-[10px] text-zinc-500 leading-4">{item.formula}</span>
+            </div>
+          ))}
         </div>
 
         {/* Zoning Distribution */}
@@ -170,7 +153,7 @@ export function CityMetricsSidebar() {
             .sort(([,a], [,b]) => b - a)
             .map(([type, count]) => {
               if (count === 0) return null
-              const percentage = (count / metrics.totalBlocks) * 100
+              const percentage = (count / metrics.totalCells) * 100
               
               return (
                 <div key={type} className="flex flex-col gap-1.5">

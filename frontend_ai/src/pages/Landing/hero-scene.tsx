@@ -72,7 +72,7 @@ function ScanLine() {
 export function HeroScene() {
   return (
     <div className="hero-scene-wrap">
-      <Canvas camera={{ position: [2.2, 2.4, 3.8], fov: 44 }} dpr={[1, 1.8]} shadows>
+      <Canvas camera={{ position: [2.2, 2.4, 3.8], fov: 44 }} dpr={[1, 1.8]} shadows="percentage">
         <color attach="background" args={["#05080d"]} />
         <ambientLight intensity={0.42} />
         <directionalLight position={[3, 6, 1]} intensity={1.2} color="#d8ff80" castShadow />

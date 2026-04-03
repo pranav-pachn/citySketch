@@ -5,12 +5,9 @@ import { supabase } from '../supabaseClient.js'
 import { CityGenerator } from '../utils/CityGenerator.js'
 import { addLocalHistoryItem } from '../utils/historyStore.js'
 import dotenv from 'dotenv'
-import { resolve } from 'path'
-import { fileURLToPath } from 'url'
 
-const __dirname = fileURLToPath(new URL('.', import.meta.url))
 // Force reload of env vars so server doesn't need to be restarted immediately
-dotenv.config({ path: resolve(__dirname, '../../.env'), override: true })
+dotenv.config({ override: true })
 
 const keyRotationState = {
   openrouter: 0,

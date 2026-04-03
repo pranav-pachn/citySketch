@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
 
 /* ═══════════ THEME ═══════════ */
@@ -960,13 +961,14 @@ body {
   --text-soft: #9caec4;
   --accent-lime: #d5ff66;
   --accent-cyan: #7de9ff;
+  --font-body: "Manrope", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-display: "Unbounded", "Segoe UI", system-ui, sans-serif;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-body);
-  --font-display: var(--font-display);
 }
 
 * {
@@ -979,7 +981,7 @@ body {
   min-height: 100%;
 }
 
-body {
+body.landing-route {
   color: var(--text-main);
   font-family: var(--font-body), sans-serif;
   background:

@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import type { ViewMode, GridCell, HistoryItem } from '../types'
+import { apiUrl } from '../lib/api'
 
 interface Toast {
   id: string
@@ -132,7 +133,7 @@ export const useStore = create<AppState>((set, get) => ({
   },
   deleteHistoryItem: async (id) => {
     try {
-      await fetch(`http://localhost:3001/api/history/${id}`, { method: 'DELETE' })
+      await fetch(apiUrl(`/api/history/${id}`), { method: 'DELETE' })
       const { history, activeHistoryId } = get()
       const filtered = history.filter((h) => h.id !== id)
       const updates: Partial<AppState> = { history: filtered }
@@ -178,7 +179,7 @@ export const useStore = create<AppState>((set, get) => ({
     setIsLoading(true)
 
     try {
-      const res = await fetch('http://localhost:3001/api/generate', {
+      const res = await fetch(apiUrl('/api/generate'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt, saveToHistory }),
@@ -224,7 +225,7 @@ export const useStore = create<AppState>((set, get) => ({
     const promptForSave = prompt.trim() || activeItem?.prompt || `Manual save ${new Date().toLocaleString()}`
 
     try {
-      const res = await fetch('http://localhost:3001/api/history', {
+      const res = await fetch(apiUrl('/api/history'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -261,7 +262,7 @@ export const useStore = create<AppState>((set, get) => ({
 
   fetchHistory: async () => {
     try {
-      const res = await fetch('http://localhost:3001/api/history')
+      const res = await fetch(apiUrl('/api/history'))
       if (res.ok) {
         const history = await res.json()
         set({ history })

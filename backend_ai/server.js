@@ -13,7 +13,12 @@ const app = express()
 const PORT = process.env.PORT || 3001
 
 // Middleware
-app.use(cors({ origin: ['http://localhost:5173', 'http://localhost:4173'] }))
+app.use(cors({ origin: ['http://localhost:5173', 'http://localhost:4173', 'http://127.0.0.1:5173'] }))
+app.use((_req, res, next) => {
+  // Google Identity popup flows rely on postMessage across windows.
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups')
+  next()
+})
 app.use(express.json())
 
 // API index for browser/manual checks

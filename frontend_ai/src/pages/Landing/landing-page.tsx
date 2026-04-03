@@ -101,21 +101,70 @@ export function LandingPage() {
   const [integration, setIntegration] = useState<IntegrationStatus | null>(null);
 
   useEffect(() => {
+    document.body.classList.add("landing-route");
+
+    return () => {
+      document.body.classList.remove("landing-route");
+    };
+  }, []);
+
+  useEffect(() => {
     let alive = true;
 
     const loadIntegrationStatus = async () => {
+      const startedAt = performance.now();
+
+      const baseStatus: IntegrationStatus = {
+        frontend: {
+          url: window.location.origin,
+          connected: true,
+          status: 200,
+          latencyMs: 0,
+        },
+        backend: {
+          url: "/api/health",
+          connected: false,
+          status: null,
+          latencyMs: null,
+        },
+        backendTimestamp: null,
+      };
+
       try {
-        const response = await fetch("/api/integration/status", { cache: "no-store" });
-        if (!response.ok) {
+        const response = await fetch("/api/health", { cache: "no-store" });
+        if (!alive) {
           return;
         }
 
-        const payload = (await response.json()) as IntegrationStatus;
-        if (alive) {
-          setIntegration(payload);
+        if (!response.ok) {
+          setIntegration({
+            ...baseStatus,
+            backend: {
+              ...baseStatus.backend,
+              status: response.status,
+            },
+          });
+          return;
         }
+
+        const payload = (await response.json()) as { status?: string; timestamp?: number };
+        const latencyMs = Math.round(performance.now() - startedAt);
+
+        setIntegration({
+          ...baseStatus,
+          backend: {
+            ...baseStatus.backend,
+            connected: payload.status === "ok",
+            status: response.status,
+            latencyMs,
+          },
+          backendTimestamp: typeof payload.timestamp === "number" ? payload.timestamp : null,
+        });
       } catch {
         // Keep UI stable if local services are offline.
+        if (alive) {
+          setIntegration(baseStatus);
+        }
       }
     };
 
@@ -174,7 +223,7 @@ export function LandingPage() {
         yPercent: -10,
         ease: "none",
         scrollTrigger: {
-          trigger: "#signal",
+          trigger: "#engine",
           start: "top bottom",
           end: "bottom top",
           scrub: true,

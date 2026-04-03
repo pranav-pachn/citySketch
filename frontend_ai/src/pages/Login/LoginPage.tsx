@@ -5,6 +5,7 @@ import { Sparkles, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GoogleLogin } from "@react-oauth/google";
 import { useStore } from "@/store/useStore";
+import { apiUrl } from "@/lib/api";
 
 type Tab = "signin" | "signup";
 
@@ -17,7 +18,7 @@ export function LoginPage() {
 
   const handleGoogleSuccess = async (credentialResponse: any) => {
     try {
-      const res = await fetch("http://localhost:3001/api/auth/google", {
+      const res = await fetch(apiUrl("/api/auth/google"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token: credentialResponse.credential }),
