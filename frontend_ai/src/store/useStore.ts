@@ -65,9 +65,20 @@ interface AppState {
   setNightMode: (night: boolean) => void
   isCanvasMaximized: boolean
   setCanvasMaximized: (max: boolean) => void
+
+  // Auth
+  user: {
+    uid: string
+    email: string
+    name: string
+    picture: string
+  } | null
+  setUser: (user: { uid: string; email: string; name: string; picture: string } | null) => void
 }
 
 export const useStore = create<AppState>((set, get) => ({
+  user: null,
+  setUser: (user) => set({ user }),
   prompt: '',
   setPrompt: (p) => set({ prompt: p }),
 

@@ -243,7 +243,7 @@ export function LandingPage() {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button variant="outline" className="request-btn" asChild>
-                  <Link to="/app">
+                  <Link to="/login">
                     Generate layouts
                   </Link>
                 </Button>
@@ -294,7 +294,7 @@ export function LandingPage() {
                 className="hero-actions"
               >
                 <Button size="lg" asChild>
-                  <Link to="/app">
+                  <Link to="/login">
                     Launch studio
                     <ArrowRight size={16} />
                   </Link>
@@ -504,7 +504,7 @@ export function LandingPage() {
               </CardHeader>
               <CardContent className="flex flex-wrap items-center gap-3">
                 <Button size="lg" asChild>
-                  <Link to="/app">
+                  <Link to="/login">
                     Start building
                     <ArrowRight size={16} />
                   </Link>
