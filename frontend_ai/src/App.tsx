@@ -8,5 +8,4 @@ export default function App() {
       <Route path="/" element={<LandingPage />} />
       <Route path="/app" element={<Workspace />} />
     </Routes>
-  )
-}
+
