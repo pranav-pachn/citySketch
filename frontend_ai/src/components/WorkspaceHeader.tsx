@@ -86,8 +86,8 @@ export function WorkspaceHeader() {
     } else if (mode === 'BLUEPRINT') {
       const canvas = document.querySelector('.blueprint-view canvas') as HTMLCanvasElement
       if (canvas) {
-        downloadUrl(canvas.toDataURL('image/png'), `citysketch-blueprint-${Date.now()}.png`)
-        addToast('Blueprint exported')
+        window.dispatchEvent(new Event('citysketch:export-blueprint'))
+        setShowExportMenu(false)
       } else {
         addToast('Please switch to Blueprint view to capture')
       }

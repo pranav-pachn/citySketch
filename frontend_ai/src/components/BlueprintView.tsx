@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useCallback, useState } from 'react'
 import { useStore } from '../store/useStore'
 import { Download } from 'lucide-react'
 import rough from 'roughjs'
@@ -10,6 +10,74 @@ interface Room {
   label: string
   hatch?: boolean
   diagonal?: boolean
+}
+
+const DEFAULT_BLUEPRINT_EXPORT_SCALE = 4
+const BLUEPRINT_EXPORT_SCALE_KEY = 'citysketch.blueprintExportScale'
+const BLUEPRINT_EXPORT_VIEWPORT_MULTIPLIER = 1.2
+const MAX_BLUEPRINT_EXPORT_DIMENSION = 8192
+
+const BLUEPRINT_ZONE_COLORS: Record<GridCell['type'], string> = {
+  road: '#52525b',
+  residential: '#3b82f6',
+  commercial: '#f59e0b',
+  park: '#22c55e',
+  hospital: '#ef4444',
+  industrial: '#a855f7',
+  water: '#06b6d4',
+  empty: '#f3efe8',
+}
+
+interface BlueprintRenderOptions {
+  viewportWidth?: number
+  viewportHeight?: number
+  pixelRatio?: number
+}
+
+function wrapWords(text: string, maxCharsPerLine: number): string[] {
+  if (!text.trim()) return ['']
+  const words = text.split(/\s+/)
+  const lines: string[] = []
+  let current = ''
+
+  words.forEach((word) => {
+    const candidate = current ? `${current} ${word}` : word
+    if (candidate.length <= maxCharsPerLine) {
+      current = candidate
+      return
+    }
+    if (current) lines.push(current)
+    current = word
+  })
+
+  if (current) lines.push(current)
+  return lines
+}
+
+function drawCenteredLabel(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  fontSize: number
+) {
+  const safeWidth = Math.max(8, width - 10)
+  const estimatedChars = Math.max(6, Math.floor(safeWidth / (fontSize * 0.58)))
+  const lines = wrapWords(text, estimatedChars).slice(0, 3)
+  const lineHeight = fontSize * 1.12
+  const blockHeight = lines.length * lineHeight
+  const startY = y + (height - blockHeight) / 2 + lineHeight / 2
+
+  ctx.font = `${fontSize}px "Courier New", monospace`
+  ctx.fillStyle = '#5c4a3a'
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+
+  lines.forEach((line, index) => {
+    ctx.fillText(line, x + width / 2, startY + index * lineHeight)
+  })
 }
 
 /* ── Commercial Subtypes ── */
@@ -240,19 +308,26 @@ const ZONE_FALLBACK_TITLES: Record<string, string> = {
 function drawBlueprint(
   canvas: HTMLCanvasElement,
   cell: GridCell | null,
-  layoutData: GridCell[][] | null
+  layoutData: GridCell[][] | null,
+  options: BlueprintRenderOptions = {}
 ) {
   const ctx = canvas.getContext('2d')
   if (!ctx) return
 
-  const dpr = window.devicePixelRatio || 1
   const rect = canvas.getBoundingClientRect()
-  canvas.width = rect.width * dpr
-  canvas.height = rect.height * dpr
-  ctx.scale(dpr, dpr)
+  const viewportWidth = options.viewportWidth ?? rect.width
+  const viewportHeight = options.viewportHeight ?? rect.height
+  const pixelRatio = options.pixelRatio ?? (window.devicePixelRatio || 1)
 
-  const W = rect.width
-  const H = rect.height
+  if (viewportWidth <= 0 || viewportHeight <= 0) return
+
+  canvas.width = Math.max(1, Math.round(viewportWidth * pixelRatio))
+  canvas.height = Math.max(1, Math.round(viewportHeight * pixelRatio))
+  ctx.setTransform(1, 0, 0, 1, 0, 0)
+  ctx.scale(pixelRatio, pixelRatio)
+
+  const W = viewportWidth
+  const H = viewportHeight
 
   // Paper background
   ctx.fillStyle = '#fefcf8'
@@ -303,12 +378,14 @@ function drawBlueprint(
   ctx.font = '11px "Courier New", monospace'
   ctx.fillStyle = '#5c4a3a'
   ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
   ctx.fillText(title, W / 2, 30)
 
   // Subtitle with subtype
   const subtypeLabel = (cell.subtype || cell.type).replace(/_/g, ' ').toUpperCase()
   ctx.font = '9px "Courier New", monospace'
   ctx.fillStyle = '#8b7d6b'
+  ctx.textBaseline = 'middle'
   ctx.fillText(`SECTOR ${cell.x}-${cell.y}  ·  TYPE: ${subtypeLabel}  ·  SCALE 1:${Math.round(100/scale)}`, W / 2, 45)
 
   // Draw rooms
@@ -345,10 +422,8 @@ function drawBlueprint(
     }
 
     // Room label
-    ctx.font = `${Math.min(11, rw / 7)}px "Courier New", monospace`
-    ctx.fillStyle = '#5c4a3a'
-    ctx.textAlign = 'center'
-    ctx.fillText(room.label, rx + rw / 2, ry + rh / 2 + 4)
+    const labelFontSize = Math.max(8, Math.min(12, rw / 8, rh / 3.2))
+    drawCenteredLabel(ctx, room.label, rx, ry, rw, rh, labelFontSize)
   })
 
   // Outer wall (heavier)
@@ -367,6 +442,7 @@ function drawBlueprint(
   ctx.font = '7px "Courier New", monospace'
   ctx.fillStyle = '#a09080'
   ctx.textAlign = 'right'
+  ctx.textBaseline = 'middle'
   ctx.fillText(`DRG NO: SK-${cell.x}${cell.y}-${Date.now().toString(36).slice(-4).toUpperCase()}`, W - 20, H - 20)
   ctx.fillText('SKETCH.AI AUTOMATED DRAFTING', W - 20, H - 10)
 }
@@ -389,6 +465,7 @@ function drawDimensionLine(
   ctx.font = '8px "Courier New", monospace'
   ctx.fillStyle = '#6b5d4d'
   ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
   if (vertical) {
     ctx.translate((x1 + x2) / 2 - 8, (y1 + y2) / 2)
     ctx.rotate(-Math.PI / 2)
@@ -407,6 +484,7 @@ function drawNorthArrow(ctx: CanvasRenderingContext2D, rc: any, x: number, y: nu
   ctx.font = '10px "Courier New", monospace'
   ctx.fillStyle = '#5c4a3a'
   ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
   ctx.fillText('N', x, y - 20)
 }
 
@@ -431,9 +509,11 @@ function drawCityOverview(
   ctx.font = '11px "Courier New", monospace'
   ctx.fillStyle = '#5c4a3a'
   ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
   ctx.fillText('CITY MASTER PLAN — ZONING OVERVIEW', W / 2, 30)
   ctx.font = '9px "Courier New", monospace'
   ctx.fillStyle = '#8b7d6b'
+  ctx.textBaseline = 'middle'
   ctx.fillText(`${cols}×${rows} GRID  ·  SKETCH.AI AUTOMATED DRAFTING`, W / 2, 45)
 
   const ZONE_HATCHES: Record<string, { hatch: boolean; diagonal: boolean; density: number }> = {
@@ -456,7 +536,7 @@ function drawCityOverview(
         strokeWidth: cell.type === 'road' ? 2 : 1,
         roughness: 1.0,
         bowing: 0.6,
-        fill: cell.type === 'road' ? '#4a3728' : cell.type === 'park' ? '#c5d8b0' : cell.type === 'water' ? '#b8d4e8' : undefined,
+        fill: BLUEPRINT_ZONE_COLORS[cell.type],
         fillStyle: 'solid',
       })
 
@@ -486,7 +566,8 @@ function drawCityOverview(
         ctx.font = `${Math.min(10, cellSize / 3)}px "Courier New", monospace`
         ctx.fillStyle = cell.type === 'water' ? '#2d5f7b' : '#5c4a3a'
         ctx.textAlign = 'center'
-        ctx.fillText(abbrevs[cell.type], cx + cellSize / 2, cy + cellSize / 2 + 3)
+        ctx.textBaseline = 'middle'
+        ctx.fillText(abbrevs[cell.type], cx + cellSize / 2, cy + cellSize / 2)
       }
     })
   })
@@ -498,20 +579,33 @@ function drawCityOverview(
   // Legend
   const legendY = startY + totalH + 25
   const legendItems = [
-    { label: 'R — Residential' },
-    { label: 'C — Commercial' },
-    { label: 'I — Industrial' },
-    { label: 'P — Park' },
-    { label: 'W — Water' },
+    { label: 'R — Residential', color: BLUEPRINT_ZONE_COLORS.residential },
+    { label: 'C — Commercial', color: BLUEPRINT_ZONE_COLORS.commercial },
+    { label: 'I — Industrial', color: BLUEPRINT_ZONE_COLORS.industrial },
+    { label: 'H — Hospital', color: BLUEPRINT_ZONE_COLORS.hospital },
+    { label: 'P — Park', color: BLUEPRINT_ZONE_COLORS.park },
+    { label: 'W — Water', color: BLUEPRINT_ZONE_COLORS.water },
+    { label: 'RD — Road', color: BLUEPRINT_ZONE_COLORS.road },
   ]
-  const legendItemW = totalW / legendItems.length
+  const itemsPerRow = 4
+  const legendItemW = totalW / itemsPerRow
   legendItems.forEach((item, i) => {
-    const lx = startX + i * legendItemW
+    const row = Math.floor(i / itemsPerRow)
+    const col = i % itemsPerRow
+    const lx = startX + col * legendItemW
+    const ly = legendY + row * 16
     ctx.font = '7px "Courier New", monospace'
     ctx.fillStyle = '#6b5d4d'
     ctx.textAlign = 'left'
-    ctx.fillText(item.label, lx + 14, legendY + 8)
-    rc.rectangle(lx, legendY, 10, 10, { stroke: '#6b5d4d', strokeWidth: 0.8, roughness: 0.8 })
+    ctx.textBaseline = 'middle'
+    ctx.fillText(item.label, lx + 14, ly + 8)
+    rc.rectangle(lx, ly, 10, 10, {
+      stroke: '#6b5d4d',
+      strokeWidth: 0.8,
+      roughness: 0.8,
+      fill: item.color,
+      fillStyle: 'solid',
+    })
   })
 
   drawNorthArrow(ctx, rc, W - 40, 70)
@@ -519,6 +613,7 @@ function drawCityOverview(
   ctx.font = '7px "Courier New", monospace'
   ctx.fillStyle = '#a09080'
   ctx.textAlign = 'right'
+  ctx.textBaseline = 'middle'
   ctx.fillText(`MASTER PLAN — ${new Date().toLocaleDateString()}`, W - 20, H - 10)
 }
 
@@ -528,6 +623,11 @@ export function BlueprintView() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const selectedCell = useStore((s) => s.selectedCell)
   const layoutData = useStore((s) => s.layoutData)
+  const addToast = useStore((s) => s.addToast)
+  const [exportScale, setExportScale] = useState<number>(() => {
+    const saved = Number(window.localStorage.getItem(BLUEPRINT_EXPORT_SCALE_KEY))
+    return saved === 2 || saved === 3 || saved === 4 || saved === 5 ? saved : DEFAULT_BLUEPRINT_EXPORT_SCALE
+  })
 
   useEffect(() => {
     if (!canvasRef.current) return
@@ -542,22 +642,112 @@ export function BlueprintView() {
     return () => window.removeEventListener('resize', handleResize)
   }, [selectedCell, layoutData])
 
-  const handleDownload = () => {
-    if (!canvasRef.current) return
-    const url = canvasRef.current.toDataURL('image/png')
+  const exportBlueprint = useCallback((scale = DEFAULT_BLUEPRINT_EXPORT_SCALE) => {
+    if (!canvasRef.current) {
+      addToast('Blueprint export unavailable', 'info')
+      return
+    }
+
+    const rect = canvasRef.current.getBoundingClientRect()
+    if (rect.width <= 0 || rect.height <= 0) {
+      addToast('Blueprint export failed: canvas not ready', 'info')
+      return
+    }
+
+    let exportViewportWidth = rect.width * BLUEPRINT_EXPORT_VIEWPORT_MULTIPLIER
+    let exportViewportHeight = rect.height * BLUEPRINT_EXPORT_VIEWPORT_MULTIPLIER
+
+    const dominantDimension = Math.max(exportViewportWidth, exportViewportHeight)
+    if (dominantDimension > MAX_BLUEPRINT_EXPORT_DIMENSION) {
+      const normalize = MAX_BLUEPRINT_EXPORT_DIMENSION / dominantDimension
+      exportViewportWidth *= normalize
+      exportViewportHeight *= normalize
+    }
+
+    const exportCanvas = document.createElement('canvas')
+    const pixelRatio = (window.devicePixelRatio || 1) * Math.max(1, scale)
+
+    drawBlueprint(exportCanvas, selectedCell, layoutData, {
+      viewportWidth: exportViewportWidth,
+      viewportHeight: exportViewportHeight,
+      pixelRatio,
+    })
+
+    const url = exportCanvas.toDataURL('image/png')
     const a = document.createElement('a')
     a.href = url
     a.download = `blueprint-${selectedCell ? `${selectedCell.x}-${selectedCell.y}` : 'overview'}-${Date.now()}.png`
     a.click()
+    addToast(`Blueprint exported (${scale}x)`)
+  }, [addToast, layoutData, selectedCell])
+
+  const handleScaleChange = (scale: number) => {
+    if (scale !== 2 && scale !== 3 && scale !== 4 && scale !== 5) return
+    setExportScale(scale)
+    window.localStorage.setItem(BLUEPRINT_EXPORT_SCALE_KEY, String(scale))
+    addToast(`Blueprint export scale set to ${scale}x`, 'info')
   }
 
+  const handleDownload = () => {
+    exportBlueprint(exportScale)
+  }
+
+  useEffect(() => {
+    const handleExternalExport = (event: Event) => {
+      const detail = (event as CustomEvent<{ scale?: number }>).detail
+      const requestedScale = detail?.scale
+      exportBlueprint(requestedScale ?? exportScale)
+    }
+
+    window.addEventListener('citysketch:export-blueprint', handleExternalExport)
+    return () => window.removeEventListener('citysketch:export-blueprint', handleExternalExport)
+  }, [exportBlueprint, exportScale])
+
   return (
-    <div className="blueprint-view">
+    <div className="blueprint-view relative">
       <canvas ref={canvasRef} style={{ width: '100%', height: '100%', display: 'block' }} />
-      <button className="blueprint-download-btn" onClick={handleDownload} title="Download Blueprint as PNG">
-        <Download size={15} strokeWidth={1.5} />
-        <span>Export PNG</span>
-      </button>
+      <div className="absolute top-3 right-3 z-20 flex items-center gap-2 rounded-xl border border-zinc-700/70 bg-zinc-950/85 px-2 py-2 backdrop-blur">
+        <div className="flex items-center gap-1 rounded-lg bg-zinc-900/90 p-1" role="group" aria-label="Blueprint export scale">
+          {[2, 3, 4].map((scale) => (
+            <button
+              key={scale}
+              type="button"
+              onClick={() => handleScaleChange(scale)}
+              className={`h-7 min-w-8 rounded-md px-2 text-[11px] font-semibold transition ${
+                exportScale === scale
+                  ? 'bg-blue-600 text-white'
+                  : 'text-zinc-300 hover:bg-zinc-800 hover:text-white'
+              }`}
+              aria-pressed={exportScale === scale}
+              title={`Export at ${scale}x scale`}
+            >
+              {scale}x
+            </button>
+          ))}
+          <button
+            type="button"
+            onClick={() => handleScaleChange(5)}
+            className={`h-7 rounded-md px-2 text-[11px] font-semibold transition ${
+              exportScale === 5
+                ? 'bg-emerald-600 text-white'
+                : 'text-zinc-300 hover:bg-zinc-800 hover:text-white'
+            }`}
+            aria-pressed={exportScale === 5}
+            title="Export at 5x scale (Large Print)"
+          >
+            5x Large Print
+          </button>
+        </div>
+        <button
+          type="button"
+          className="blueprint-download-btn flex items-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-blue-500"
+          onClick={handleDownload}
+          title={`Download Blueprint as PNG (${exportScale}x)`}
+        >
+          <Download size={15} strokeWidth={1.5} />
+          <span>Export PNG</span>
+        </button>
+      </div>
       {selectedCell && selectedCell.type !== 'road' && selectedCell.type !== 'water' && selectedCell.type !== 'empty' && (
         <div className="blueprint-hint">
           Click a different zone in 2D/3D to see its floor plan
