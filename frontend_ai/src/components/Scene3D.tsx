@@ -515,14 +515,14 @@ export function Scene3D() {
   const camDist = maxDim * 1.3
 
   return (
-    <div className="scene-3d-wrapper relative w-full h-full bg-zinc-100 overflow-hidden">
+    <div className="scene-3d-wrapper relative w-full h-full bg-zinc-950 overflow-hidden">
       <R3FCanvas
         camera={{ position: [camDist * 0.7, camDist * 0.6, camDist * 0.7], fov: 35 }}
         shadows
         gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping, preserveDrawingBuffer: true }}
       >
-        <color attach="background" args={[isNightMode ? '#040814' : '#f8fafc']} />
-        <fog attach="fog" args={[isNightMode ? '#040814' : '#f8fafc', maxDim * 1.5, maxDim * 3]} />
+        <color attach="background" args={[isNightMode ? '#040814' : '#09090b']} />
+        <fog attach="fog" args={[isNightMode ? '#040814' : '#09090b', maxDim * 2, maxDim * 4]} />
 
         {isNightMode ? (
           <>
@@ -538,11 +538,11 @@ export function Scene3D() {
           </>
         ) : (
           <>
-            <ambientLight intensity={0.6} color="#ffffff" />
+            <ambientLight intensity={0.9} color="#ffffff" />
             <directionalLight
               position={[15, 25, -10]}
-              intensity={1.5}
-              color="#fdfbf7"
+              intensity={2.5}
+              color="#ffffff"
               castShadow
               shadow-mapSize={[1024, 1024]}
               shadow-camera-far={80}
@@ -552,7 +552,8 @@ export function Scene3D() {
               shadow-camera-bottom={-25}
               shadow-bias={-0.0001}
             />
-            <pointLight position={[-15, 10, 15]} intensity={0.4} color="#e0f2fe" />
+            <pointLight position={[-15, 10, 15]} intensity={0.8} color="#bfdbfe" />
+            <pointLight position={[15, 10, 15]} intensity={0.5} color="#e0f2fe" />
           </>
         )}
         
@@ -564,14 +565,14 @@ export function Scene3D() {
       
       {/* HUD Overlays */}
       <div className="absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-3">
-        <div className="text-xs text-zinc-500 font-medium tracking-wide pointer-events-none uppercase bg-white/80 dark:bg-zinc-900/80 px-4 py-1.5 rounded-full backdrop-blur-sm border border-zinc-200 dark:border-zinc-800 shadow-sm">
+        <div className="text-xs text-zinc-400 font-medium tracking-wide pointer-events-none uppercase bg-zinc-950/80 px-4 py-1.5 rounded-full backdrop-blur-sm border border-zinc-800/60 shadow-sm">
           Drag to pan • Scroll to zoom
         </div>
       </div>
 
-      <div className="absolute top-4 right-4 bg-white/90 text-zinc-900 border border-zinc-200 rounded-xl px-3 py-2 shadow-lg backdrop-blur-sm pointer-events-none">
+      <div className="absolute top-4 right-4 bg-zinc-950/90 text-zinc-100 border border-zinc-800/60 rounded-xl px-3 py-2 shadow-lg backdrop-blur-sm pointer-events-none">
         <div className="text-[10px] font-bold tracking-wider uppercase text-zinc-500 mb-2">3D Legend</div>
-        <div className="flex flex-col gap-1.5 text-xs font-semibold">
+        <div className="flex flex-col gap-1.5 text-xs font-semibold text-zinc-300">
           <div className="flex items-center gap-2"><span className="w-2.5 h-2.5 rounded-full bg-green-500" />Green = Park</div>
           <div className="flex items-center gap-2"><span className="w-2.5 h-2.5 rounded-full bg-blue-500" />Blue = Residential</div>
           <div className="flex items-center gap-2"><span className="w-2.5 h-2.5 rounded-full bg-red-600" />Red = Hospital</div>

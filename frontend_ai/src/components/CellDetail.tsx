@@ -122,10 +122,37 @@ export function CellDetail() {
 
             <div className="cell-detail-section">
               <div className="detail-section-header">
-                <span>Why this block is here</span>
+                <span>Planning Rationale</span>
+              </div>
+              <div className="explanation-panel">
+                Read the layout like a planning board, with quick context on why each zone was placed where it is.
+              </div>
+            </div>
+
+            <div className="cell-detail-section">
+              <div className="detail-section-header">
+                <span>• Selected Cell Reason</span>
               </div>
               <div className="explanation-panel">
                 {explanation}
+              </div>
+            </div>
+
+            <div className="cell-detail-section">
+              <div className="detail-section-header">
+                <span>ⓘ Why This Exists</span>
+              </div>
+              <div className="explanation-panel">
+                This panel helps users read the city like an <strong>urban-planning</strong> <strong>sketch</strong>, translating each zone placement into a simple planning decision.
+              </div>
+            </div>
+
+            <div className="cell-detail-section">
+              <div className="detail-section-header">
+                <span>2 Interaction Hint</span>
+              </div>
+              <div className="explanation-panel">
+                Click different cells in the <strong>2D grid</strong> to compare why homes, parks, roads, and hospitals were placed where they are.
               </div>
             </div>
 

@@ -116,71 +116,68 @@ export default function App() {
                   transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                   className="absolute right-3 top-3 z-[120] flex h-[calc(100%-24px)] w-[420px] max-w-[92vw] flex-col rounded-[28px] border border-zinc-800/80 bg-zinc-950/95 px-5 pb-5 pt-7 text-white shadow-2xl backdrop-blur-xl sm:px-6 sm:pb-6 sm:pt-8"
                 >
-                  <div className="mb-4 flex items-start justify-between gap-4 border-b border-zinc-800/70 pb-4">
-                    <div className="space-y-1 pr-2">
-                      <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.22em] text-blue-400">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                  <div className="mb-5 flex items-start justify-between gap-4 border-b border-zinc-800/70 px-1 pb-4">
+                    <div className="space-y-2 pr-2">
+                      <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.22em] text-blue-400">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
                         CitySketch Analysis
                       </div>
-                      <div className="text-[26px] font-extrabold leading-tight tracking-tight text-zinc-50">Planning Rationale</div>
-                      <p className="text-[13px] leading-snug text-zinc-400">
-                        Read the layout like a planning board — quick context on why each zone was placed.
+                      <div className="text-[28px] font-extrabold leading-[1.02] tracking-[-0.03em] text-zinc-50">Planning Rationale</div>
+                      <p className="max-w-[36ch] text-[15px] leading-7 text-zinc-400">
+                        Read the layout like a planning board, with quick context on why each zone was placed where it is.
                       </p>
                     </div>
                     <button
                       type="button"
                       onClick={() => setIsExplanationOpen(false)}
-                      className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-zinc-800 bg-zinc-900 text-zinc-400 transition-all hover:scale-105 hover:bg-zinc-800 hover:text-zinc-100 focus:outline-none"
+                      className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-zinc-800 bg-zinc-900 text-zinc-400 transition-all hover:scale-105 hover:bg-zinc-800 hover:text-zinc-100 focus:outline-none"
                       aria-label="Close panel"
                     >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                     </button>
                   </div>
 
-                  <div className="styled-scrollbar flex flex-1 flex-col gap-3 overflow-y-auto pb-2 pt-1">
-                    {/* Selected Cell Reason */}
-                    <div className="group relative rounded-2xl border border-blue-500/20 bg-gradient-to-br from-blue-500/10 to-blue-900/5 px-4 py-3.5 shadow-lg transition-all hover:bg-blue-500/15">
-                      <div className="absolute bottom-3.5 left-0 top-3.5 w-[3px] rounded-r-full bg-blue-500/60"></div>
-                      <div className="pl-4">
-                        <div className="mb-1.5 flex items-center gap-2">
-                          <div className="h-2 w-2 rounded-full bg-blue-400 shadow-[0_0_6px_rgba(96,165,250,0.8)]"></div>
-                          <div className="text-[10px] font-bold uppercase tracking-widest text-blue-300">
+                  <div className="styled-scrollbar flex flex-1 flex-col gap-4 overflow-y-auto px-1 pb-2 pt-1">
+                    <div className="group relative rounded-3xl border border-blue-500/20 bg-gradient-to-br from-blue-500/10 to-blue-900/5 px-5 py-4 shadow-lg transition-all hover:bg-blue-500/15">
+                      <div className="absolute bottom-4 left-0 top-4 w-1 rounded-r-2xl bg-blue-500/50"></div>
+                      <div className="pl-5">
+                        <div className="mb-2.5 flex items-center gap-2.5">
+                          <div className="mt-0.5 h-2.5 w-2.5 rounded-full bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.8)]"></div>
+                          <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-blue-300">
                             Selected Cell Reason
                           </div>
                         </div>
-                        <div className="text-[14px] font-medium leading-relaxed text-blue-50">
+                        <div className="text-[15px] font-medium leading-7 text-blue-50">
                           {explanation || 'Click a cell to see the planning reason behind that zone.'}
                         </div>
                       </div>
                     </div>
 
-                    {/* Why This Exists */}
-                    <div className="rounded-2xl border border-zinc-800/60 bg-zinc-900/30 px-4 py-3.5 transition-colors hover:bg-zinc-900/50">
-                      <div className="mb-1.5 flex items-center gap-2">
-                        <div className="text-zinc-500">
-                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                    <div className="rounded-3xl border border-zinc-800/60 bg-zinc-900/30 px-5 py-4 transition-colors hover:bg-zinc-900/50">
+                      <div className="mb-2.5 flex items-center gap-2.5">
+                        <div className="mt-0.5 text-zinc-500">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
                         </div>
-                        <div className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">
+                        <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400">
                           Why This Exists
                         </div>
                       </div>
-                      <div className="text-[13px] leading-relaxed text-zinc-300">
-                        This panel helps users read the city like an <span className="font-semibold text-zinc-100">urban-planning sketch</span>, translating each zone placement into a simple planning decision.
+                      <div className="text-[15px] leading-7 text-zinc-300">
+                        This panel helps users read the city like an <span className="text-zinc-100 font-medium">urban-planning sketch</span>, translating each zone placement into a simple planning decision.
                       </div>
                     </div>
 
-                    {/* Interaction Hint */}
-                    <div className="rounded-2xl border border-zinc-800/60 bg-zinc-900/30 px-4 py-3.5 transition-colors hover:bg-zinc-900/50">
-                      <div className="mb-1.5 flex items-center gap-2">
-                        <div className="text-zinc-500">
-                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 Z"></path></svg>
+                    <div className="rounded-3xl border border-zinc-800/60 bg-zinc-900/30 px-5 py-4 transition-colors hover:bg-zinc-900/50">
+                      <div className="mb-2.5 flex items-center gap-2.5">
+                        <div className="mt-0.5 text-zinc-500">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 Z"></path></svg>
                         </div>
-                        <div className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">
+                        <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400">
                           Interaction Hint
                         </div>
                       </div>
-                      <div className="text-[13px] leading-relaxed text-zinc-400">
-                        Click different cells in the <span className="rounded-md bg-zinc-800 px-1.5 py-0.5 text-[11px] font-semibold text-zinc-200">2D grid</span> to compare why homes, parks, roads, and hospitals were placed where they are.
+                      <div className="text-[15px] leading-7 text-zinc-400">
+                        Click different cells in the <span className="rounded-lg bg-zinc-800 px-2 py-1 text-xs font-semibold text-zinc-200">2D grid</span> to compare why homes, parks, roads, and hospitals were placed where they are.
                       </div>
                     </div>
                   </div>
