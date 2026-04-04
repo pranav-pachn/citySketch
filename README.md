@@ -116,10 +116,13 @@ npm run preview
 
 ## Point of Contact
 
-Primary maintainer: **Rahul S**
+Primary maintainer: **Rahul S,Pranav,Siddarth**
 
 - GitHub: https://github.com/rahulsp19
+- GitHub: https://github.com/pranav-pachn
+- GitHub: https://github.com/lalithsiddartha69
 - Repository issues: https://github.com/rahulsp19/CitySketch1/issues
+
 
 For support, open an issue with:
 
