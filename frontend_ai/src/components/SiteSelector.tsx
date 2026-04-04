@@ -243,9 +243,9 @@ export function SiteSelector({ onClose, onConfirm }: SiteSelectorProps) {
           <MapController center={center} zoom={zoom} onBoundsChange={setBbox} />
         </MapContainer>
 
-        {/* Center crosshair overlay */}
+        {/* Center crosshair overlay — spec §3.5: 50% of viewport */}
         <div className="pointer-events-none absolute inset-0 z-[205] flex items-center justify-center">
-          <div className="relative h-56 w-56 rounded-2xl border-2 border-dashed border-blue-400/40 bg-blue-500/[0.03] shadow-[0_0_60px_rgba(59,130,246,0.08)]">
+          <div className="relative rounded-2xl border-2 border-dashed border-blue-400/40 bg-blue-500/[0.03] shadow-[0_0_60px_rgba(59,130,246,0.08)]" style={{ width: '50%', height: '50%' }}>
             <div className="absolute -left-px -top-px h-5 w-5 rounded-tl-xl border-l-[3px] border-t-[3px] border-blue-400" />
             <div className="absolute -right-px -top-px h-5 w-5 rounded-tr-xl border-r-[3px] border-t-[3px] border-blue-400" />
             <div className="absolute -bottom-px -left-px h-5 w-5 rounded-bl-xl border-b-[3px] border-l-[3px] border-blue-400" />
@@ -256,6 +256,10 @@ export function SiteSelector({ onClose, onConfirm }: SiteSelectorProps) {
             {/* Center pin */}
             <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
               <div className="h-3 w-3 rounded-full border-2 border-blue-400 bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.6)]" />
+            </div>
+            {/* Area estimate label */}
+            <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 rounded-lg bg-zinc-900/90 px-3 py-1 text-[11px] font-medium text-blue-300 backdrop-blur pointer-events-none">
+              {bbox ? `≈ ${((Math.abs(bbox[2] - bbox[0]) * Math.abs(bbox[3] - bbox[1])) * 111 * 111 * Math.cos((bbox[0] + bbox[2]) / 2 * Math.PI / 180)).toFixed(1)} km² selected` : 'Select area'}
             </div>
           </div>
         </div>

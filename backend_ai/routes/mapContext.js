@@ -33,6 +33,8 @@ mapRoute.post('/generate-from-map', async (req, res) => {
     const seedGrid = buildSeedGrid(N, osmData, south, west, north, east)
 
     // ─── Step 3: Run CityGenerator with the seed grid ───────────────────
+    // Spec §7: Context-aware placement — hospitals near real roads,
+    //          parks near residential clusters, schools near homes.
     const engine = new CityGenerator({
       gridSize: N,
       waterStyle: 'none',        // Water is already seeded from OSM
@@ -40,10 +42,10 @@ mapRoute.post('/generate-from-map', async (req, res) => {
       density: 'medium',
       parkStyle: 'scattered',
       roadStyle: 'grid',
-      hospitalZone: false,
-      schoolZone: false,
+      hospitalZone: true,         // Spec §7: place near real road cells
+      schoolZone: true,           // Spec §7: place near residential
       trafficLevel: 'balanced',
-      eco: false,
+      eco: true,                  // Spec §7: boost parks near residential
     })
 
     // Inject the seed grid before generation — water and roads from real world
@@ -57,6 +59,20 @@ mapRoute.post('/generate-from-map', async (req, res) => {
 
     // Run the generator (it will skip over pre-filled cells)
     const grid = engine.generate()
+
+    // ─── Step 3.5: Add explanations to map-seeded cells ─────────────────
+    for (let y = 0; y < N; y++) {
+      for (let x = 0; x < N; x++) {
+        const cell = grid[y]?.[x]
+        if (!cell || typeof cell !== 'object') continue
+        if (cell.type === 'road' && seedGrid[y]?.[x] === 'road' && !cell.explanation) {
+          cell.explanation = 'Real-world road imported from OpenStreetMap data.'
+        }
+        if (cell.type === 'water' && seedGrid[y]?.[x] === 'water' && !cell.explanation) {
+          cell.explanation = 'Real-world water body imported from OpenStreetMap data.'
+        }
+      }
+    }
 
     // ─── Step 4: Build response ─────────────────────────────────────────
     const mapPrompt = locationName
