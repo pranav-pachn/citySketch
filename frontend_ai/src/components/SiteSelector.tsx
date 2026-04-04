@@ -174,7 +174,7 @@ export function SiteSelector({ onClose, onConfirm }: SiteSelectorProps) {
   return (
     <div className="fixed inset-0 z-[200] flex flex-col bg-zinc-950 text-white" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
       {/* ── Header ── */}
-      <div className="relative z-[210] flex h-16 shrink-0 items-center justify-between border-b border-zinc-800/80 bg-zinc-950/95 px-5 backdrop-blur-xl">
+      <div className="relative z-[1500] flex h-16 shrink-0 items-center justify-between border-b border-zinc-800/80 bg-zinc-950/95 px-5 backdrop-blur-xl">
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-cyan-500 shadow-lg shadow-blue-600/20">
             <Navigation size={18} className="text-white" />
@@ -186,7 +186,7 @@ export function SiteSelector({ onClose, onConfirm }: SiteSelectorProps) {
         </div>
 
         {/* Search */}
-        <div ref={searchBoxRef} className="relative hidden w-[380px] md:block">
+        <div ref={searchBoxRef} className="relative hidden w-full max-w-[380px] sm:block flex-1 mx-4">
           <div className="relative">
             <input
               type="text"
@@ -202,7 +202,7 @@ export function SiteSelector({ onClose, onConfirm }: SiteSelectorProps) {
 
           {/* Autocomplete dropdown */}
           {showResults && (
-            <div className="absolute top-full left-0 right-0 z-[220] mt-1.5 max-h-[260px] overflow-y-auto rounded-xl border border-zinc-700/80 bg-zinc-900/98 shadow-2xl backdrop-blur-xl">
+            <div className="absolute top-full left-0 right-0 mt-1.5 max-h-[260px] overflow-y-auto rounded-xl border border-zinc-700/80 bg-zinc-900/98 shadow-2xl backdrop-blur-xl">
               {results.map((r, i) => (
                 <button
                   key={i}
@@ -244,7 +244,7 @@ export function SiteSelector({ onClose, onConfirm }: SiteSelectorProps) {
         </MapContainer>
 
         {/* Center crosshair overlay — spec §3.5: 50% of viewport */}
-        <div className="pointer-events-none absolute inset-0 z-[205] flex items-center justify-center">
+        <div className="pointer-events-none absolute inset-0 z-[1000] flex items-center justify-center">
           <div className="relative rounded-2xl border-2 border-dashed border-blue-400/40 bg-blue-500/[0.03] shadow-[0_0_60px_rgba(59,130,246,0.08)]" style={{ width: '50%', height: '50%' }}>
             <div className="absolute -left-px -top-px h-5 w-5 rounded-tl-xl border-l-[3px] border-t-[3px] border-blue-400" />
             <div className="absolute -right-px -top-px h-5 w-5 rounded-tr-xl border-r-[3px] border-t-[3px] border-blue-400" />
@@ -265,7 +265,7 @@ export function SiteSelector({ onClose, onConfirm }: SiteSelectorProps) {
         </div>
 
         {/* Right-side map controls */}
-        <div className="absolute right-4 top-1/2 z-[205] flex -translate-y-1/2 flex-col gap-2">
+        <div className="absolute right-4 top-1/2 z-[1000] flex -translate-y-1/2 flex-col gap-2">
           <button
             className="flex h-10 w-10 items-center justify-center rounded-xl border border-zinc-700/60 bg-zinc-900/90 text-zinc-300 shadow-lg backdrop-blur transition hover:bg-zinc-800 hover:text-white"
             onClick={() => setZoom(z => Math.min(z + 1, 19))}
@@ -291,7 +291,7 @@ export function SiteSelector({ onClose, onConfirm }: SiteSelectorProps) {
         </div>
 
         {/* Bottom action bar */}
-        <div className="absolute bottom-6 left-1/2 z-[205] -translate-x-1/2">
+        <div className="absolute bottom-6 left-1/2 z-[1000] -translate-x-1/2">
           <div className="flex items-center gap-3 rounded-2xl border border-zinc-700/60 bg-zinc-950/90 px-3 py-2.5 shadow-2xl backdrop-blur-xl">
             {locationName && (
               <div className="max-w-[200px] truncate rounded-lg bg-zinc-800/80 px-3 py-1.5 text-xs text-zinc-300">

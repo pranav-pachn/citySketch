@@ -1,5 +1,3079 @@
 [
   {
+    "id": "53960d0e-e678-4f9f-a025-6b479107855c",
+    "prompt": "Map simulation: Karimnagar Bypass, Karimnagar - 505001, TG, India",
+    "layoutData": [
+      [
+        {
+          "x": 0,
+          "y": 0,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "bridge",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "type": "road",
+          "elevation": 0.22499999999999998,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 5,
+          "y": 0,
+          "type": "road",
+          "elevation": 0.375,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 6,
+          "y": 0,
+          "type": "road",
+          "elevation": 0.44999999999999996,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 7,
+          "y": 0,
+          "type": "road",
+          "elevation": 0.525,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 8,
+          "y": 0,
+          "type": "road",
+          "elevation": 0.44999999999999996,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 9,
+          "y": 0,
+          "type": "residential",
+          "elevation": 0.7588103235159496,
+          "subtype": "suburban_house"
+        },
+        {
+          "x": 10,
+          "y": 0,
+          "type": "road",
+          "elevation": 0.375,
+          "subtype": "street"
+        },
+        {
+          "x": 11,
+          "y": 0,
+          "type": "park",
+          "elevation": 0.7828340253844547,
+          "subtype": "nature_reserve"
+        },
+        {
+          "x": 12,
+          "y": 0,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 13,
+          "y": 0,
+          "type": "road",
+          "elevation": 0.22499999999999998,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 14,
+          "y": 0,
+          "type": "residential",
+          "elevation": 0.4919572015254341,
+          "subtype": "suburban_house"
+        },
+        {
+          "x": 15,
+          "y": 0,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street"
+        },
+        {
+          "x": 16,
+          "y": 0,
+          "type": "empty",
+          "elevation": 0.4603627818578935,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 17,
+          "y": 0,
+          "type": "empty",
+          "elevation": 0.32965323003154096,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 18,
+          "y": 0,
+          "type": "residential",
+          "elevation": 0.17904964216049968,
+          "subtype": "waterfront_apartment"
+        },
+        {
+          "x": 19,
+          "y": 0,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 1,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "bridge",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "type": "empty",
+          "elevation": 0.3092011760095194,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "type": "residential",
+          "elevation": 0.47005154409111477,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 4,
+          "y": 1,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 5,
+          "y": 1,
+          "type": "road",
+          "elevation": 0.375,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 6,
+          "y": 1,
+          "type": "road",
+          "elevation": 0.44999999999999996,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 7,
+          "y": 1,
+          "type": "road",
+          "elevation": 0.44999999999999996,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 8,
+          "y": 1,
+          "type": "road",
+          "elevation": 0.375,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 9,
+          "y": 1,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 10,
+          "y": 1,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street"
+        },
+        {
+          "x": 11,
+          "y": 1,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 12,
+          "y": 1,
+          "type": "road",
+          "elevation": 0.22499999999999998,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 13,
+          "y": 1,
+          "type": "park",
+          "elevation": 0.31156802444161674,
+          "subtype": "community_garden"
+        },
+        {
+          "x": 14,
+          "y": 1,
+          "type": "empty",
+          "elevation": 0.3167194129908081,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 15,
+          "y": 1,
+          "type": "road",
+          "elevation": 0.22499999999999998,
+          "subtype": "street"
+        },
+        {
+          "x": 16,
+          "y": 1,
+          "type": "park",
+          "elevation": 0.4561510231781068,
+          "subtype": "community_garden"
+        },
+        {
+          "x": 17,
+          "y": 1,
+          "type": "park",
+          "elevation": 0.3198246728487454,
+          "subtype": "community_garden"
+        },
+        {
+          "x": 18,
+          "y": 1,
+          "type": "empty",
+          "elevation": 0.16166476759316287,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 19,
+          "y": 1,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 2,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "bridge",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "type": "residential",
+          "elevation": 0.3429763883864818,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 3,
+          "y": 2,
+          "type": "residential",
+          "elevation": 0.4569339797879194,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 4,
+          "y": 2,
+          "type": "residential",
+          "elevation": 0.643959213015548,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 5,
+          "y": 2,
+          "type": "road",
+          "elevation": 0.375,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 6,
+          "y": 2,
+          "type": "road",
+          "elevation": 0.44999999999999996,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 7,
+          "y": 2,
+          "type": "road",
+          "elevation": 0.375,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 8,
+          "y": 2,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 9,
+          "y": 2,
+          "type": "residential",
+          "elevation": 0.494313920299645,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 10,
+          "y": 2,
+          "type": "road",
+          "elevation": 0.22499999999999998,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 11,
+          "y": 2,
+          "type": "road",
+          "elevation": 0.22499999999999998,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 12,
+          "y": 2,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 13,
+          "y": 2,
+          "type": "residential",
+          "elevation": 0.19249949367749153,
+          "subtype": "waterfront_apartment"
+        },
+        {
+          "x": 14,
+          "y": 2,
+          "type": "residential",
+          "elevation": 0.1653549996646506,
+          "subtype": "waterfront_apartment"
+        },
+        {
+          "x": 15,
+          "y": 2,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street"
+        },
+        {
+          "x": 16,
+          "y": 2,
+          "type": "residential",
+          "elevation": 0.49628405859692115,
+          "subtype": "garden_villa"
+        },
+        {
+          "x": 17,
+          "y": 2,
+          "type": "park",
+          "elevation": 0.34445615564424426,
+          "subtype": "community_garden"
+        },
+        {
+          "x": 18,
+          "y": 2,
+          "type": "park",
+          "elevation": 0.1930178154991759,
+          "subtype": "waterfront_promenade"
+        },
+        {
+          "x": 19,
+          "y": 2,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 3,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 1,
+          "y": 3,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "bridge",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 2,
+          "y": 3,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 3,
+          "y": 3,
+          "type": "road",
+          "elevation": 0.22499999999999998,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 4,
+          "y": 3,
+          "type": "empty",
+          "elevation": 0.641779303043332,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 5,
+          "y": 3,
+          "type": "road",
+          "elevation": 0.375,
+          "subtype": "street"
+        },
+        {
+          "x": 6,
+          "y": 3,
+          "type": "road",
+          "elevation": 0.375,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 7,
+          "y": 3,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 8,
+          "y": 3,
+          "type": "road",
+          "elevation": 0.22499999999999998,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 9,
+          "y": 3,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 10,
+          "y": 3,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 11,
+          "y": 3,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 12,
+          "y": 3,
+          "type": "park",
+          "elevation": 0.19491909100514893,
+          "subtype": "waterfront_promenade"
+        },
+        {
+          "x": 13,
+          "y": 3,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 14,
+          "y": 3,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 15,
+          "y": 3,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "bridge"
+        },
+        {
+          "x": 16,
+          "y": 3,
+          "type": "residential",
+          "elevation": 0.32487498110354684,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 17,
+          "y": 3,
+          "type": "residential",
+          "elevation": 0.17426949084935747,
+          "subtype": "waterfront_apartment"
+        },
+        {
+          "x": 18,
+          "y": 3,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 19,
+          "y": 3,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 4,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 1,
+          "y": 4,
+          "type": "residential",
+          "elevation": 0.18405409262684444,
+          "subtype": "waterfront_apartment"
+        },
+        {
+          "x": 2,
+          "y": 4,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 3,
+          "y": 4,
+          "type": "road",
+          "elevation": 0.22499999999999998,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 4,
+          "y": 4,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 5,
+          "y": 4,
+          "type": "road",
+          "elevation": 0.375,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 6,
+          "y": 4,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 7,
+          "y": 4,
+          "type": "road",
+          "elevation": 0.22499999999999998,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 8,
+          "y": 4,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 9,
+          "y": 4,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "bridge",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 10,
+          "y": 4,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "bridge"
+        },
+        {
+          "x": 11,
+          "y": 4,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 12,
+          "y": 4,
+          "type": "residential",
+          "elevation": 0.3099531106865656,
+          "subtype": "garden_villa"
+        },
+        {
+          "x": 13,
+          "y": 4,
+          "type": "residential",
+          "elevation": 0.18753786898734592,
+          "subtype": "waterfront_apartment"
+        },
+        {
+          "x": 14,
+          "y": 4,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 15,
+          "y": 4,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "bridge"
+        },
+        {
+          "x": 16,
+          "y": 4,
+          "type": "residential",
+          "elevation": 0.32875603665593006,
+          "subtype": "garden_villa"
+        },
+        {
+          "x": 17,
+          "y": 4,
+          "type": "park",
+          "elevation": 0.16611273292127174,
+          "subtype": "waterfront_promenade"
+        },
+        {
+          "x": 18,
+          "y": 4,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 19,
+          "y": 4,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 5,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 1,
+          "y": 5,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 2,
+          "y": 5,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "bridge",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 3,
+          "y": 5,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 4,
+          "y": 5,
+          "type": "road",
+          "elevation": 0.22499999999999998,
+          "subtype": "street"
+        },
+        {
+          "x": 5,
+          "y": 5,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 6,
+          "y": 5,
+          "type": "road",
+          "elevation": 0.22499999999999998,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 7,
+          "y": 5,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 8,
+          "y": 5,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "bridge",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 9,
+          "y": 5,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 10,
+          "y": 5,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 11,
+          "y": 5,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "bridge",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 12,
+          "y": 5,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street"
+        },
+        {
+          "x": 13,
+          "y": 5,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street"
+        },
+        {
+          "x": 14,
+          "y": 5,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "bridge"
+        },
+        {
+          "x": 15,
+          "y": 5,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "bridge"
+        },
+        {
+          "x": 16,
+          "y": 5,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "bridge"
+        },
+        {
+          "x": 17,
+          "y": 5,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 18,
+          "y": 5,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 19,
+          "y": 5,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 6,
+          "type": "empty",
+          "elevation": 0.15330993425362244,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 1,
+          "y": 6,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 2,
+          "y": 6,
+          "type": "residential",
+          "elevation": 0.15160119111530804,
+          "subtype": "waterfront_apartment"
+        },
+        {
+          "x": 3,
+          "y": 6,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 4,
+          "y": 6,
+          "type": "residential",
+          "elevation": 0.4759599424006326,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 5,
+          "y": 6,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 6,
+          "y": 6,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 7,
+          "y": 6,
+          "type": "road",
+          "elevation": 0.22499999999999998,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 8,
+          "y": 6,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 9,
+          "y": 6,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "bridge",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 10,
+          "y": 6,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 11,
+          "y": 6,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "bridge",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 12,
+          "y": 6,
+          "type": "residential",
+          "elevation": 0.3023778289778807,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 13,
+          "y": 6,
+          "type": "residential",
+          "elevation": 0.1706387512718065,
+          "subtype": "waterfront_apartment"
+        },
+        {
+          "x": 14,
+          "y": 6,
+          "type": "residential",
+          "elevation": 0.1724587207538314,
+          "subtype": "waterfront_apartment"
+        },
+        {
+          "x": 15,
+          "y": 6,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 16,
+          "y": 6,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 17,
+          "y": 6,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 18,
+          "y": 6,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 19,
+          "y": 6,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 7,
+          "type": "park",
+          "elevation": 0.15495540504431785,
+          "subtype": "waterfront_promenade"
+        },
+        {
+          "x": 1,
+          "y": 7,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 2,
+          "y": 7,
+          "type": "residential",
+          "elevation": 0.1731261319893668,
+          "subtype": "waterfront_apartment"
+        },
+        {
+          "x": 3,
+          "y": 7,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 4,
+          "y": 7,
+          "type": "residential",
+          "elevation": 0.4781899630890472,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 5,
+          "y": 7,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 6,
+          "y": 7,
+          "type": "residential",
+          "elevation": 0.7510674052702275,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 7,
+          "y": 7,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 8,
+          "y": 7,
+          "type": "road",
+          "elevation": 0.22499999999999998,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 9,
+          "y": 7,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 10,
+          "y": 7,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "bridge",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 11,
+          "y": 7,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 12,
+          "y": 7,
+          "type": "residential",
+          "elevation": 0.16953622664195622,
+          "subtype": "waterfront_apartment"
+        },
+        {
+          "x": 13,
+          "y": 7,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 14,
+          "y": 7,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 15,
+          "y": 7,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 16,
+          "y": 7,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 17,
+          "y": 7,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 18,
+          "y": 7,
+          "type": "empty",
+          "elevation": 0.19482539605671134,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 19,
+          "y": 7,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 8,
+          "type": "empty",
+          "elevation": 0.1732812402468319,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 1,
+          "y": 8,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 2,
+          "y": 8,
+          "type": "residential",
+          "elevation": 0.17545656601182724,
+          "subtype": "waterfront_apartment"
+        },
+        {
+          "x": 3,
+          "y": 8,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 4,
+          "y": 8,
+          "type": "road",
+          "elevation": 0.22499999999999998,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 5,
+          "y": 8,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 6,
+          "y": 8,
+          "type": "road",
+          "elevation": 0.375,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 7,
+          "y": 8,
+          "type": "road",
+          "elevation": 0.375,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 8,
+          "y": 8,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 9,
+          "y": 8,
+          "type": "road",
+          "elevation": 0.22499999999999998,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 10,
+          "y": 8,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 11,
+          "y": 8,
+          "type": "residential",
+          "elevation": 0.16639214545800488,
+          "subtype": "waterfront_apartment"
+        },
+        {
+          "x": 12,
+          "y": 8,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 13,
+          "y": 8,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 14,
+          "y": 8,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 15,
+          "y": 8,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 16,
+          "y": 8,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 17,
+          "y": 8,
+          "type": "empty",
+          "elevation": 0.16299087747983182,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 18,
+          "y": 8,
+          "type": "empty",
+          "elevation": 0.1928771304644234,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 19,
+          "y": 8,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 9,
+          "type": "park",
+          "elevation": 0.1521153246009231,
+          "subtype": "waterfront_promenade"
+        },
+        {
+          "x": 1,
+          "y": 9,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 2,
+          "y": 9,
+          "type": "residential",
+          "elevation": 0.16758867230662808,
+          "subtype": "waterfront_apartment"
+        },
+        {
+          "x": 3,
+          "y": 9,
+          "type": "residential",
+          "elevation": 0.3106337392390488,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 4,
+          "y": 9,
+          "type": "road",
+          "elevation": 0.22499999999999998,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 5,
+          "y": 9,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street"
+        },
+        {
+          "x": 6,
+          "y": 9,
+          "type": "residential",
+          "elevation": 0.7860219453441827,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 7,
+          "y": 9,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 8,
+          "y": 9,
+          "type": "road",
+          "elevation": 0.22499999999999998,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 9,
+          "y": 9,
+          "type": "residential",
+          "elevation": 0.3144214723742819,
+          "subtype": "urban_apartment"
+        },
+        {
+          "x": 10,
+          "y": 9,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "bridge",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 11,
+          "y": 9,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 12,
+          "y": 9,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 13,
+          "y": 9,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 14,
+          "y": 9,
+          "type": "residential",
+          "elevation": 0.16302999078898198,
+          "subtype": "waterfront_apartment"
+        },
+        {
+          "x": 15,
+          "y": 9,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "bridge"
+        },
+        {
+          "x": 16,
+          "y": 9,
+          "type": "residential",
+          "elevation": 0.15829583483515877,
+          "subtype": "waterfront_apartment"
+        },
+        {
+          "x": 17,
+          "y": 9,
+          "type": "park",
+          "elevation": 0.3332749829293976,
+          "subtype": "community_garden"
+        },
+        {
+          "x": 18,
+          "y": 9,
+          "type": "residential",
+          "elevation": 0.19989265499940778,
+          "subtype": "waterfront_apartment"
+        },
+        {
+          "x": 19,
+          "y": 9,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 10,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 1,
+          "y": 10,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 2,
+          "y": 10,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "bridge"
+        },
+        {
+          "x": 3,
+          "y": 10,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street"
+        },
+        {
+          "x": 4,
+          "y": 10,
+          "type": "road",
+          "elevation": 0.22499999999999998,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 5,
+          "y": 10,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street"
+        },
+        {
+          "x": 6,
+          "y": 10,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street"
+        },
+        {
+          "x": 7,
+          "y": 10,
+          "type": "road",
+          "elevation": 0.22499999999999998,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 8,
+          "y": 10,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 9,
+          "y": 10,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "bridge"
+        },
+        {
+          "x": 10,
+          "y": 10,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 11,
+          "y": 10,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 12,
+          "y": 10,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 13,
+          "y": 10,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "bridge"
+        },
+        {
+          "x": 14,
+          "y": 10,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street"
+        },
+        {
+          "x": 15,
+          "y": 10,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street"
+        },
+        {
+          "x": 16,
+          "y": 10,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street"
+        },
+        {
+          "x": 17,
+          "y": 10,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street"
+        },
+        {
+          "x": 18,
+          "y": 10,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "bridge"
+        },
+        {
+          "x": 19,
+          "y": 10,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 11,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 1,
+          "y": 11,
+          "type": "empty",
+          "elevation": 0.18979437124381168,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 2,
+          "y": 11,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 3,
+          "y": 11,
+          "type": "residential",
+          "elevation": 0.179373899909196,
+          "subtype": "waterfront_apartment"
+        },
+        {
+          "x": 4,
+          "y": 11,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 5,
+          "y": 11,
+          "type": "road",
+          "elevation": 0.22499999999999998,
+          "subtype": "street"
+        },
+        {
+          "x": 6,
+          "y": 11,
+          "type": "school",
+          "elevation": 0.614696896609175,
+          "subtype": "neighborhood_school"
+        },
+        {
+          "x": 7,
+          "y": 11,
+          "type": "residential",
+          "elevation": 0.48295719302029494,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 8,
+          "y": 11,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 9,
+          "y": 11,
+          "type": "residential",
+          "elevation": 0.1709410103203134,
+          "subtype": "waterfront_apartment"
+        },
+        {
+          "x": 10,
+          "y": 11,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 11,
+          "y": 11,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 12,
+          "y": 11,
+          "type": "residential",
+          "elevation": 0.15893563586961076,
+          "subtype": "waterfront_apartment"
+        },
+        {
+          "x": 13,
+          "y": 11,
+          "type": "residential",
+          "elevation": 0.3018719393616625,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 14,
+          "y": 11,
+          "type": "hospital",
+          "elevation": 0.4896053429360203,
+          "subtype": "emergency_hospital"
+        },
+        {
+          "x": 15,
+          "y": 11,
+          "type": "road",
+          "elevation": 0.22499999999999998,
+          "subtype": "street"
+        },
+        {
+          "x": 16,
+          "y": 11,
+          "type": "residential",
+          "elevation": 0.46678184621834823,
+          "subtype": "garden_villa"
+        },
+        {
+          "x": 17,
+          "y": 11,
+          "type": "residential",
+          "elevation": 0.3141763439342607,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 18,
+          "y": 11,
+          "type": "residential",
+          "elevation": 0.17330157408038183,
+          "subtype": "waterfront_apartment"
+        },
+        {
+          "x": 19,
+          "y": 11,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 12,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 1,
+          "y": 12,
+          "type": "empty",
+          "elevation": 0.16630073442768645,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 2,
+          "y": 12,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 3,
+          "y": 12,
+          "type": "residential",
+          "elevation": 0.19462561458966315,
+          "subtype": "waterfront_apartment"
+        },
+        {
+          "x": 4,
+          "y": 12,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 5,
+          "y": 12,
+          "type": "road",
+          "elevation": 0.22499999999999998,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 6,
+          "y": 12,
+          "type": "school",
+          "elevation": 0.6085391021499255,
+          "subtype": "neighborhood_school"
+        },
+        {
+          "x": 7,
+          "y": 12,
+          "type": "residential",
+          "elevation": 0.49396574606301974,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 8,
+          "y": 12,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 9,
+          "y": 12,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "bridge",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 10,
+          "y": 12,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 11,
+          "y": 12,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 12,
+          "y": 12,
+          "type": "residential",
+          "elevation": 0.18073000516638893,
+          "subtype": "waterfront_apartment"
+        },
+        {
+          "x": 13,
+          "y": 12,
+          "type": "residential",
+          "elevation": 0.31599572407225857,
+          "subtype": "family_home"
+        },
+        {
+          "x": 14,
+          "y": 12,
+          "type": "hospital",
+          "elevation": 0.45447702320234273,
+          "subtype": "emergency_hospital"
+        },
+        {
+          "x": 15,
+          "y": 12,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street"
+        },
+        {
+          "x": 16,
+          "y": 12,
+          "type": "park",
+          "elevation": 0.4778251694863541,
+          "subtype": "community_garden"
+        },
+        {
+          "x": 17,
+          "y": 12,
+          "type": "residential",
+          "elevation": 0.34135707195717685,
+          "subtype": "garden_villa"
+        },
+        {
+          "x": 18,
+          "y": 12,
+          "type": "residential",
+          "elevation": 0.15287298754529224,
+          "subtype": "waterfront_apartment"
+        },
+        {
+          "x": 19,
+          "y": 12,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 13,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 1,
+          "y": 13,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 2,
+          "y": 13,
+          "type": "empty",
+          "elevation": 0.1744970359001442,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 3,
+          "y": 13,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 4,
+          "y": 13,
+          "type": "residential",
+          "elevation": 0.1796535843061853,
+          "subtype": "waterfront_apartment"
+        },
+        {
+          "x": 5,
+          "y": 13,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 6,
+          "y": 13,
+          "type": "park",
+          "elevation": 0.49619399323677127,
+          "subtype": "community_garden"
+        },
+        {
+          "x": 7,
+          "y": 13,
+          "type": "residential",
+          "elevation": 0.3447434819833686,
+          "subtype": "garden_villa"
+        },
+        {
+          "x": 8,
+          "y": 13,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 9,
+          "y": 13,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "bridge"
+        },
+        {
+          "x": 10,
+          "y": 13,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "bridge"
+        },
+        {
+          "x": 11,
+          "y": 13,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "bridge",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 12,
+          "y": 13,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 13,
+          "y": 13,
+          "type": "residential",
+          "elevation": 0.45383595289227463,
+          "subtype": "garden_villa"
+        },
+        {
+          "x": 14,
+          "y": 13,
+          "type": "park",
+          "elevation": 0.6268286079147631,
+          "subtype": "community_garden"
+        },
+        {
+          "x": 15,
+          "y": 13,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street"
+        },
+        {
+          "x": 16,
+          "y": 13,
+          "type": "residential",
+          "elevation": 0.48002468951223615,
+          "subtype": "garden_villa"
+        },
+        {
+          "x": 17,
+          "y": 13,
+          "type": "residential",
+          "elevation": 0.3030866987807686,
+          "subtype": "family_home"
+        },
+        {
+          "x": 18,
+          "y": 13,
+          "type": "residential",
+          "elevation": 0.1731268815722319,
+          "subtype": "waterfront_apartment"
+        },
+        {
+          "x": 19,
+          "y": 13,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 14,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 1,
+          "y": 14,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 2,
+          "y": 14,
+          "type": "residential",
+          "elevation": 0.16113161596833964,
+          "subtype": "waterfront_apartment"
+        },
+        {
+          "x": 3,
+          "y": 14,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 4,
+          "y": 14,
+          "type": "residential",
+          "elevation": 0.1944263200712965,
+          "subtype": "waterfront_apartment"
+        },
+        {
+          "x": 5,
+          "y": 14,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 6,
+          "y": 14,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 7,
+          "y": 14,
+          "type": "residential",
+          "elevation": 0.17364603063553238,
+          "subtype": "waterfront_apartment"
+        },
+        {
+          "x": 8,
+          "y": 14,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "bridge",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 9,
+          "y": 14,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 10,
+          "y": 14,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 11,
+          "y": 14,
+          "type": "residential",
+          "elevation": 0.16436904566277324,
+          "subtype": "waterfront_apartment"
+        },
+        {
+          "x": 12,
+          "y": 14,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 13,
+          "y": 14,
+          "type": "park",
+          "elevation": 0.46088986413679456,
+          "subtype": "community_garden"
+        },
+        {
+          "x": 14,
+          "y": 14,
+          "type": "residential",
+          "elevation": 0.6359478221825963,
+          "subtype": "garden_villa"
+        },
+        {
+          "x": 15,
+          "y": 14,
+          "type": "road",
+          "elevation": 0.22499999999999998,
+          "subtype": "street"
+        },
+        {
+          "x": 16,
+          "y": 14,
+          "type": "park",
+          "elevation": 0.3155128523854109,
+          "subtype": "community_garden"
+        },
+        {
+          "x": 17,
+          "y": 14,
+          "type": "residential",
+          "elevation": 0.3293758534134644,
+          "subtype": "garden_villa"
+        },
+        {
+          "x": 18,
+          "y": 14,
+          "type": "empty",
+          "elevation": 0.16314967037991465,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 19,
+          "y": 14,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 15,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 1,
+          "y": 15,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "bridge"
+        },
+        {
+          "x": 2,
+          "y": 15,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "bridge"
+        },
+        {
+          "x": 3,
+          "y": 15,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "bridge"
+        },
+        {
+          "x": 4,
+          "y": 15,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "bridge"
+        },
+        {
+          "x": 5,
+          "y": 15,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street"
+        },
+        {
+          "x": 6,
+          "y": 15,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "bridge",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 7,
+          "y": 15,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 8,
+          "y": 15,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 9,
+          "y": 15,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 10,
+          "y": 15,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "bridge"
+        },
+        {
+          "x": 11,
+          "y": 15,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street"
+        },
+        {
+          "x": 12,
+          "y": 15,
+          "type": "road",
+          "elevation": 0.22499999999999998,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 13,
+          "y": 15,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 14,
+          "y": 15,
+          "type": "road",
+          "elevation": 0.22499999999999998,
+          "subtype": "street"
+        },
+        {
+          "x": 15,
+          "y": 15,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street"
+        },
+        {
+          "x": 16,
+          "y": 15,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "bridge"
+        },
+        {
+          "x": 17,
+          "y": 15,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street"
+        },
+        {
+          "x": 18,
+          "y": 15,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "bridge"
+        },
+        {
+          "x": 19,
+          "y": 15,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 16,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 1,
+          "y": 16,
+          "type": "empty",
+          "elevation": 0.18410630514078702,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 2,
+          "y": 16,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 3,
+          "y": 16,
+          "type": "residential",
+          "elevation": 0.15022564485952286,
+          "subtype": "waterfront_apartment"
+        },
+        {
+          "x": 4,
+          "y": 16,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 5,
+          "y": 16,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "bridge"
+        },
+        {
+          "x": 6,
+          "y": 16,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "bridge",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 7,
+          "y": 16,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 8,
+          "y": 16,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 9,
+          "y": 16,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 10,
+          "y": 16,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "bridge",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 11,
+          "y": 16,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 12,
+          "y": 16,
+          "type": "road",
+          "elevation": 0.22499999999999998,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 13,
+          "y": 16,
+          "type": "road",
+          "elevation": 0.22499999999999998,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 14,
+          "y": 16,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 15,
+          "y": 16,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "bridge"
+        },
+        {
+          "x": 16,
+          "y": 16,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 17,
+          "y": 16,
+          "type": "residential",
+          "elevation": 0.1609988069140051,
+          "subtype": "waterfront_apartment"
+        },
+        {
+          "x": 18,
+          "y": 16,
+          "type": "residential",
+          "elevation": 0.16662974013774223,
+          "subtype": "waterfront_apartment"
+        },
+        {
+          "x": 19,
+          "y": 16,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 17,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 1,
+          "y": 17,
+          "type": "empty",
+          "elevation": 0.17503089265346664,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 2,
+          "y": 17,
+          "type": "empty",
+          "elevation": 0.16786444518908777,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 3,
+          "y": 17,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 4,
+          "y": 17,
+          "type": "empty",
+          "elevation": 0.1530985881692888,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 5,
+          "y": 17,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street"
+        },
+        {
+          "x": 6,
+          "y": 17,
+          "type": "empty",
+          "elevation": 0.17037152789774715,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 7,
+          "y": 17,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 8,
+          "y": 17,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 9,
+          "y": 17,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "bridge",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 10,
+          "y": 17,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street"
+        },
+        {
+          "x": 11,
+          "y": 17,
+          "type": "residential",
+          "elevation": 0.34939633373804185,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 12,
+          "y": 17,
+          "type": "residential",
+          "elevation": 0.3367428431456813,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 13,
+          "y": 17,
+          "type": "residential",
+          "elevation": 0.34229280111589516,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 14,
+          "y": 17,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 15,
+          "y": 17,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 16,
+          "y": 17,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "bridge",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 17,
+          "y": 17,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 18,
+          "y": 17,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "bridge",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 19,
+          "y": 17,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 18,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 1,
+          "y": 18,
+          "type": "empty",
+          "elevation": 0.18411089652658694,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 2,
+          "y": 18,
+          "type": "empty",
+          "elevation": 0.3372464763142801,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 3,
+          "y": 18,
+          "type": "empty",
+          "elevation": 0.16286773276438585,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 4,
+          "y": 18,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 5,
+          "y": 18,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "bridge"
+        },
+        {
+          "x": 6,
+          "y": 18,
+          "type": "residential",
+          "elevation": 0.16944248445448326,
+          "subtype": "waterfront_apartment"
+        },
+        {
+          "x": 7,
+          "y": 18,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 8,
+          "y": 18,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 9,
+          "y": 18,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "bridge",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 10,
+          "y": 18,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "bridge",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 11,
+          "y": 18,
+          "type": "residential",
+          "elevation": 0.1690426484468717,
+          "subtype": "waterfront_apartment"
+        },
+        {
+          "x": 12,
+          "y": 18,
+          "type": "residential",
+          "elevation": 0.1684333763220637,
+          "subtype": "waterfront_apartment"
+        },
+        {
+          "x": 13,
+          "y": 18,
+          "type": "empty",
+          "elevation": 0.18938547351209759,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 14,
+          "y": 18,
+          "type": "empty",
+          "elevation": 0.16343576803459467,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 15,
+          "y": 18,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "bridge",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 16,
+          "y": 18,
+          "type": "residential",
+          "elevation": 0.17786627919824208,
+          "subtype": "waterfront_apartment"
+        },
+        {
+          "x": 17,
+          "y": 18,
+          "type": "residential",
+          "elevation": 0.15552433029996426,
+          "subtype": "waterfront_apartment"
+        },
+        {
+          "x": 18,
+          "y": 18,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "bridge",
+          "explanation": "Real-world road imported from OpenStreetMap data."
+        },
+        {
+          "x": 19,
+          "y": 18,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 19,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 1,
+          "y": 19,
+          "type": "empty",
+          "elevation": 0.16500387113098214,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 2,
+          "y": 19,
+          "type": "empty",
+          "elevation": 0.3200687063473517,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 3,
+          "y": 19,
+          "type": "empty",
+          "elevation": 0.31325986035974723,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 4,
+          "y": 19,
+          "type": "empty",
+          "elevation": 0.176335869076628,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 5,
+          "y": 19,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "bridge"
+        },
+        {
+          "x": 6,
+          "y": 19,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 7,
+          "y": 19,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 8,
+          "y": 19,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 9,
+          "y": 19,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 10,
+          "y": 19,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 11,
+          "y": 19,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 12,
+          "y": 19,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 13,
+          "y": 19,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 14,
+          "y": 19,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 15,
+          "y": 19,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 16,
+          "y": 19,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 17,
+          "y": 19,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 18,
+          "y": 19,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        },
+        {
+          "x": 19,
+          "y": 19,
+          "type": "water",
+          "elevation": 0,
+          "subtype": "river",
+          "explanation": "Real-world water body imported from OpenStreetMap data."
+        }
+      ]
+    ],
+    "timestamp": 1775285308313,
+    "ai_model": "map-osm-seed"
+  },
+  {
     "id": "93070758-3765-4d9f-b9ea-b951d04fe7eb",
     "prompt": "Map simulation: 12.9716, 77.5946",
     "layoutData": [
