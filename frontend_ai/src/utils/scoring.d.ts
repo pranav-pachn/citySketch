@@ -1,35 +1,23 @@
-import type { GridCell } from '../types'
-
-export function calcSustainability(grid: GridCell[][] | null | undefined): string
-export function calcTraffic(grid: GridCell[][] | null | undefined): string
-export function calcWalkability(grid: GridCell[][] | null | undefined): string
-export interface UrbanMetric {
-  value: number
-  display: string
-  formula: string
+interface ScoreMetric {
+  value: number;
+  display: string;
+  formula: string;
+  averageDistance?: number;
 }
 
-export interface WalkabilityMetric extends UrbanMetric {
-  averageDistance: number
-}
-
-export function calculateScores(grid: GridCell[][] | null | undefined): {
-  totalCells: number
-  counts: {
-    residential: number
-    commercial: number
-    hospital: number
-    industrial: number
-    park: number
-    road: number
-    water: number
-    empty: number
-  }
+interface ScoreResult {
+  totalCells: number;
+  counts: Record<string, number>;
   metrics: {
-    sustainability: UrbanMetric
-    traffic: UrbanMetric
-    walkability: WalkabilityMetric
-    density: UrbanMetric
-    liveability: UrbanMetric
-  }
+    sustainability: ScoreMetric;
+    traffic: ScoreMetric;
+    walkability: ScoreMetric & { averageDistance: number };
+    density: ScoreMetric;
+    liveability: ScoreMetric;
+  };
 }
+
+export function calcSustainability(grid: any[][]): string;
+export function calcTraffic(grid: any[][]): string;
+export function calcWalkability(grid: any[][]): 'High' | 'Low';
+export function calculateScores(grid: any[][]): ScoreResult;

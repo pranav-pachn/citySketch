@@ -1,3 +1,1 @@
-import type { GridCell } from '../types'
-
-export function getExplanation(type: GridCell['type']): string
+export function getExplanation(type: string, neighborTypes?: string[]): string;

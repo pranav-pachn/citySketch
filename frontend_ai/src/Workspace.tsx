@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, lazy, Suspense } from 'react'
 import { useStore } from './store/useStore'
 import { Sidebar, SidebarExpandBtn } from './components/Sidebar'
 import { WorkspaceHeader } from './components/WorkspaceHeader'
@@ -6,11 +6,16 @@ import { Canvas } from './components/Canvas'
 import { ChatInput } from './components/ChatInput'
 import { CellDetail } from './components/CellDetail'
 import { Toasts } from './components/Toast'
-import { Minimize2 } from 'lucide-react'
+import { Minimize2, MapPin } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { getExplanation } from './utils/explain.js'
 import type { GridCell } from './types'
 import './index.css'
+
+// Lazy-load the map component to avoid loading leaflet until needed
+const SiteSelector = lazy(() =>
+  import('./components/SiteSelector').then((m) => ({ default: m.SiteSelector }))
+)
 
 export default function App() {
   const setViewMode = useStore((s) => s.setViewMode)
@@ -21,8 +26,11 @@ export default function App() {
   const isCanvasMaximized = useStore((s) => s.isCanvasMaximized)
   const setCanvasMaximized = useStore((s) => s.setCanvasMaximized)
   const layoutData = useStore((s) => s.layoutData)
+  const submitMapContext = useStore((s) => s.submitMapContext)
+  const isLoading = useStore((s) => s.isLoading)
   const [explanation, setExplanation] = useState('')
   const [isExplanationOpen, setIsExplanationOpen] = useState(false)
+  const [showMapSelector, setShowMapSelector] = useState(false)
 
   // Initial load
   useEffect(() => {
@@ -51,6 +59,7 @@ export default function App() {
       if (e.key === 'Escape') {
         setSelectedCell(null)
         setCanvasMaximized(false)
+        setShowMapSelector(false)
       }
 
       if ((e.metaKey || e.ctrlKey) && e.key === 'n') {
@@ -174,9 +183,37 @@ export default function App() {
           <Canvas onCellExplain={handleCellExplain} />
           <CellDetail />
         </div>
-        <ChatInput />
+        <div style={{ position: 'relative' }}>
+          <ChatInput />
+          <button
+            onClick={() => setShowMapSelector(true)}
+            disabled={isLoading}
+            className="absolute right-3 -top-12 z-30 flex items-center gap-2 rounded-xl border border-zinc-700/60 bg-zinc-900/90 px-3.5 py-2 text-xs font-semibold text-zinc-300 shadow-lg backdrop-blur transition hover:border-blue-500/50 hover:bg-zinc-800 hover:text-blue-400 disabled:opacity-40"
+            title="Select a real-world location to simulate"
+          >
+            <MapPin size={14} />
+            Import from Map
+          </button>
+        </div>
       </main>
       <Toasts />
+
+      {/* Map Site Selector Modal */}
+      {showMapSelector && (
+        <Suspense fallback={
+          <div className="fixed inset-0 z-[200] flex items-center justify-center bg-zinc-950">
+            <div className="animate-spin h-8 w-8 rounded-full border-2 border-zinc-700 border-t-blue-500" />
+          </div>
+        }>
+          <SiteSelector
+            onClose={() => setShowMapSelector(false)}
+            onConfirm={(ctx) => {
+              setShowMapSelector(false)
+              submitMapContext(ctx.bbox, ctx.locationName, 20)
+            }}
+          />
+        </Suspense>
+      )}
     </div>
   )
 }

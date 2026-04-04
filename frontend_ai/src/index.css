@@ -725,6 +725,30 @@ body {
   flex-shrink: 0;
 }
 
+.save-layout-btn {
+  margin-top: 10px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: rgba(59, 130, 246, 0.12);
+  color: #c9dcff;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 150ms, border-color 150ms, color 150ms;
+}
+
+.save-layout-btn:hover {
+  background: rgba(59, 130, 246, 0.22);
+  border-color: rgba(59, 130, 246, 0.45);
+  color: #e6f0ff;
+}
+
 /* ═══════════ CODE VIEW ═══════════ */
 .code-view {
   width: 100%;

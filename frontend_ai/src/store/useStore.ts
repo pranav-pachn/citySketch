@@ -56,9 +56,11 @@ interface AppState {
 
   // Cell editing
   updateCellType: (x: number, y: number, type: GridCell['type']) => void
+  hasUnsavedLayoutChanges: boolean
 
   // Actions
   submitPrompt: (saveToHistory?: boolean) => Promise<void>
+  submitMapContext: (bbox: [number, number, number, number], locationName: string, gridSize?: number) => Promise<void>
   saveCurrentLayout: () => Promise<void>
   newSession: () => void
   fetchHistory: () => Promise<void>
@@ -109,6 +111,7 @@ export const useStore = create<AppState>((set, get) => ({
   isLoading: false,
   setIsLoading: (loading) => set({ isLoading: loading }),
   generationId: 0,
+  hasUnsavedLayoutChanges: false,
 
   history: [],
   activeHistoryId: null,
@@ -124,11 +127,12 @@ export const useStore = create<AppState>((set, get) => ({
         selectedCell: null,
         detailOpen: false,
         prompt: '',
+        hasUnsavedLayoutChanges: false,
       })
     }
   },
   clearHistory: () => {
-    set({ history: [], activeHistoryId: null, layoutData: null, selectedCell: null, detailOpen: false })
+    set({ history: [], activeHistoryId: null, layoutData: null, selectedCell: null, detailOpen: false, hasUnsavedLayoutChanges: false })
     get().addToast('History cleared')
   },
   deleteHistoryItem: async (id) => {
@@ -142,6 +146,7 @@ export const useStore = create<AppState>((set, get) => ({
         updates.layoutData = null
         updates.selectedCell = null
         updates.detailOpen = false
+        updates.hasUnsavedLayoutChanges = false
       }
       set(updates as AppState)
     } catch (error) {
@@ -162,6 +167,9 @@ export const useStore = create<AppState>((set, get) => ({
   updateCellType: (x, y, type) => {
     const { layoutData, activeHistoryId, history } = get()
     if (!layoutData) return
+    const existing = layoutData[y]?.[x]
+    if (!existing || existing.type === type) return
+
     const newData = layoutData.map((row) =>
       row.map((cell) => (cell.x === x && cell.y === y ? { ...cell, type } : cell))
     )
@@ -169,7 +177,7 @@ export const useStore = create<AppState>((set, get) => ({
     const newHistory = history.map((h) =>
       h.id === activeHistoryId ? { ...h, layoutData: newData } : h
     )
-    set({ layoutData: newData, history: newHistory, selectedCell: { x, y, type } })
+    set({ layoutData: newData, history: newHistory, selectedCell: { x, y, type }, hasUnsavedLayoutChanges: true })
   },
 
   submitPrompt: async (saveToHistory = false) => {
@@ -204,12 +212,52 @@ export const useStore = create<AppState>((set, get) => ({
         selectedCell: null,
         detailOpen: false,
         generationId: state.generationId + 1,
+        hasUnsavedLayoutChanges: false,
       }))
       addToast(saveToHistory ? 'Layout generated and saved' : 'Layout generated (not saved)')
     } catch (error) {
       console.error('Generation failed:', error)
       set({ isLoading: false })
       addToast('AI Generation Failed. Try again.', 'info')
+    }
+  },
+
+  submitMapContext: async (bbox, locationName, gridSize = 20) => {
+    const { setIsLoading, addHistory, setActiveHistoryId, setLayoutData, addToast } = get()
+
+    setIsLoading(true)
+
+    try {
+      const res = await fetch(apiUrl('/api/generate-from-map'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bbox, gridSize, locationName }),
+      })
+
+      if (!res.ok) {
+        throw new Error('Failed to generate from map')
+      }
+
+      const data = await res.json()
+
+      setLayoutData(data.layoutData)
+      if (data?.id) {
+        addHistory(data)
+        setActiveHistoryId(data.id)
+      }
+      set((state) => ({
+        prompt: '',
+        isLoading: false,
+        selectedCell: null,
+        detailOpen: false,
+        generationId: state.generationId + 1,
+        hasUnsavedLayoutChanges: false,
+      }))
+      addToast(`Map simulation generated: ${locationName}`)
+    } catch (error) {
+      console.error('Map generation failed:', error)
+      set({ isLoading: false })
+      addToast('Map simulation failed. Try again.', 'info')
     }
   },
 
@@ -242,6 +290,7 @@ export const useStore = create<AppState>((set, get) => ({
       const saved = await res.json()
       addHistory(saved)
       setActiveHistoryId(saved.id)
+      set({ hasUnsavedLayoutChanges: false })
       addToast('Layout saved to history')
     } catch (error) {
       console.error('Failed to save layout snapshot', error)
@@ -257,6 +306,7 @@ export const useStore = create<AppState>((set, get) => ({
       detailOpen: false,
       prompt: '',
       viewMode: '2D',
+      hasUnsavedLayoutChanges: false,
     })
   },
 

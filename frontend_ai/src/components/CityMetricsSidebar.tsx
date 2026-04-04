@@ -26,6 +26,7 @@ export function CityMetricsSidebar() {
       case 'park': return 'bg-emerald-500'
       case 'road': return 'bg-zinc-500'
       case 'water': return 'bg-cyan-500'
+      case 'school': return 'bg-purple-600'
       default: return 'bg-zinc-700'
     }
   }

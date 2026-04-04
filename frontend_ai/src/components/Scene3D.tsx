@@ -16,6 +16,7 @@ const ZONE_PALETTE = {
   park:        { base: '#22c55e', trunk: '#7b341e', foliage: '#15803d' },
   industrial:  { base: '#a0aec0', smokestack: '#718096' },
   water:       { base: '#4299e1', wave: '#63b3ed' },
+  school:      { base: '#9c27b0', roof: '#7b1fa2', flag: '#f44336' },
   empty:       { base: '#1a202c' }
 }
 
@@ -156,6 +157,36 @@ const HospitalClinic = ({ x, z, seed }: { x: number, z: number, seed: number }) 
       <mesh position={[0, roofHeight + 0.08, 0]} castShadow>
         <boxGeometry args={[0.08, 0.18, 0.08]} />
         <meshStandardMaterial color={ZONE_PALETTE.hospital.cross} />
+      </mesh>
+    </group>
+  )
+}
+
+/* Guide Section 8 — School building: height 1.8, multi-floor with flag pole */
+const SchoolBuilding = ({ x, z, seed }: { x: number, z: number, seed: number }) => {
+  const height = 0.6 + seededRandom(seed) * 0.3
+
+  return (
+    <group position={[x, 0, z]}>
+      {/* Main building */}
+      <mesh position={[0, height / 2, 0]} castShadow receiveShadow>
+        <boxGeometry args={[0.7, height, 0.5]} />
+        <meshStandardMaterial color={ZONE_PALETTE.school.base} roughness={0.6} />
+      </mesh>
+      {/* Roof */}
+      <mesh position={[0, height + 0.05, 0]} castShadow>
+        <boxGeometry args={[0.74, 0.06, 0.54]} />
+        <meshStandardMaterial color={ZONE_PALETTE.school.roof} roughness={0.7} />
+      </mesh>
+      {/* Flag pole */}
+      <mesh position={[0.3, height + 0.35, 0]}>
+        <cylinderGeometry args={[0.01, 0.01, 0.6, 6]} />
+        <meshStandardMaterial color="#e0e0e0" />
+      </mesh>
+      {/* Flag */}
+      <mesh position={[0.3, height + 0.55, 0.06]}>
+        <boxGeometry args={[0.01, 0.12, 0.12]} />
+        <meshStandardMaterial color={ZONE_PALETTE.school.flag} />
       </mesh>
     </group>
   )
@@ -306,6 +337,8 @@ function CityCell({ cell, offsetX, offsetZ, revealOrder, generationId }: { cell:
         return <RoadTile seed={seed} elevation={elevation} />
       case 'water':
         return <WaterTile elevation={elevation} />
+      case 'school':
+        return <SchoolBuilding x={0} z={0} seed={seed} />
       default:
         return null
     }
@@ -328,7 +361,8 @@ function CityCell({ cell, offsetX, offsetZ, revealOrder, generationId }: { cell:
     industrial: 'bg-slate-500',
     park: 'bg-green-500',
     water: 'bg-blue-400',
-    road: 'bg-gray-400'
+    road: 'bg-gray-400',
+    school: 'bg-purple-500'
   }
 
   return (

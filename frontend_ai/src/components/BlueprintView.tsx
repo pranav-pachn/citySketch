@@ -25,6 +25,7 @@ const BLUEPRINT_ZONE_COLORS: Record<GridCell['type'], string> = {
   hospital: '#ef4444',
   industrial: '#a855f7',
   water: '#06b6d4',
+  school: '#9c27b0',
   empty: '#f3efe8',
 }
 
@@ -249,6 +250,46 @@ const PARK_PLANS: Record<string, Room[]> = {
   ],
 }
 
+/* ── School Subtypes ── */
+const SCHOOL_PLANS: Record<string, Room[]> = {
+  neighborhood_school: [
+    { x: 0, y: 0, w: 100, h: 70, label: 'classroom #1' },
+    { x: 100, y: 0, w: 100, h: 70, label: 'classroom #2' },
+    { x: 0, y: 70, w: 80, h: 50, label: 'staff room' },
+    { x: 80, y: 70, w: 60, h: 50, label: 'principal office' },
+    { x: 140, y: 70, w: 60, h: 50, label: 'restrooms', hatch: true },
+    { x: 0, y: 120, w: 120, h: 40, label: 'assembly hall' },
+    { x: 120, y: 120, w: 80, h: 40, label: 'playground', diagonal: true },
+  ],
+  campus_school: [
+    { x: 0, y: 0, w: 80, h: 60, label: 'lecture hall #1' },
+    { x: 80, y: 0, w: 80, h: 60, label: 'lecture hall #2' },
+    { x: 160, y: 0, w: 50, h: 60, label: 'library' },
+    { x: 0, y: 60, w: 100, h: 50, label: 'science lab', hatch: true },
+    { x: 100, y: 60, w: 110, h: 50, label: 'computer lab', hatch: true },
+    { x: 0, y: 110, w: 80, h: 50, label: 'cafeteria' },
+    { x: 80, y: 110, w: 70, h: 50, label: 'admin block' },
+    { x: 150, y: 110, w: 60, h: 50, label: 'sports field', diagonal: true },
+  ],
+  campus: [
+    { x: 0, y: 0, w: 120, h: 80, label: 'main building' },
+    { x: 120, y: 0, w: 90, h: 40, label: 'auditorium' },
+    { x: 120, y: 40, w: 90, h: 40, label: 'library' },
+    { x: 0, y: 80, w: 100, h: 50, label: 'lab complex', hatch: true },
+    { x: 100, y: 80, w: 110, h: 50, label: 'sports complex', diagonal: true },
+    { x: 0, y: 130, w: 210, h: 30, label: 'parking + entry' },
+  ],
+  school_building: [
+    { x: 0, y: 0, w: 100, h: 60, label: 'classroom #1' },
+    { x: 100, y: 0, w: 100, h: 60, label: 'classroom #2' },
+    { x: 0, y: 60, w: 80, h: 50, label: 'art room' },
+    { x: 80, y: 60, w: 60, h: 50, label: 'music room' },
+    { x: 140, y: 60, w: 60, h: 50, label: 'office' },
+    { x: 0, y: 110, w: 120, h: 40, label: 'playground', diagonal: true },
+    { x: 120, y: 110, w: 80, h: 40, label: 'restrooms', hatch: true },
+  ],
+}
+
 /* ═══════ Lookup ═══════ */
 function getRoomsForCell(cell: GridCell): Room[] {
   const subtype = cell.subtype || ''
@@ -262,6 +303,8 @@ function getRoomsForCell(cell: GridCell): Room[] {
       return INDUSTRIAL_PLANS[subtype] || INDUSTRIAL_PLANS['factory']
     case 'park':
       return PARK_PLANS[subtype] || PARK_PLANS['community_garden']
+    case 'school':
+      return SCHOOL_PLANS[subtype] || SCHOOL_PLANS['school_building']
     default:
       return []
   }
@@ -292,6 +335,11 @@ const SUBTYPE_TITLES: Record<string, string> = {
   central_plaza: 'CENTRAL PLAZA — SITE PLAN',
   nature_reserve: 'NATURE RESERVE — SITE PLAN',
   community_garden: 'COMMUNITY GARDEN — SITE PLAN',
+  // School
+  neighborhood_school: 'NEIGHBORHOOD SCHOOL — FLOOR PLAN',
+  campus_school: 'CAMPUS SCHOOL — FLOOR PLAN',
+  campus: 'CAMPUS — SITE PLAN',
+  school_building: 'SCHOOL BUILDING — FLOOR PLAN',
 }
 
 const ZONE_FALLBACK_TITLES: Record<string, string> = {
@@ -299,6 +347,7 @@ const ZONE_FALLBACK_TITLES: Record<string, string> = {
   commercial: 'COMMERCIAL SPACE — FLOOR PLAN',
   industrial: 'INDUSTRIAL FACILITY — FLOOR PLAN',
   park: 'PARK — SITE PLAN',
+  school: 'SCHOOL — FLOOR PLAN',
   road: 'ROAD SECTION',
   water: 'WATER BODY',
   empty: 'UNDEVELOPED PLOT',
@@ -560,7 +609,7 @@ function drawCityOverview(
       // Show subtype abbreviation if available
       const abbrevs: Record<string, string> = {
         residential: 'R', commercial: 'C', industrial: 'I',
-        park: 'P', water: 'W', road: '', empty: '',
+        park: 'P', water: 'W', school: 'S', road: '', empty: '',
       }
       if (abbrevs[cell.type]) {
         ctx.font = `${Math.min(10, cellSize / 3)}px "Courier New", monospace`
@@ -577,23 +626,27 @@ function drawCityOverview(
   })
 
   // Legend
-  const legendY = startY + totalH + 25
+  const legendY = startY + totalH + 20
   const legendItems = [
     { label: 'R — Residential', color: BLUEPRINT_ZONE_COLORS.residential },
     { label: 'C — Commercial', color: BLUEPRINT_ZONE_COLORS.commercial },
     { label: 'I — Industrial', color: BLUEPRINT_ZONE_COLORS.industrial },
     { label: 'H — Hospital', color: BLUEPRINT_ZONE_COLORS.hospital },
+    { label: 'S — School', color: BLUEPRINT_ZONE_COLORS.school },
     { label: 'P — Park', color: BLUEPRINT_ZONE_COLORS.park },
     { label: 'W — Water', color: BLUEPRINT_ZONE_COLORS.water },
     { label: 'RD — Road', color: BLUEPRINT_ZONE_COLORS.road },
   ]
   const itemsPerRow = 4
   const legendItemW = totalW / itemsPerRow
+  const legendPaddingX = 8
+  const legendPaddingY = 6
+  const legendHorizontalPadding = 12
   legendItems.forEach((item, i) => {
     const row = Math.floor(i / itemsPerRow)
     const col = i % itemsPerRow
-    const lx = startX + col * legendItemW
-    const ly = legendY + row * 16
+    const lx = startX + col * legendItemW + legendPaddingX + col * legendHorizontalPadding
+    const ly = legendY + row * 22 + legendPaddingY
     ctx.font = '7px "Courier New", monospace'
     ctx.fillStyle = '#6b5d4d'
     ctx.textAlign = 'left'

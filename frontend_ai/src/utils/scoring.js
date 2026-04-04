@@ -1,3 +1,11 @@
+// ─── Guide Section 6 — Urban Score Formulas ───────────────────────────────
+//
+// Sustainability:  (park_cells / total_cells) × 100 × 3.5  → clamped 0–100
+// Traffic Score:    100 − (road_cells / total_cells) × 200  → fewer roads = better
+// Walkability:     max(0, 100 − avg_dist × 5)               → linear decay
+// Density:         (residential_cells / non_road_cells) × 100
+// Liveability:     composite (kept for UI continuity)
+
 const getTotalCells = (grid) => {
   if (!Array.isArray(grid) || grid.length === 0) return 0;
 
@@ -32,6 +40,7 @@ const countCells = (grid) => {
     park: 0,
     road: 0,
     water: 0,
+    school: 0,
     empty: 0,
   };
 
@@ -53,6 +62,26 @@ const countCells = (grid) => {
 
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
+const getNearestParkDistance = (grid, sourceCell) => {
+  let nearestDistance = Number.POSITIVE_INFINITY;
+
+  grid.forEach((row) => {
+    if (!Array.isArray(row)) return;
+
+    row.forEach((cell) => {
+      if (!cell || typeof cell !== 'object') return;
+      if (cell.type !== 'park') return;
+
+      const distance = Math.abs(sourceCell.x - cell.x) + Math.abs(sourceCell.y - cell.y);
+      if (distance < nearestDistance) {
+        nearestDistance = distance;
+      }
+    });
+  });
+
+  return nearestDistance;
+};
+
 const getNearestAmenityDistance = (grid, sourceCell) => {
   let nearestDistance = Number.POSITIVE_INFINITY;
 
@@ -71,23 +100,6 @@ const getNearestAmenityDistance = (grid, sourceCell) => {
   });
 
   return nearestDistance;
-};
-
-const hasAdjacentPark = (grid, rowIndex, colIndex) => {
-  const directions = [
-    [-1, 0],
-    [1, 0],
-    [0, -1],
-    [0, 1],
-  ];
-
-  return directions.some(([rowOffset, colOffset]) => {
-    const nextRow = rowIndex + rowOffset;
-    const nextCol = colIndex + colOffset;
-    const neighbor = grid?.[nextRow]?.[nextCol];
-
-    return neighbor?.type === 'park';
-  });
 };
 
 export const calcSustainability = (grid) => {
@@ -110,26 +122,22 @@ export const calcWalkability = (grid) => {
   if (!Array.isArray(grid) || grid.length === 0) return 'Low';
 
   let residentialCount = 0;
-  let residentialNearParkCount = 0;
+  let distanceSum = 0;
 
-  // Measure how many homes can reach a park in one block.
-  grid.forEach((row, rowIndex) => {
+  grid.forEach((row) => {
     if (!Array.isArray(row)) return;
-
-    row.forEach((cell, colIndex) => {
+    row.forEach((cell) => {
       if (cell?.type !== 'residential') return;
-
       residentialCount += 1;
-      if (hasAdjacentPark(grid, rowIndex, colIndex)) {
-        residentialNearParkCount += 1;
-      }
+      const d = getNearestParkDistance(grid, cell);
+      if (Number.isFinite(d)) distanceSum += d;
     });
   });
 
   if (residentialCount === 0) return 'Low';
-
-  const parkAccessRatio = residentialNearParkCount / residentialCount;
-  return parkAccessRatio >= 0.4 ? 'High' : 'Low';
+  const avgDist = distanceSum / residentialCount;
+  const walkScore = Math.max(0, 100 - avgDist * 5);
+  return walkScore >= 50 ? 'High' : 'Low';
 };
 
 export const calculateScores = (grid) => {
@@ -144,38 +152,48 @@ export const calculateScores = (grid) => {
         sustainability: {
           value: 0,
           display: '0.0%',
-          formula: 'park cells / total cells',
+          formula: '(park cells / total cells) × 100 × 3.5',
         },
         traffic: {
           value: 0,
-          display: '0.0%',
-          formula: 'road cells / total cells',
+          display: '0 / 100',
+          formula: '100 − (road cells / total cells) × 200',
         },
         walkability: {
           value: 0,
           display: '0 / 100',
-          formula: '100 / (1 + average residential distance to park/hospital)',
+          formula: 'max(0, 100 − avg residential→park distance × 5)',
           averageDistance: 0,
         },
         density: {
           value: 0,
           display: '0.0%',
-          formula: 'residential cells / total cells',
+          formula: 'residential cells / non-road cells',
         },
         liveability: {
           value: 0,
           display: '0 / 100',
           formula:
-            '0.30*sustainability + 0.35*walkability + 0.20*(100-traffic) + 0.15*density-balance',
+            '0.30×sustainability + 0.35×walkability + 0.20×(100−traffic) + 0.15×density-balance',
         },
       },
     };
   }
 
-  const sustainability = (counts.park / totalCells) * 100;
-  const traffic = (counts.road / totalCells) * 100;
-  const density = (counts.residential / totalCells) * 100;
+  // Guide Section 6 — Sustainability: scale up for visibility
+  const sustainabilityRaw = (counts.park / totalCells) * 100 * 3.5;
+  const sustainability = clamp(sustainabilityRaw, 0, 100);
 
+  // Guide Section 6 — Traffic Score: fewer roads = better
+  const trafficRaw = 100 - (counts.road / totalCells) * 200;
+  const traffic = clamp(trafficRaw, 0, 100);
+
+  // Guide Section 6 — Density: residential / non-road cells
+  const nonRoadCells = totalCells - counts.road;
+  const densityRaw = nonRoadCells > 0 ? (counts.residential / nonRoadCells) * 100 : 0;
+  const density = clamp(densityRaw, 0, 100);
+
+  // Guide Section 6 — Walkability: avg distance residential to nearest park
   let residentialCount = 0;
   let distanceSum = 0;
 
@@ -186,7 +204,7 @@ export const calculateScores = (grid) => {
       row.forEach((cell) => {
         if (!cell || cell.type !== 'residential') return;
 
-        const nearestDistance = getNearestAmenityDistance(grid, cell);
+        const nearestDistance = getNearestParkDistance(grid, cell);
         if (Number.isFinite(nearestDistance)) {
           residentialCount += 1;
           distanceSum += nearestDistance;
@@ -196,11 +214,13 @@ export const calculateScores = (grid) => {
   }
 
   const averageDistance = residentialCount > 0 ? distanceSum / residentialCount : 0;
-  const walkability = residentialCount > 0 ? 100 / (1 + averageDistance) : 0;
+  // Guide Section 6 — Walkability: linear decay
+  const walkability = residentialCount > 0 ? Math.max(0, 100 - averageDistance * 5) : 0;
 
+  // Liveability: composite (kept for UI continuity)
   const densityBalance = clamp(100 - Math.abs(density - 35) * 3, 0, 100);
   const liveability =
-    sustainability * 0.3 + walkability * 0.35 + (100 - traffic) * 0.2 + densityBalance * 0.15;
+    sustainability * 0.3 + walkability * 0.35 + traffic * 0.2 + densityBalance * 0.15;
 
   return {
     totalCells,
@@ -209,29 +229,29 @@ export const calculateScores = (grid) => {
       sustainability: {
         value: Math.round(clamp(sustainability, 0, 100)),
         display: `${sustainability.toFixed(1)}%`,
-        formula: 'park cells / total cells',
+        formula: '(park cells / total cells) × 100 × 3.5',
       },
       traffic: {
         value: Math.round(clamp(traffic, 0, 100)),
-        display: `${traffic.toFixed(1)}%`,
-        formula: 'road cells / total cells',
+        display: `${Math.round(clamp(traffic, 0, 100))} / 100`,
+        formula: '100 − (road cells / total cells) × 200',
       },
       walkability: {
         value: Math.round(clamp(walkability, 0, 100)),
         display: `${Math.round(clamp(walkability, 0, 100))} / 100`,
-        formula: '100 / (1 + average residential distance to park/hospital)',
+        formula: 'max(0, 100 − avg residential→park distance × 5)',
         averageDistance: Number(averageDistance.toFixed(2)),
       },
       density: {
         value: Math.round(clamp(density, 0, 100)),
         display: `${density.toFixed(1)}%`,
-        formula: 'residential cells / total cells',
+        formula: 'residential cells / non-road cells',
       },
       liveability: {
         value: Math.round(clamp(liveability, 0, 100)),
         display: `${Math.round(clamp(liveability, 0, 100))} / 100`,
         formula:
-          '0.30*sustainability + 0.35*walkability + 0.20*(100-traffic) + 0.15*density-balance',
+          '0.30×sustainability + 0.35×walkability + 0.20×traffic + 0.15×density-balance',
       },
     },
   };

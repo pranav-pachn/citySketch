@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CitySketch X Lite — Logic Implementation Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@300..700&display=swap" rel="stylesheet">
+<style>
+:root,[data-theme="light"]{
+  --color-bg:#f7f6f2;--color-surface:#f9f8f5;--color-surface-2:#fbfbf9;
+  --color-surface-offset:#f0ede8;--color-border:#d4d1ca;--color-divider:#dcd9d5;
+  --color-text:#28251d;--color-text-muted:#7a7974;--color-text-faint:#bab9b4;
+  --color-primary:#01696f;--color-primary-hover:#0c4e54;--color-primary-highlight:#cedcd8;
+  --color-success:#437a22;--color-success-highlight:#d4dfcc;
+  --color-warning:#964219;--color-warning-highlight:#ddcfc6;
+  --color-orange:#da7101;--color-orange-highlight:#e7d7c4;
+  --color-blue:#006494;--color-blue-highlight:#c6d8e4;
+  --color-purple:#7a39bb;--color-purple-highlight:#dacfde;
+  --color-error:#a12c7b;--color-error-highlight:#e0ced7;
+  --shadow-sm:0 1px 3px oklch(0.2 0.01 80/0.07);
+  --shadow-md:0 4px 16px oklch(0.2 0.01 80/0.09);
+  --shadow-lg:0 12px 36px oklch(0.2 0.01 80/0.13);
+  --radius-sm:0.375rem;--radius-md:0.5rem;--radius-lg:0.75rem;--radius-xl:1rem;--radius-full:9999px;
+  --font-body:'Inter',sans-serif;--font-mono:'JetBrains Mono',monospace;
+}
+[data-theme="dark"]{
+  --color-bg:#0f0e0d;--color-surface:#161513;--color-surface-2:#1c1b18;
+  --color-surface-offset:#222020;--color-border:#2e2d2a;--color-divider:#242321;
+  --color-text:#cdccca;--color-text-muted:#797876;--color-text-faint:#4a4947;
+  --color-primary:#4f98a3;--color-primary-hover:#3a8490;--color-primary-highlight:#1e3335;
+  --color-success:#6daa45;--color-success-highlight:#1e3018;
+  --color-warning:#bb653b;--color-warning-highlight:#3d2418;
+  --color-orange:#fdab43;--color-orange-highlight:#3d2c14;
+  --color-blue:#5591c7;--color-blue-highlight:#182840;
+  --color-purple:#a86fdf;--color-purple-highlight:#2b1d48;
+  --color-error:#d163a7;--color-error-highlight:#3d1834;
+  --shadow-sm:0 1px 3px oklch(0 0 0/0.25);
+  --shadow-md:0 4px 16px oklch(0 0 0/0.4);
+  --shadow-lg:0 12px 36px oklch(0 0 0/0.55);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
+body{background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);font-size:1rem;line-height:1.65;min-height:100dvh}
+a{color:var(--color-primary);text-decoration:none}
+a:hover{color:var(--color-primary-hover)}
+code,pre{font-family:var(--font-mono);font-size:0.875rem}
+
+/* LAYOUT */
+.page-wrapper{display:flex;min-height:100dvh}
+.sidebar{width:260px;min-height:100dvh;background:var(--color-surface);border-right:1px solid var(--color-border);padding:1.5rem 0;position:sticky;top:0;flex-shrink:0;display:flex;flex-direction:column;gap:0}
+.sidebar-logo{padding:0 1.25rem 1.25rem;border-bottom:1px solid var(--color-border);margin-bottom:0.75rem}
+.sidebar-logo-mark{display:flex;align-items:center;gap:0.6rem}
+.logo-icon{width:32px;height:32px;background:var(--color-primary);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.logo-text{font-size:0.95rem;font-weight:700;letter-spacing:-0.01em;color:var(--color-text)}
+.logo-sub{font-size:0.7rem;color:var(--color-text-muted);margin-top:0.1rem}
+.sidebar-section{padding:0.5rem 0}
+.sidebar-section-label{font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-text-faint);padding:0 1.25rem;margin-bottom:0.25rem}
+.sidebar-link{display:flex;align-items:center;gap:0.6rem;padding:0.45rem 1.25rem;font-size:0.82rem;color:var(--color-text-muted);cursor:pointer;border-radius:0;transition:background 140ms,color 140ms}
+.sidebar-link:hover,.sidebar-link.active{background:var(--color-primary-highlight);color:var(--color-primary)}
+.sidebar-link .dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0;opacity:0.6}
+.main{flex:1;padding:2.5rem 3rem;max-width:900px;overflow-x:hidden}
+
+/* HEADER */
+.top-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:2.5rem;padding-bottom:1.25rem;border-bottom:1px solid var(--color-border)}
+.page-title{font-size:1.4rem;font-weight:700;letter-spacing:-0.02em;color:var(--color-text)}
+.page-sub{font-size:0.82rem;color:var(--color-text-muted);margin-top:0.25rem}
+.theme-btn{background:var(--color-surface-2);border:1px solid var(--color-border);color:var(--color-text-muted);padding:0.35rem 0.75rem;border-radius:var(--radius-full);font-size:0.75rem;cursor:pointer;display:flex;align-items:center;gap:0.4rem;transition:all 140ms}
+.theme-btn:hover{border-color:var(--color-primary);color:var(--color-primary)}
+
+/* SECTIONS */
+.section{margin-bottom:2.75rem}
+.section-header{display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem}
+.section-num{width:28px;height:28px;border-radius:var(--radius-md);background:var(--color-primary);color:#fff;font-size:0.7rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.section-title{font-size:1.05rem;font-weight:700;letter-spacing:-0.01em}
+.section-desc{font-size:0.875rem;color:var(--color-text-muted);margin-bottom:1.25rem;max-width:68ch;line-height:1.6}
+
+/* CARDS */
+.card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:1.25rem;margin-bottom:1rem;box-shadow:var(--shadow-sm)}
+.card-title{font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.65rem}
+.card-body{font-size:0.875rem;color:var(--color-text-muted);line-height:1.65}
+
+/* ZONE CHIPS */
+.zone-chips{display:flex;flex-wrap:wrap;gap:0.5rem;margin:0.75rem 0}
+.chip{display:inline-flex;align-items:center;gap:0.4rem;padding:0.3rem 0.75rem;border-radius:var(--radius-full);font-size:0.75rem;font-weight:600;border:1px solid transparent}
+.chip-park{background:var(--color-success-highlight);color:var(--color-success);border-color:oklch(from var(--color-success) l c h/0.2)}
+.chip-residential{background:var(--color-blue-highlight);color:var(--color-blue);border-color:oklch(from var(--color-blue) l c h/0.2)}
+.chip-commercial{background:var(--color-orange-highlight);color:var(--color-orange);border-color:oklch(from var(--color-orange) l c h/0.2)}
+.chip-hospital{background:var(--color-error-highlight);color:var(--color-error);border-color:oklch(from var(--color-error) l c h/0.2)}
+.chip-road{background:var(--color-surface-offset);color:var(--color-text-muted);border-color:var(--color-border)}
+.chip-school{background:var(--color-purple-highlight);color:var(--color-purple);border-color:oklch(from var(--color-purple) l c h/0.2)}
+.chip-eco{background:var(--color-primary-highlight);color:var(--color-primary);border-color:oklch(from var(--color-primary) l c h/0.2)}
+.chip-dot{width:7px;height:7px;border-radius:50%;background:currentColor}
+
+/* CODE BLOCK */
+.code-block{background:var(--color-surface-2);border:1px solid var(--color-border);border-radius:var(--radius-lg);overflow:hidden;margin:1rem 0}
+.code-header{background:var(--color-surface-offset);border-bottom:1px solid var(--color-border);padding:0.5rem 1rem;display:flex;align-items:center;justify-content:space-between}
+.code-lang{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--color-text-faint)}
+.code-copy{font-size:0.7rem;color:var(--color-text-muted);cursor:pointer;padding:0.2rem 0.5rem;border-radius:var(--radius-sm);border:1px solid var(--color-border);background:none;transition:all 140ms}
+.code-copy:hover{color:var(--color-primary);border-color:var(--color-primary)}
+.code-content{padding:1.1rem 1.25rem;overflow-x:auto;font-size:0.8rem;line-height:1.75}
+.code-content .kw{color:#4f98a3}
+.code-content .str{color:#6daa45}
+.code-content .num{color:#fdab43}
+.code-content .cm{color:#4a4947;font-style:italic}
+.code-content .fn{color:#a86fdf}
+.code-content .var2{color:#d163a7}
+
+/* RULE TABLE */
+.rule-table{width:100%;border-collapse:collapse;font-size:0.82rem;margin:1rem 0}
+.rule-table th{background:var(--color-surface-offset);padding:0.6rem 1rem;text-align:left;font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--color-text-muted);border-bottom:2px solid var(--color-border)}
+.rule-table td{padding:0.65rem 1rem;border-bottom:1px solid var(--color-divider);vertical-align:top;color:var(--color-text-muted)}
+.rule-table tr:last-child td{border-bottom:none}
+.rule-table tr:hover td{background:var(--color-surface-offset);color:var(--color-text)}
+.badge{display:inline-block;padding:0.15rem 0.5rem;border-radius:var(--radius-full);font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.04em}
+.badge-green{background:var(--color-success-highlight);color:var(--color-success)}
+.badge-blue{background:var(--color-blue-highlight);color:var(--color-blue)}
+.badge-orange{background:var(--color-orange-highlight);color:var(--color-orange)}
+.badge-red{background:var(--color-error-highlight);color:var(--color-error)}
+.badge-purple{background:var(--color-purple-highlight);color:var(--color-purple)}
+.badge-teal{background:var(--color-primary-highlight);color:var(--color-primary)}
+
+/* FLOW DIAGRAM */
+.flow{display:flex;flex-direction:column;gap:0;margin:1rem 0}
+.flow-step{display:flex;align-items:flex-start;gap:1rem;padding:0.9rem 1.1rem;background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);margin-bottom:0}
+.flow-step:not(:last-child){border-bottom-left-radius:0;border-bottom-right-radius:0;border-bottom-color:transparent}
+.flow-step+.flow-step{border-top-left-radius:0;border-top-right-radius:0}
+.flow-arrow{display:flex;justify-content:flex-start;padding:0 1.7rem;color:var(--color-text-faint);font-size:1rem;line-height:1}
+.flow-num{width:24px;height:24px;border-radius:var(--radius-md);background:var(--color-primary);color:#fff;font-size:0.68rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:0.1rem}
+.flow-content .flow-title{font-size:0.85rem;font-weight:700;margin-bottom:0.25rem}
+.flow-content .flow-desc{font-size:0.8rem;color:var(--color-text-muted);line-height:1.55}
+
+/* SCORE FORMULA */
+.formula-box{background:var(--color-surface-2);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:1rem 1.25rem;margin:0.75rem 0;display:flex;align-items:center;gap:1rem}
+.formula-label{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--color-text-faint);min-width:90px}
+.formula-expr{font-family:var(--font-mono);font-size:0.82rem;color:var(--color-primary);flex:1}
+
+/* KEYWORD TABLE */
+.kw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:0.6rem;margin:0.75rem 0}
+.kw-item{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-md);padding:0.6rem 0.85rem;font-size:0.78rem}
+.kw-trigger{font-family:var(--font-mono);font-size:0.75rem;color:var(--color-orange);margin-bottom:0.2rem}
+.kw-maps{font-size:0.72rem;color:var(--color-text-muted)}
+
+/* INFO BOX */
+.info-box{border-radius:var(--radius-lg);padding:1rem 1.25rem;margin:0.75rem 0;border-left:3px solid;font-size:0.84rem;line-height:1.6}
+.info-box.tip{background:var(--color-primary-highlight);border-color:var(--color-primary);color:var(--color-primary)}
+.info-box.warn{background:var(--color-warning-highlight);border-color:var(--color-warning);color:var(--color-warning)}
+.info-box.note{background:var(--color-blue-highlight);border-color:var(--color-blue);color:var(--color-blue)}
+.info-box strong{font-weight:700}
+
+/* DIVIDER */
+hr{border:none;border-top:1px solid var(--color-divider);margin:2rem 0}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--color-border);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--color-text-faint)}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .sidebar{display:none}
+  .main{padding:1.5rem 1.25rem}
+}
+</style>
+</head>
+<body>
+
+<div class="page-wrapper">
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="sidebar-logo-mark">
+      <div class="logo-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2">
+          <rect x="3" y="3" width="7" height="7" rx="1"/>
+          <rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/>
+          <rect x="14" y="14" width="7" height="7" rx="1"/>
+        </svg>
+      </div>
+      <div>
+        <div class="logo-text">CitySketch X Lite</div>
+        <div class="logo-sub">Logic Implementation Guide</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Core Logic</div>
+    <a class="sidebar-link active" onclick="scrollTo('s1')"><span class="dot"></span>Input Parsing</a>
+    <a class="sidebar-link" onclick="scrollTo('s2')"><span class="dot"></span>JSON Structure</a>
+    <a class="sidebar-link" onclick="scrollTo('s3')"><span class="dot"></span>Grid Engine</a>
+    <a class="sidebar-link" onclick="scrollTo('s4')"><span class="dot"></span>Zone Placement Rules</a>
+    <a class="sidebar-link" onclick="scrollTo('s5')"><span class="dot"></span>Road Logic</a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Features</div>
+    <a class="sidebar-link" onclick="scrollTo('s6')"><span class="dot"></span>Score Formulas</a>
+    <a class="sidebar-link" onclick="scrollTo('s7')"><span class="dot"></span>Explainability</a>
+    <a class="sidebar-link" onclick="scrollTo('s8')"><span class="dot"></span>3D Conversion</a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Extras</div>
+    <a class="sidebar-link" onclick="scrollTo('s9')"><span class="dot"></span>Fallback Templates</a>
+    <a class="sidebar-link" onclick="scrollTo('s10')"><span class="dot"></span>Edge Cases</a>
+  </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+
+  <div class="top-bar">
+    <div>
+      <div class="page-title">Logic Implementation Guide</div>
+      <div class="page-sub">Handling complex inputs — CitySketch X Lite</div>
+    </div>
+    <button class="theme-btn" onclick="toggleTheme()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      Toggle theme
+    </button>
+  </div>
+
+  <!-- S1: INPUT PARSING -->
+  <div class="section" id="s1">
+    <div class="section-header">
+      <div class="section-num">1</div>
+      <div class="section-title">Input Parsing — Text → Structured Intent</div>
+    </div>
+    <p class="section-desc">The parser must handle complex, multi-constraint sentences and extract zone types, size, priority keywords, and flags like eco-friendly or high-density. Two options: GPT prompt or keyword rules.</p>
+
+    <div class="info-box tip">
+      <strong>Two example inputs this system must handle:</strong><br>
+      1. "Design a 10 acre eco friendly city with parks, hospitals, low traffic and commercial zones"<br>
+      2. "Build a smart urban area with healthcare, green spaces, high density housing and balanced traffic"
+    </div>
+
+    <div class="card">
+      <div class="card-title">Keyword → Zone Mapping Dictionary</div>
+      <div class="kw-grid">
+        <div class="kw-item"><div class="kw-trigger">park / green / nature / garden</div><div class="kw-maps">→ zone: "park"</div></div>
+        <div class="kw-item"><div class="kw-trigger">hospital / healthcare / clinic / medical</div><div class="kw-maps">→ zone: "hospital"</div></div>
+        <div class="kw-item"><div class="kw-trigger">residential / housing / homes / living</div><div class="kw-maps">→ zone: "residential"</div></div>
+        <div class="kw-item"><div class="kw-trigger">commercial / shops / market / business</div><div class="kw-maps">→ zone: "commercial"</div></div>
+        <div class="kw-item"><div class="kw-trigger">school / education / campus / college</div><div class="kw-maps">→ zone: "school"</div></div>
+        <div class="kw-item"><div class="kw-trigger">green spaces / eco / sustainable</div><div class="kw-maps">→ flag: eco:true</div></div>
+        <div class="kw-item"><div class="kw-trigger">low traffic / less traffic</div><div class="kw-maps">→ traffic: "low"</div></div>
+        <div class="kw-item"><div class="kw-trigger">balanced traffic / medium traffic</div><div class="kw-maps">→ traffic: "balanced"</div></div>
+        <div class="kw-item"><div class="kw-trigger">high density / dense / compact</div><div class="kw-maps">→ density: "high"</div></div>
+        <div class="kw-item"><div class="kw-trigger">low density / spacious / open</div><div class="kw-maps">→ density: "low"</div></div>
+        <div class="kw-item"><div class="kw-trigger">10 acre / 5 acre / [N] acre</div><div class="kw-maps">→ area_in_acres: N</div></div>
+        <div class="kw-item"><div class="kw-trigger">smart / intelligent / modern</div><div class="kw-maps">→ flag: smart:true</div></div>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">JavaScript — Keyword Parser</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
+      <pre class="code-content"><code><span class="fn">function</span> <span class="fn">parseInput</span>(text) {
+  <span class="kw">const</span> lower = text.<span class="fn">toLowerCase</span>();
+  <span class="kw">const</span> zones = [];
+
+  <span class="cm">// Zone keyword maps</span>
+  <span class="kw">const</span> zoneMap = {
+    park: [<span class="str">"park"</span>, <span class="str">"green space"</span>, <span class="str">"garden"</span>, <span class="str">"nature"</span>, <span class="str">"green"</span>],
+    hospital: [<span class="str">"hospital"</span>, <span class="str">"healthcare"</span>, <span class="str">"clinic"</span>, <span class="str">"medical"</span>],
+    residential: [<span class="str">"residential"</span>, <span class="str">"housing"</span>, <span class="str">"homes"</span>, <span class="str">"living"</span>, <span class="str">"houses"</span>],
+    commercial: [<span class="str">"commercial"</span>, <span class="str">"shops"</span>, <span class="str">"market"</span>, <span class="str">"business"</span>],
+    school: [<span class="str">"school"</span>, <span class="str">"education"</span>, <span class="str">"campus"</span>, <span class="str">"college"</span>]
+  };
+
+  <span class="cm">// Match zones</span>
+  <span class="kw">for</span> (<span class="kw">const</span> [type, keywords] <span class="kw">of</span> Object.<span class="fn">entries</span>(zoneMap)) {
+    <span class="kw">if</span> (keywords.<span class="fn">some</span>(k => lower.<span class="fn">includes</span>(k))) {
+      zones.<span class="fn">push</span>(type);
+    }
+  }
+
+  <span class="cm">// Always include residential as fallback</span>
+  <span class="kw">if</span> (!zones.<span class="fn">includes</span>(<span class="str">"residential"</span>)) zones.<span class="fn">unshift</span>(<span class="str">"residential"</span>);
+
+  <span class="cm">// Extract area (e.g., "10 acre")</span>
+  <span class="kw">const</span> areaMatch = lower.<span class="fn">match</span>(<span class="str">/(\d+)\s*acre/</span>);
+  <span class="kw">const</span> area = areaMatch ? <span class="fn">parseInt</span>(areaMatch[<span class="num">1</span>]) : <span class="num">5</span>;
+
+  <span class="cm">// Traffic priority</span>
+  <span class="kw">let</span> traffic = <span class="str">"balanced"</span>;
+  <span class="kw">if</span> (<span class="str">/low traffic|less traffic|minimal traffic/</span>.<span class="fn">test</span>(lower)) traffic = <span class="str">"low"</span>;
+  <span class="kw">if</span> (<span class="str">/high traffic|busy|heavy traffic/</span>.<span class="fn">test</span>(lower)) traffic = <span class="str">"high"</span>;
+
+  <span class="cm">// Density</span>
+  <span class="kw">let</span> density = <span class="str">"medium"</span>;
+  <span class="kw">if</span> (<span class="str">/high density|dense|compact/</span>.<span class="fn">test</span>(lower)) density = <span class="str">"high"</span>;
+  <span class="kw">if</span> (<span class="str">/low density|spacious|open/</span>.<span class="fn">test</span>(lower)) density = <span class="str">"low"</span>;
+
+  <span class="cm">// Eco flag</span>
+  <span class="kw">const</span> eco = <span class="str">/eco|sustainable|green|environment/</span>.<span class="fn">test</span>(lower);
+
+  <span class="kw">return</span> { zones, area, traffic, density, eco };
+}</code></pre>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- S2: JSON STRUCTURE -->
+  <div class="section" id="s2">
+    <div class="section-header">
+      <div class="section-num">2</div>
+      <div class="section-title">Output JSON Structure</div>
+    </div>
+    <p class="section-desc">The parser outputs a normalized JSON that the layout engine consumes. This structure covers both simple and complex inputs.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">JSON — Complex Input 1</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
+      <pre class="code-content"><code>{
+  <span class="str">"input"</span>: <span class="str">"Design a 10 acre eco friendly city with parks, hospitals, low traffic and commercial zones"</span>,
+  <span class="str">"zones"</span>: [
+    { <span class="str">"type"</span>: <span class="str">"residential"</span>, <span class="str">"count"</span>: <span class="num">10</span>, <span class="str">"density"</span>: <span class="str">"medium"</span> },
+    { <span class="str">"type"</span>: <span class="str">"park"</span>, <span class="str">"count"</span>: <span class="num">4</span>, <span class="str">"priority"</span>: <span class="str">"high"</span> },
+    { <span class="str">"type"</span>: <span class="str">"hospital"</span>, <span class="str">"count"</span>: <span class="num">2</span>, <span class="str">"near_road"</span>: <span class="kw">true</span> },
+    { <span class="str">"type"</span>: <span class="str">"commercial"</span>, <span class="str">"count"</span>: <span class="num">3</span>, <span class="str">"near_road"</span>: <span class="kw">true</span> }
+  ],
+  <span class="str">"roads"</span>: { <span class="str">"style"</span>: <span class="str">"minimal"</span>, <span class="str">"width"</span>: <span class="num">1</span> },
+  <span class="str">"flags"</span>: { <span class="str">"eco"</span>: <span class="kw">true</span>, <span class="str">"smart"</span>: <span class="kw">false</span> },
+  <span class="str">"constraints"</span>: { <span class="str">"traffic"</span>: <span class="str">"low"</span>, <span class="str">"density"</span>: <span class="str">"medium"</span> },
+  <span class="str">"area_in_acres"</span>: <span class="num">10</span>,
+  <span class="str">"grid_size"</span>: <span class="num">25</span>
+}</code></pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">JSON — Complex Input 2</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
+      <pre class="code-content"><code>{
+  <span class="str">"input"</span>: <span class="str">"Build a smart urban area with healthcare, green spaces, high density housing and balanced traffic"</span>,
+  <span class="str">"zones"</span>: [
+    { <span class="str">"type"</span>: <span class="str">"residential"</span>, <span class="str">"count"</span>: <span class="num">14</span>, <span class="str">"density"</span>: <span class="str">"high"</span> },
+    { <span class="str">"type"</span>: <span class="str">"hospital"</span>, <span class="str">"count"</span>: <span class="num">2</span>, <span class="str">"near_road"</span>: <span class="kw">true</span> },
+    { <span class="str">"type"</span>: <span class="str">"park"</span>, <span class="str">"count"</span>: <span class="num">3</span>, <span class="str">"priority"</span>: <span class="str">"medium"</span> }
+  ],
+  <span class="str">"roads"</span>: { <span class="str">"style"</span>: <span class="str">"grid"</span>, <span class="str">"width"</span>: <span class="num">2</span> },
+  <span class="str">"flags"</span>: { <span class="str">"eco"</span>: <span class="kw">false</span>, <span class="str">"smart"</span>: <span class="kw">true</span> },
+  <span class="str">"constraints"</span>: { <span class="str">"traffic"</span>: <span class="str">"balanced"</span>, <span class="str">"density"</span>: <span class="str">"high"</span> },
+  <span class="str">"area_in_acres"</span>: <span class="num">5</span>,
+  <span class="str">"grid_size"</span>: <span class="num">20</span>
+}</code></pre>
+    </div>
+
+    <div class="info-box note">
+      <strong>Grid Size Formula:</strong> grid_size = Math.round(Math.sqrt(area_in_acres) * 8). So 5 acres → 20×20, 10 acres → 25×25, 20 acres → 36×36.
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- S3: GRID ENGINE -->
+  <div class="section" id="s3">
+    <div class="section-header">
+      <div class="section-num">3</div>
+      <div class="section-title">Grid Engine — Building the Layout Array</div>
+    </div>
+    <p class="section-desc">The grid is a 2D array of N×N cells. Each cell has a type (zone type or road), a zone ID, and metadata. The engine fills the grid based on the parsed JSON and placement rules.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">JavaScript — Grid Initialization + Zone Placement</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
+      <pre class="code-content"><code><span class="fn">function</span> <span class="fn">buildGrid</span>(config) {
+  <span class="kw">const</span> N = config.grid_size;
+  <span class="kw">const</span> grid = Array.<span class="fn">from</span>({length: N}, () =>
+    Array.<span class="fn">from</span>({length: N}, () => ({
+      type: <span class="str">"empty"</span>, zoneId: <span class="kw">null</span>, explanation: <span class="str">""</span>
+    }))
+  );
+
+  <span class="cm">// Step 1: Place roads first (perimeter + main cross roads)</span>
+  <span class="fn">placeRoads</span>(grid, N, config.constraints.traffic);
+
+  <span class="cm">// Step 2: Place zones in priority order</span>
+  <span class="kw">const</span> order = [<span class="str">"residential"</span>, <span class="str">"park"</span>, <span class="str">"hospital"</span>, <span class="str">"commercial"</span>, <span class="str">"school"</span>];
+  <span class="kw">for</span> (<span class="kw">const</span> zType <span class="kw">of</span> order) {
+    <span class="kw">const</span> zoneCfg = config.zones.<span class="fn">find</span>(z => z.type === zType);
+    <span class="kw">if</span> (!zoneCfg) <span class="kw">continue</span>;
+    <span class="fn">placeZone</span>(grid, N, zoneCfg, config);
+  }
+
+  <span class="cm">// Step 3: Fill remaining empty as residential</span>
+  <span class="fn">fillEmpty</span>(grid, N);
+
+  <span class="kw">return</span> grid;
+}
+
+<span class="fn">function</span> <span class="fn">placeZone</span>(grid, N, zoneCfg, config) {
+  <span class="kw">let</span> placed = <span class="num">0</span>;
+  <span class="kw">let</span> attempts = <span class="num">0</span>;
+
+  <span class="kw">while</span> (placed < zoneCfg.count && attempts < <span class="num">1000</span>) {
+    attempts++;
+    <span class="kw">let</span> r, c;
+
+    <span class="kw">if</span> (zoneCfg.near_road) {
+      <span class="cm">// Pick random road cell, try adjacent empty cell</span>
+      [r, c] = <span class="fn">getAdjacentToRoad</span>(grid, N);
+    } <span class="kw">else if</span> (zoneCfg.type === <span class="str">"park"</span>) {
+      <span class="cm">// Parks go near residential blocks</span>
+      [r, c] = <span class="fn">getAdjacentToZone</span>(grid, N, <span class="str">"residential"</span>);
+    } <span class="kw">else</span> {
+      <span class="cm">// Residential: random empty interior cell</span>
+      r = <span class="num">1</span> + Math.<span class="fn">floor</span>(Math.<span class="fn">random</span>() * (N - <span class="num">2</span>));
+      c = <span class="num">1</span> + Math.<span class="fn">floor</span>(Math.<span class="fn">random</span>() * (N - <span class="num">2</span>));
+    }
+
+    <span class="kw">if</span> (r !== undefined && grid[r][c].type === <span class="str">"empty"</span>) {
+      grid[r][c].type = zoneCfg.type;
+      grid[r][c].explanation = <span class="fn">getExplanation</span>(zoneCfg.type, r, c, grid, N);
+      placed++;
+    }
+  }
+}</code></pre>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- S4: ZONE PLACEMENT RULES -->
+  <div class="section" id="s4">
+    <div class="section-header">
+      <div class="section-num">4</div>
+      <div class="section-title">Zone Placement Rules Table</div>
+    </div>
+    <p class="section-desc">These rules determine where each zone is placed on the grid. The layout engine reads these rules per zone type.</p>
+
+    <div class="zone-chips">
+      <span class="chip chip-park"><span class="chip-dot"></span>Park</span>
+      <span class="chip chip-residential"><span class="chip-dot"></span>Residential</span>
+      <span class="chip chip-hospital"><span class="chip-dot"></span>Hospital</span>
+      <span class="chip chip-commercial"><span class="chip-dot"></span>Commercial</span>
+      <span class="chip chip-school"><span class="chip-dot"></span>School</span>
+      <span class="chip chip-road"><span class="chip-dot"></span>Road</span>
+    </div>
+
+    <table class="rule-table">
+      <thead>
+        <tr><th>Zone</th><th>Placement Rule</th><th>Near</th><th>Avoid</th><th>Priority</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="badge badge-blue">Residential</span></td>
+          <td>Interior cells, not on perimeter roads</td>
+          <td>Parks, schools</td>
+          <td>Commercial, hospital</td>
+          <td><span class="badge badge-teal">First</span></td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-green">Park</span></td>
+          <td>Adjacent to residential clusters</td>
+          <td>Residential</td>
+          <td>Roads (center), hospital</td>
+          <td><span class="badge badge-teal">Second</span></td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-red">Hospital</span></td>
+          <td>Adjacent to main road (perimeter or cross-road)</td>
+          <td>Roads</td>
+          <td>Deep interior cells</td>
+          <td><span class="badge badge-teal">Third</span></td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-orange">Commercial</span></td>
+          <td>Near roads, edge quadrant of grid</td>
+          <td>Roads, residential</td>
+          <td>Park center</td>
+          <td><span class="badge badge-teal">Fourth</span></td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-purple">School</span></td>
+          <td>Near residential, away from commercial</td>
+          <td>Residential, park</td>
+          <td>Hospital, roads</td>
+          <td><span class="badge badge-teal">Fifth</span></td>
+        </tr>
+        <tr>
+          <td><span class="badge">Road</span></td>
+          <td>Perimeter row/col + one center cross (+)</td>
+          <td>All zones (connector)</td>
+          <td>—</td>
+          <td><span class="badge badge-teal">Always First</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <hr>
+
+  <!-- S5: ROAD LOGIC -->
+  <div class="section" id="s5">
+    <div class="section-header">
+      <div class="section-num">5</div>
+      <div class="section-title">Road Generation Logic</div>
+    </div>
+    <p class="section-desc">Roads must connect all zones. The system uses a simple cross (+) pattern based on traffic priority setting from user input.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">JavaScript — Road Placement</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
+      <pre class="code-content"><code><span class="fn">function</span> <span class="fn">placeRoads</span>(grid, N, trafficLevel) {
+  <span class="kw">const</span> mid = Math.<span class="fn">floor</span>(N / <span class="num">2</span>);
+
+  <span class="cm">// Always: perimeter border roads</span>
+  <span class="kw">for</span> (<span class="kw">let</span> i = <span class="num">0</span>; i < N; i++) {
+    grid[<span class="num">0</span>][i].type = <span class="str">"road"</span>;
+    grid[N-<span class="num">1</span>][i].type = <span class="str">"road"</span>;
+    grid[i][<span class="num">0</span>].type = <span class="str">"road"</span>;
+    grid[i][N-<span class="num">1</span>].type = <span class="str">"road"</span>;
+  }
+
+  <span class="cm">// Always: one center cross road</span>
+  <span class="kw">for</span> (<span class="kw">let</span> i = <span class="num">0</span>; i < N; i++) {
+    grid[mid][i].type = <span class="str">"road"</span>;
+    grid[i][mid].type = <span class="str">"road"</span>;
+  }
+
+  <span class="cm">// Balanced traffic: add 2 more inner roads (grid pattern)</span>
+  <span class="kw">if</span> (trafficLevel === <span class="str">"balanced"</span>) {
+    <span class="kw">const</span> q1 = Math.<span class="fn">floor</span>(N / <span class="num">4</span>);
+    <span class="kw">const</span> q3 = Math.<span class="fn">floor</span>(N * <span class="num">3</span> / <span class="num">4</span>);
+    <span class="kw">for</span> (<span class="kw">let</span> i = <span class="num">0</span>; i < N; i++) {
+      grid[q1][i].type = <span class="str">"road"</span>;
+      grid[q3][i].type = <span class="str">"road"</span>;
+    }
+  }
+
+  <span class="cm">// High traffic: full grid roads every 4 cells</span>
+  <span class="kw">if</span> (trafficLevel === <span class="str">"high"</span>) {
+    <span class="kw">for</span> (<span class="kw">let</span> i = <span class="num">0</span>; i < N; i += <span class="num">4</span>) {
+      <span class="kw">for</span> (<span class="kw">let</span> j = <span class="num">0</span>; j < N; j++) {
+        grid[i][j].type = <span class="str">"road"</span>;
+        grid[j][i].type = <span class="str">"road"</span>;
+      }
+    }
+  }
+
+  <span class="cm">// Low traffic: only perimeter + center cross (already done)</span>
+}</code></pre>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- S6: SCORE FORMULAS -->
+  <div class="section" id="s6">
+    <div class="section-header">
+      <div class="section-num">6</div>
+      <div class="section-title">Urban Score Formulas</div>
+    </div>
+    <p class="section-desc">Score every generated layout on 4 metrics. Formulas are intentionally simple so they are explainable to judges.</p>
+
+    <div class="formula-box"><div class="formula-label">Sustainability</div><div class="formula-expr">score = (park_cells / total_cells) × 100&nbsp;&nbsp;→ normalize to 0–100</div></div>
+    <div class="formula-box"><div class="formula-label">Traffic Score</div><div class="formula-expr">score = 100 − (road_cells / total_cells) × 100&nbsp;&nbsp;→ fewer roads = better for "low traffic"</div></div>
+    <div class="formula-box"><div class="formula-label">Walkability</div><div class="formula-expr">score = 100 − (avg_distance_residential_to_park × 3)&nbsp;&nbsp;→ shorter distance = higher walkability</div></div>
+    <div class="formula-box"><div class="formula-label">Density Score</div><div class="formula-expr">score = (residential_cells / non_road_cells) × 100&nbsp;&nbsp;→ reflects city density</div></div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">JavaScript — Score Calculator</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
+      <pre class="code-content"><code><span class="fn">function</span> <span class="fn">calculateScores</span>(grid, N) {
+  <span class="kw">let</span> park=<span class="num">0</span>, road=<span class="num">0</span>, residential=<span class="num">0</span>, total=N*N;
+  <span class="kw">const</span> resCells=[], parkCells=[];
+
+  <span class="kw">for</span>(<span class="kw">let</span> r=<span class="num">0</span>;r<N;r++) <span class="kw">for</span>(<span class="kw">let</span> c=<span class="num">0</span>;c<N;c++){
+    <span class="kw">const</span> t=grid[r][c].type;
+    <span class="kw">if</span>(t===<span class="str">"park"</span>){park++;parkCells.<span class="fn">push</span>([r,c]);}
+    <span class="kw">if</span>(t===<span class="str">"road"</span>) road++;
+    <span class="kw">if</span>(t===<span class="str">"residential"</span>){residential++;resCells.<span class="fn">push</span>([r,c]);}
+  }
+
+  <span class="cm">// Walkability: avg distance from each residential to nearest park</span>
+  <span class="kw">let</span> totalDist=<span class="num">0</span>;
+  resCells.<span class="fn">forEach</span>(([r,c])=>{
+    <span class="kw">const</span> d=parkCells.<span class="fn">reduce</span>((min,[pr,pc])=>{
+      <span class="kw">const</span> dist=Math.<span class="fn">abs</span>(r-pr)+Math.<span class="fn">abs</span>(c-pc);
+      <span class="kw">return</span> Math.<span class="fn">min</span>(min,dist);
+    },<span class="num">999</span>);
+    totalDist+=d;
+  });
+  <span class="kw">const</span> avgDist=resCells.length>0?totalDist/resCells.length:<span class="num">0</span>;
+
+  <span class="kw">return</span> {
+    sustainability: Math.<span class="fn">round</span>((park/total)*<span class="num">100</span> * <span class="num">3.5</span>),        <span class="cm">// scale up for visibility</span>
+    traffic: Math.<span class="fn">round</span>(<span class="num">100</span>-(road/total)*<span class="num">200</span>),
+    walkability: Math.<span class="fn">round</span>(Math.<span class="fn">max</span>(<span class="num">0</span>, <span class="num">100</span>-(avgDist*<span class="num">5</span>))),
+    density: Math.<span class="fn">round</span>((residential/(total-road))*<span class="num">100</span>)
+  };
+}</code></pre>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- S7: EXPLAINABILITY -->
+  <div class="section" id="s7">
+    <div class="section-header">
+      <div class="section-num">7</div>
+      <div class="section-title">Explainability Engine</div>
+    </div>
+    <p class="section-desc">When user clicks a block, inspect its neighbors and generate a context-aware explanation. This makes the system look intelligent without any AI.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">JavaScript — Dynamic Explanation Generator</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
+      <pre class="code-content"><code><span class="fn">function</span> <span class="fn">getExplanation</span>(type, r, c, grid, N) {
+  <span class="kw">const</span> neighbors = <span class="fn">getNeighborTypes</span>(grid, r, c, N);
+
+  <span class="kw">const</span> templates = {
+    park: (nb) => {
+      <span class="kw">if</span> (nb.<span class="fn">includes</span>(<span class="str">"residential"</span>))
+        <span class="kw">return</span> <span class="str">"Park placed near residential zone for easy walkability and daily access."</span>;
+      <span class="kw">return</span> <span class="str">"Park added to improve green coverage and sustainability score."</span>;
+    },
+    hospital: (nb) => {
+      <span class="kw">if</span> (nb.<span class="fn">includes</span>(<span class="str">"road"</span>))
+        <span class="kw">return</span> <span class="str">"Hospital placed adjacent to main road for quick emergency vehicle access."</span>;
+      <span class="kw">return</span> <span class="str">"Hospital positioned near road network to ensure accessibility."</span>;
+    },
+    residential: (nb) => {
+      <span class="kw">if</span> (nb.<span class="fn">includes</span>(<span class="str">"park"</span>))
+        <span class="kw">return</span> <span class="str">"Residential block benefits from proximity to park — improves livability score."</span>;
+      <span class="kw">if</span> (nb.<span class="fn">includes</span>(<span class="str">"road"</span>))
+        <span class="kw">return</span> <span class="str">"Residential zone placed near road for transportation access."</span>;
+      <span class="kw">return</span> <span class="str">"Residential zone placed in quiet interior — low noise, high livability."</span>;
+    },
+    commercial: (nb) => {
+      <span class="kw">if</span> (nb.<span class="fn">includes</span>(<span class="str">"road"</span>))
+        <span class="kw">return</span> <span class="str">"Commercial zone on road edge — maximizes customer footfall and access."</span>;
+      <span class="kw">return</span> <span class="str">"Commercial area placed for economic activity near transport routes."</span>;
+    },
+    road: () => <span class="str">"Road cell — connects all zones and ensures full layout connectivity."</span>,
+    school: (nb) => {
+      <span class="kw">if</span> (nb.<span class="fn">includes</span>(<span class="str">"residential"</span>))
+        <span class="kw">return</span> <span class="str">"School near residential area — reduces commute time for students."</span>;
+      <span class="kw">return</span> <span class="str">"School placed in safe, low-traffic interior zone."</span>;
+    }
+  };
+
+  <span class="kw">const</span> fn = templates[type];
+  <span class="kw">return</span> fn ? <span class="fn">fn</span>(neighbors) : <span class="str">"Zone placed based on layout optimization rules."</span>;
+}
+
+<span class="fn">function</span> <span class="fn">getNeighborTypes</span>(grid, r, c, N) {
+  <span class="kw">const</span> dirs = [[-<span class="num">1</span>,<span class="num">0</span>],[<span class="num">1</span>,<span class="num">0</span>],[<span class="num">0</span>,-<span class="num">1</span>],[<span class="num">0</span>,<span class="num">1</span>]];
+  <span class="kw">return</span> dirs
+    .<span class="fn">filter</span>(([dr,dc]) => r+dr>=<span class="num">0</span> && r+dr<N && c+dc>=<span class="num">0</span> && c+dc<N)
+    .<span class="fn">map</span>(([dr,dc]) => grid[r+dr][c+dc].type);
+}</code></pre>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- S8: 3D CONVERSION -->
+  <div class="section" id="s8">
+    <div class="section-header">
+      <div class="section-num">8</div>
+      <div class="section-title">3D Conversion — Grid → Three.js Cubes</div>
+    </div>
+    <p class="section-desc">Convert the 2D grid into Three.js 3D blocks. Each zone type gets a different cube height to add visual depth.</p>
+
+    <table class="rule-table">
+      <thead><tr><th>Zone</th><th>Color (hex)</th><th>Cube Height</th><th>Rationale</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge badge-green">Park</span></td><td>#4caf50</td><td>0.3</td><td>Flat — ground level green</td></tr>
+        <tr><td><span class="badge badge-blue">Residential</span></td><td>#2196f3</td><td>1.5</td><td>Mid-height buildings</td></tr>
+        <tr><td><span class="badge badge-orange">Commercial</span></td><td>#ff9800</td><td>2.5</td><td>Taller — market/office</td></tr>
+        <tr><td><span class="badge badge-red">Hospital</span></td><td>#f44336</td><td>2.0</td><td>Large building</td></tr>
+        <tr><td><span class="badge badge-purple">School</span></td><td>#9c27b0</td><td>1.8</td><td>Multi-floor building</td></tr>
+        <tr><td><span class="badge">Road</span></td><td>#e0e0e0</td><td>0.1</td><td>Flat ground surface</td></tr>
+      </tbody>
+    </table>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">JavaScript — Three.js Grid Renderer</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
+      <pre class="code-content"><code><span class="fn">function</span> <span class="fn">render3D</span>(grid, N, scene) {
+  <span class="kw">const</span> COLORS = {
+    park: <span class="num">0x4caf50</span>, residential: <span class="num">0x2196f3</span>, commercial: <span class="num">0xff9800</span>,
+    hospital: <span class="num">0xf44336</span>, school: <span class="num">0x9c27b0</span>, road: <span class="num">0xe0e0e0</span>, empty: <span class="num">0xcccccc</span>
+  };
+  <span class="kw">const</span> HEIGHTS = {
+    park: <span class="num">0.3</span>, residential: <span class="num">1.5</span>, commercial: <span class="num">2.5</span>,
+    hospital: <span class="num">2.0</span>, school: <span class="num">1.8</span>, road: <span class="num">0.1</span>, empty: <span class="num">0.2</span>
+  };
+  <span class="kw">const</span> CELL = <span class="num">1.1</span>; <span class="cm">// gap between cells</span>
+
+  <span class="kw">for</span> (<span class="kw">let</span> r = <span class="num">0</span>; r < N; r++) {
+    <span class="kw">for</span> (<span class="kw">let</span> c = <span class="num">0</span>; c < N; c++) {
+      <span class="kw">const</span> t = grid[r][c].type;
+      <span class="kw">const</span> h = HEIGHTS[t] || <span class="num">0.2</span>;
+      <span class="kw">const</span> geo = <span class="kw">new</span> THREE.<span class="fn">BoxGeometry</span>(<span class="num">1</span>, h, <span class="num">1</span>);
+      <span class="kw">const</span> mat = <span class="kw">new</span> THREE.<span class="fn">MeshLambertMaterial</span>({ color: COLORS[t] || <span class="num">0xcccccc</span> });
+      <span class="kw">const</span> cube = <span class="kw">new</span> THREE.<span class="fn">Mesh</span>(geo, mat);
+      cube.position.<span class="fn">set</span>(c * CELL, h / <span class="num">2</span>, r * CELL);
+      cube.userData = { type: t, explanation: grid[r][c].explanation };
+      scene.<span class="fn">add</span>(cube);
+    }
+  }
+}</code></pre>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- S9: FALLBACK TEMPLATES -->
+  <div class="section" id="s9">
+    <div class="section-header">
+      <div class="section-num">9</div>
+      <div class="section-title">Fallback Templates</div>
+    </div>
+    <p class="section-desc">If the AI call fails or the input has no recognizable keywords, fall back to these hardcoded JSON configs. Always show something useful.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">JavaScript — Fallback Templates</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
+      <pre class="code-content"><code><span class="kw">const</span> FALLBACK_TEMPLATES = {
+  eco: {
+    zones: [
+      {type:<span class="str">"residential"</span>,count:<span class="num">10</span>,density:<span class="str">"medium"</span>},
+      {type:<span class="str">"park"</span>,count:<span class="num">5</span>,priority:<span class="str">"high"</span>},
+      {type:<span class="str">"hospital"</span>,count:<span class="num">1</span>,near_road:<span class="kw">true</span>}
+    ],
+    flags:{eco:<span class="kw">true</span>}, constraints:{traffic:<span class="str">"low"</span>,density:<span class="str">"medium"</span>},
+    area_in_acres:<span class="num">5</span>, grid_size:<span class="num">20</span>
+  },
+  urban: {
+    zones: [
+      {type:<span class="str">"residential"</span>,count:<span class="num">14</span>,density:<span class="str">"high"</span>},
+      {type:<span class="str">"commercial"</span>,count:<span class="num">4</span>,near_road:<span class="kw">true</span>},
+      {type:<span class="str">"hospital"</span>,count:<span class="num">2</span>,near_road:<span class="kw">true</span>},
+      {type:<span class="str">"park"</span>,count:<span class="num">3</span>}
+    ],
+    flags:{smart:<span class="kw">true</span>}, constraints:{traffic:<span class="str">"balanced"</span>,density:<span class="str">"high"</span>},
+    area_in_acres:<span class="num">10</span>, grid_size:<span class="num">25</span>
+  },
+  default: {
+    zones: [
+      {type:<span class="str">"residential"</span>,count:<span class="num">8</span>},
+      {type:<span class="str">"park"</span>,count:<span class="num">2</span>},
+      {type:<span class="str">"hospital"</span>,count:<span class="num">1</span>,near_road:<span class="kw">true</span>}
+    ],
+    flags:{}, constraints:{traffic:<span class="str">"balanced"</span>,density:<span class="str">"medium"</span>},
+    area_in_acres:<span class="num">5</span>, grid_size:<span class="num">20</span>
+  }
+};
+
+<span class="fn">function</span> <span class="fn">getFallback</span>(text) {
+  <span class="kw">const</span> lower = text.<span class="fn">toLowerCase</span>();
+  <span class="kw">if</span> (<span class="str">/eco|green|sustainable/</span>.<span class="fn">test</span>(lower)) <span class="kw">return</span> FALLBACK_TEMPLATES.eco;
+  <span class="kw">if</span> (<span class="str">/urban|smart|dense|city/</span>.<span class="fn">test</span>(lower)) <span class="kw">return</span> FALLBACK_TEMPLATES.urban;
+  <span class="kw">return</span> FALLBACK_TEMPLATES.default;
+}</code></pre>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- S10: EDGE CASES -->
+  <div class="section" id="s10">
+    <div class="section-header">
+      <div class="section-num">10</div>
+      <div class="section-title">Edge Cases to Handle</div>
+    </div>
+
+    <table class="rule-table">
+      <thead><tr><th>Edge Case</th><th>What Happens</th><th>Solution</th></tr></thead>
+      <tbody>
+        <tr><td>No zone keyword found</td><td>zones array is empty</td><td>Always default to residential + park as baseline</td></tr>
+        <tr><td>Area too small (1 acre)</td><td>grid_size becomes too tiny</td><td>Clamp grid_size min to 10×10</td></tr>
+        <tr><td>Area too large (100 acres)</td><td>grid too large, slow render</td><td>Clamp grid_size max to 40×40</td></tr>
+        <tr><td>Too many zones requested</td><td>Not enough empty cells</td><td>Scale zone counts proportionally to grid size</td></tr>
+        <tr><td>No park in input but eco=true</td><td>Missing green space</td><td>If eco flag is true, auto-add 2 park zones</td></tr>
+        <tr><td>Infinite placement loop</td><td>Placement tries > 1000</td><td>Break loop, fill remaining as residential</td></tr>
+        <tr><td>GPT returns malformed JSON</td><td>Crash on parse</td><td>Wrap in try/catch, fall back to keyword parser</td></tr>
+        <tr><td>Input is empty or whitespace</td><td>All empty grid</td><td>Show "Please describe your city" error inline</td></tr>
+      </tbody>
+    </table>
+
+    <div class="info-box warn" style="margin-top:1.25rem">
+      <strong>Hackathon Priority:</strong> Don't over-engineer edge case handling. Use a simple try/catch + fallback template pattern and move on. A working demo with a fallback beats a broken demo with perfect logic.
+    </div>
+
+    <div class="info-box tip" style="margin-top:0.75rem">
+      <strong>Pro Tip for Demo:</strong> Before the demo, test these 3 inputs specifically and confirm they produce valid grids: (1) "eco friendly city with parks", (2) "smart urban area with healthcare and high density housing", (3) empty input. Cover all three and your demo is safe.
+    </div>
+  </div>
+
+</main>
+</div>
+
+<script>
+function toggleTheme(){
+  const h=document.documentElement;
+  const cur=h.getAttribute('data-theme');
+  h.setAttribute('data-theme', cur==='dark'?'light':'dark');
+}
+function scrollTo(id){
+  const el=document.getElementById(id);
+  if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+  document.querySelectorAll('.sidebar-link').forEach(l=>l.classList.remove('active'));
+  event.target.closest('.sidebar-link').classList.add('active');
+}
+function copyCode(btn){
+  const code=btn.closest('.code-block').querySelector('code').innerText;
+  navigator.clipboard.writeText(code).then(()=>{
+    btn.textContent='Copied!';
+    setTimeout(()=>btn.textContent='Copy',1800);
+  });
+}
+// Active sidebar on scroll
+const sections=['s1','s2','s3','s4','s5','s6','s7','s8','s9','s10'];
+const links=document.querySelectorAll('.sidebar-link');
+window.addEventListener('scroll',()=>{
+  let current='s1';
+  sections.forEach(id=>{
+    const el=document.getElementById(id);
+    if(el && el.getBoundingClientRect().top<200) current=id;
+  });
+  links.forEach(l=>{
+    l.classList.toggle('active', l.getAttribute('onclick')?.includes(current));
+  });
+},{passive:true});
+</script>
+</body>
+</html>

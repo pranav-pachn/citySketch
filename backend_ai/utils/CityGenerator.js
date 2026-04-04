@@ -1,7 +1,9 @@
 export class CityGenerator {
   constructor(config = {}) {
-    this.width = 12;
-    this.height = 8;
+    // Guide Section 3 — Dynamic grid sizing (default 20×20 per guide, area-based)
+    const gridSize = config.gridSize || 20;
+    this.width = gridSize;
+    this.height = gridSize;
     this.waterMeta = null;
     this.grid = Array.from({ length: this.height }, () => 
       Array.from({ length: this.width }, () => 'empty')
@@ -14,7 +16,10 @@ export class CityGenerator {
       roadStyle: config.roadStyle || 'grid',
       forestDensity: config.forestDensity || 'normal',
       riverScale: config.riverScale || 'normal',
-      hospitalZone: config.hospitalZone || false
+      hospitalZone: config.hospitalZone || false,
+      schoolZone: config.schoolZone || false,
+      trafficLevel: config.trafficLevel || 'balanced',
+      eco: config.eco || false,
     };
   }
 
@@ -44,13 +49,17 @@ export class CityGenerator {
     return neighbors;
   }
 
+  // Guide Section 3 — Ordered placement pipeline
   generate() {
     this.addWater();
     this.buildRoads();
     this.addStrategicRiverCrossings();
     this.ensureRoadConnectivity();
+    // Guide Section 4 — Prioritized zone placement order:
+    // residential (first) → park (second) → hospital (third) → commercial (fourth) → school (fifth)
     this.addCoreZoning();
     this.addHospitalZone();
+    this.addSchoolZone();
     this.addParks();
     this.fillResidential();
     this.enforceZoningRules();
@@ -134,6 +143,7 @@ export class CityGenerator {
     const nearRoad = this.isAdjacentTo(x, y, 'road');
     const nearPark = this.isAdjacentTo(x, y, 'park');
     const nearIndustrial = this.isAdjacentTo(x, y, 'industrial');
+    const nearResidential = this.isAdjacentTo(x, y, 'residential');
     const isCenter = Math.abs(x - this.width / 2) < 3 && Math.abs(y - this.height / 2) < 3;
     const isEdgeCell = this.isEdge(x, y);
 
@@ -171,6 +181,16 @@ export class CityGenerator {
 
       case 'water':
         return 'river';
+
+      case 'hospital':
+        if (nearRoad) return 'emergency_hospital';
+        return 'clinic';
+
+      case 'school':
+        if (nearResidential) return 'neighborhood_school';
+        if (nearPark) return 'campus_school';
+        if (isEdgeCell) return 'campus';
+        return 'school_building';
 
       default:
         return 'vacant_lot';
@@ -327,17 +347,49 @@ export class CityGenerator {
     }
   }
 
+  // Guide Section 5 — Road generation with traffic-level modes
   buildRoads() {
+    const trafficLevel = this.config.trafficLevel || 'balanced';
+
     if (this.config.roadStyle === 'grid') {
-      // 1 horizontal main artery, 1 vertical main artery
       const hSpine = Math.floor(this.height / 2); 
       const vSpine = Math.floor(this.width / 2);
       
+      // Always: center cross roads (Guide Section 5 — mandatory)
       for (let x = 0; x < this.width; x++) if (this.grid[hSpine][x] !== 'water') this.grid[hSpine][x] = 'road';
       for (let y = 0; y < this.height; y++) if (this.grid[y][vSpine] !== 'water') this.grid[y][vSpine] = 'road';
+
+      // Balanced traffic: add quarter-line arteries (Guide Section 5)
+      if (trafficLevel === 'balanced') {
+        const q1Row = Math.floor(this.height / 4);
+        const q3Row = Math.floor(this.height * 3 / 4);
+        const q1Col = Math.floor(this.width / 4);
+        const q3Col = Math.floor(this.width * 3 / 4);
+
+        for (let x = 0; x < this.width; x++) {
+          if (this.grid[q1Row][x] !== 'water') this.grid[q1Row][x] = 'road';
+          if (this.grid[q3Row][x] !== 'water') this.grid[q3Row][x] = 'road';
+        }
+        for (let y = 0; y < this.height; y++) {
+          if (this.grid[y][q1Col] !== 'water') this.grid[y][q1Col] = 'road';
+          if (this.grid[y][q3Col] !== 'water') this.grid[y][q3Col] = 'road';
+        }
+      }
       
-      // Additional sub-arteries for high density
-      if (this.config.density === 'high') {
+      // High traffic: grid roads every 4 cells (Guide Section 5)
+      if (trafficLevel === 'high') {
+        for (let i = 0; i < this.height; i += 4) {
+          for (let j = 0; j < this.width; j++) {
+            if (this.grid[i][j] !== 'water') this.grid[i][j] = 'road';
+            if (this.grid[j < this.height ? j : 0][i < this.width ? i : 0] !== 'water' && i < this.width && j < this.height) {
+              this.grid[j][i] = 'road';
+            }
+          }
+        }
+      }
+
+      // High density also adds sub-arteries (existing behavior for backward compat)
+      if (this.config.density === 'high' && trafficLevel !== 'high') {
          const hSpine2 = this.height - 2;
          const vSpine2 = Math.floor(this.width / 4);
          const vSpine3 = Math.floor((this.width / 4) * 3);
@@ -348,6 +400,8 @@ export class CityGenerator {
              if (this.grid[y][vSpine3] !== 'water') this.grid[y][vSpine3] = 'road';
          }
       }
+
+      // Low traffic: only center cross already done (Guide Section 5 — "only perimeter + center cross")
     } else {
       // Organic: create meandering corridors instead of rigid loops.
       const cx = Math.floor(this.width / 2);
@@ -359,7 +413,7 @@ export class CityGenerator {
         const wave = Math.round(Math.sin((y + 1) * 0.9) * verticalAmplitude);
         const x = this.clamp(cx + wave, 1, this.width - 2);
         this.setTileIfNotWater(x, y, 'road');
-        if (this.config.density === 'high') this.setTileIfNotWater(x + 1, y, 'road');
+        if (this.config.density === 'high' || trafficLevel === 'high') this.setTileIfNotWater(x + 1, y, 'road');
       }
 
       for (let x = 0; x < this.width; x++) {
@@ -368,10 +422,19 @@ export class CityGenerator {
         this.setTileIfNotWater(x, y, 'road');
       }
 
-      if (this.config.density !== 'low') {
+      if (this.config.density !== 'low' && trafficLevel !== 'low') {
         const branchBase = this.clamp(cy + 2, 1, this.height - 2);
         for (let x = 0; x < this.width; x++) {
           const y = this.clamp(branchBase + Math.round(Math.sin(x * 0.8)), 1, this.height - 2);
+          this.setTileIfNotWater(x, y, 'road');
+        }
+      }
+
+      // Balanced/high traffic organic: add another branch
+      if (trafficLevel === 'balanced' || trafficLevel === 'high') {
+        const branchBase2 = this.clamp(cy - 2, 1, this.height - 2);
+        for (let x = 0; x < this.width; x++) {
+          const y = this.clamp(branchBase2 + Math.round(Math.cos(x * 0.6)), 1, this.height - 2);
           this.setTileIfNotWater(x, y, 'road');
         }
       }
@@ -380,17 +443,21 @@ export class CityGenerator {
 
   addCoreZoning() {
     let coreCount = this.config.density === 'high' ? 14 : this.config.density === 'medium' ? 8 : 4;
+    // Scale core count with grid size (base was designed for 12×8 = 96 cells)
+    const areaRatio = (this.width * this.height) / 96;
+    coreCount = Math.max(coreCount, Math.round(coreCount * Math.sqrt(areaRatio)));
 
     if (this.config.primaryZone === 'industrial') {
       this.addIndustrialCore(coreCount);
       return;
     }
     
+    // Guide Section 4 — Residential: interior cells, not on perimeter
     // Attempt to cluster along intersections or geographic center
     const cx = Math.floor(this.width/2);
     const cy = Math.floor(this.height/2);
     
-    for(let radius = 1; radius < 6 && coreCount > 0; radius++) {
+    for(let radius = 1; radius < Math.max(this.width, this.height) && coreCount > 0; radius++) {
       for(let y = cy-radius; y <= cy+radius && coreCount > 0; y++) {
         for(let x = cx-radius; x <= cx+radius && coreCount > 0; x++) {
           if (y >= 0 && y < this.height && x >= 0 && x < this.width) {
@@ -441,7 +508,10 @@ export class CityGenerator {
   addHospitalZone() {
     if (!this.config.hospitalZone) return;
 
-    const targetCells = this.config.density === 'high' ? 4 : this.config.density === 'low' ? 2 : 3;
+    // Scale hospital cell count with grid size
+    const baseCount = this.config.density === 'high' ? 4 : this.config.density === 'low' ? 2 : 3;
+    const areaRatio = (this.width * this.height) / 96;
+    const targetCells = Math.max(baseCount, Math.round(baseCount * Math.sqrt(areaRatio) * 0.6));
     const centerX = Math.floor(this.width / 2);
     const centerY = Math.floor(this.height / 2);
     const candidates = [];
@@ -450,6 +520,7 @@ export class CityGenerator {
       for (let x = 0; x < this.width; x++) {
         if (this.grid[y][x] !== 'empty') continue;
 
+        // Guide Section 4 — Hospital: adjacent to main road, avoid deep interior
         const adjacentRoad = this.isAdjacentTo(x, y, 'road') ? 1 : 0;
         if (!adjacentRoad) continue;
 
@@ -508,16 +579,81 @@ export class CityGenerator {
     }
   }
 
+  // Guide Section 4 — School: near residential, away from commercial/hospital
+  addSchoolZone() {
+    if (!this.config.schoolZone) return;
+
+    // Scale school count with grid size
+    const baseCount = this.config.density === 'high' ? 3 : this.config.density === 'low' ? 1 : 2;
+    const areaRatio = (this.width * this.height) / 96;
+    const targetCells = Math.max(baseCount, Math.round(baseCount * Math.sqrt(areaRatio) * 0.5));
+
+    const candidates = [];
+    let attempts = 0;
+
+    for (let y = 0; y < this.height && attempts < 1000; y++) {
+      for (let x = 0; x < this.width && attempts < 1000; x++) {
+        attempts++;
+        if (this.grid[y][x] !== 'empty') continue;
+
+        const nearResidential = this.isAdjacentTo(x, y, 'residential') ? 1 : 0;
+        const nearPark = this.isAdjacentTo(x, y, 'park') ? 1 : 0;
+        const nearCommercial = this.isAdjacentTo(x, y, 'commercial') ? 1 : 0;
+        const nearHospital = this.isAdjacentTo(x, y, 'hospital') ? 1 : 0;
+        const nearRoad = this.isAdjacentTo(x, y, 'road') ? 1 : 0;
+        const nearIndustrial = this.isAdjacentTo(x, y, 'industrial') ? 1 : 0;
+
+        // Guide Section 4 — School placement: near residential, park; avoid hospital, roads (heavy), commercial
+        const score =
+          nearResidential * 6 +
+          nearPark * 4 +
+          nearRoad * 2 -
+          nearCommercial * 3 -
+          nearHospital * 4 -
+          nearIndustrial * 6 +
+          Math.random() * 0.3;
+
+        if (nearIndustrial) continue; // Hard avoid industrial
+
+        candidates.push({ x, y, score });
+      }
+    }
+
+    if (!candidates.length) return;
+
+    candidates.sort((a, b) => b.score - a.score);
+
+    let placed = 0;
+    for (const c of candidates) {
+      if (placed >= targetCells) break;
+      if (this.grid[c.y][c.x] !== 'empty') continue;
+      this.grid[c.y][c.x] = 'school';
+      placed++;
+    }
+  }
+
   addParks() {
     if (this.config.forestDensity === 'high') {
       this.addDenseForests();
       return;
     }
 
-    let parkCount = this.config.parkStyle === 'central' ? 6 : this.config.parkStyle === 'bordering' ? 12 : this.config.parkStyle === 'scattered' ? 8 : 0;
+    // Scale park count with grid size
+    const areaRatio = (this.width * this.height) / 96;
+    const scaleMultiplier = Math.sqrt(areaRatio);
+
+    let parkCount = this.config.parkStyle === 'central' ? Math.round(6 * scaleMultiplier) 
+      : this.config.parkStyle === 'bordering' ? Math.round(12 * scaleMultiplier) 
+      : this.config.parkStyle === 'scattered' ? Math.round(8 * scaleMultiplier) 
+      : 0;
+
+    // Guide Section 10 — If eco=true, boost park count
+    if (this.config.eco && parkCount < Math.round(5 * scaleMultiplier)) {
+      parkCount = Math.round(5 * scaleMultiplier);
+    }
     
     if (this.config.parkStyle === 'central') {
-      const cx = 3, cy = Math.floor(this.height/2);
+      const cx = Math.floor(this.width / 3), cy = Math.floor(this.height/2);
       for(let y=cy-1; y<=cy+1; y++) {
         for(let x=cx-1; x<=cx+1; x++) {
           if (this.grid[y]?.[x] === 'empty' && parkCount > 0) { this.grid[y][x] = 'park'; parkCount--; }
@@ -530,6 +666,17 @@ export class CityGenerator {
         if(this.grid[this.height-1][x] === 'empty') { this.grid[this.height-1][x] = 'park'; parkCount--; }
       }
     } else if (this.config.parkStyle === 'scattered') {
+      // Guide Section 4 — Park: adjacent to residential clusters
+      // First pass: try to place parks near residential
+      for(let y=0; y<this.height && parkCount > 0; y++) {
+        for(let x=0; x<this.width && parkCount > 0; x++) {
+          if (this.grid[y][x] === 'empty' && this.isAdjacentTo(x, y, 'residential') && Math.random() < 0.35) {
+            this.grid[y][x] = 'park';
+            parkCount--;
+          }
+        }
+      }
+      // Second pass: scatter remaining parks
       for(let y=0; y<this.height && parkCount > 0; y++) {
         for(let x=0; x<this.width && parkCount > 0; x++) {
           if (this.grid[y][x] === 'empty' && Math.random() < 0.2) {
@@ -596,10 +743,13 @@ export class CityGenerator {
   }
 
   getMinimumResidential() {
+    // Scale minimum residential with grid area
+    const areaRatio = (this.width * this.height) / 96;
+    const scaleFactor = Math.sqrt(areaRatio);
     if (this.config.forestDensity === 'high') {
-      return this.config.density === 'low' ? 8 : this.config.density === 'medium' ? 14 : 20;
+      return Math.round((this.config.density === 'low' ? 8 : this.config.density === 'medium' ? 14 : 20) * scaleFactor);
     }
-    return this.config.density === 'low' ? 12 : this.config.density === 'medium' ? 20 : 30;
+    return Math.round((this.config.density === 'low' ? 12 : this.config.density === 'medium' ? 20 : 30) * scaleFactor);
   }
 
   ensureMinimumResidential(currentCount = 0) {
@@ -691,6 +841,17 @@ export class CityGenerator {
             this.carveRoadPath(x, y, nearestRoad.x, nearestRoad.y);
           }
         }
+
+        if (this.isAdjacentTo(x, y, 'industrial')) {
+          this.grid[y][x] = 'park';
+        }
+      }
+    }
+
+    // Keep school zones connected to roads and away from industry.
+    for (let y = 0; y < this.height; y++) {
+      for (let x = 0; x < this.width; x++) {
+        if (this.grid[y][x] !== 'school') continue;
 
         if (this.isAdjacentTo(x, y, 'industrial')) {
           this.grid[y][x] = 'park';

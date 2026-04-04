@@ -1,6 +1,6 @@
 import { useStore } from '../store/useStore'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, MapPin, Pencil } from 'lucide-react'
+import { X, MapPin, Pencil, Save } from 'lucide-react'
 import type { GridCell } from '../types'
 
 const ZONE_INFO: Record<GridCell['type'], { color: string; description: string }> = {
@@ -11,10 +11,11 @@ const ZONE_INFO: Record<GridCell['type'], { color: string; description: string }
   hospital: { color: '#dc2626', description: 'Medical services — hospitals, clinics, and healthcare support.' },
   industrial: { color: '#6b21a8', description: 'Industrial zones — factories, warehouses, and manufacturing.' },
   water: { color: '#0e7490', description: 'Water bodies — rivers, lakes, and reservoirs.' },
+  school: { color: '#7a39bb', description: 'Education facilities — schools, campuses, and learning centers.' },
   empty: { color: '#1f2937', description: 'Unassigned land — available for development.' },
 }
 
-const ALL_TYPES: GridCell['type'][] = ['road', 'residential', 'commercial', 'park', 'hospital', 'industrial', 'water', 'empty']
+const ALL_TYPES: GridCell['type'][] = ['road', 'residential', 'commercial', 'park', 'hospital', 'industrial', 'water', 'school', 'empty']
 
 function getNeighborCells(grid: GridCell[][], cell: GridCell) {
   const neighbors: GridCell[] = []
@@ -63,6 +64,14 @@ function getBlockExplanation(grid: GridCell[][], cell: GridCell) {
       return 'Commercial zone placed to support nearby neighborhoods with services and jobs.'
     case 'industrial':
       return 'Industrial area placed away from homes to separate heavy activity and traffic.'
+    case 'school':
+      if (neighborTypes.has('residential')) {
+        return 'School near residential area — reduces commute time for students.'
+      }
+      if (neighborTypes.has('park')) {
+        return 'School adjacent to park — provides outdoor activity space for students.'
+      }
+      return 'School placed in safe, low-traffic interior zone.'
     case 'road':
       return 'Road connects districts and keeps movement through the city efficient.'
     case 'water':
@@ -78,6 +87,8 @@ export function CellDetail() {
   const detailOpen = useStore((s) => s.detailOpen)
   const setDetailOpen = useStore((s) => s.setDetailOpen)
   const updateCellType = useStore((s) => s.updateCellType)
+  const saveCurrentLayout = useStore((s) => s.saveCurrentLayout)
+  const hasUnsavedLayoutChanges = useStore((s) => s.hasUnsavedLayoutChanges)
 
   const info = selectedCell ? ZONE_INFO[selectedCell.type] : null
   const explanation = selectedCell && layoutData ? getBlockExplanation(layoutData, selectedCell) : ''
@@ -146,6 +157,16 @@ export function CellDetail() {
                   </button>
                 ))}
               </div>
+              {hasUnsavedLayoutChanges && (
+                <button
+                  type="button"
+                  className="save-layout-btn"
+                  onClick={() => void saveCurrentLayout()}
+                >
+                  <Save size={12} strokeWidth={1.8} />
+                  <span>Save layout</span>
+                </button>
+              )}
             </div>
           </div>
         </motion.div>

@@ -1,7 +1,7 @@
 import { useStore } from '../store/useStore'
 import { motion } from 'framer-motion'
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch'
-import { Building2, Home, Trees, Waves, Factory, Route, Stethoscope } from 'lucide-react'
+import { Building2, Home, Trees, Waves, Factory, Route, Stethoscope, GraduationCap } from 'lucide-react'
 import type { GridCell } from '../types'
 
 const CELL_STYLES: Record<GridCell['type'], { color: string, icon: any, label: string }> = {
@@ -12,6 +12,7 @@ const CELL_STYLES: Record<GridCell['type'], { color: string, icon: any, label: s
   hospital: { color: '#ef4444', icon: Stethoscope, label: 'HSP' },
   industrial: { color: '#a855f7', icon: Factory, label: 'IND' },
   water: { color: '#06b6d4', icon: Waves, label: 'H2O' },
+  school: { color: '#9c27b0', icon: GraduationCap, label: 'SCH' },
   empty: { color: '#27272a', icon: null, label: '' },
 }
 
@@ -123,6 +124,10 @@ export function Grid2D({ onCellExplain }: Grid2DProps) {
         <div className="legend-item-bp">
           <span className="zone-pick-swatch" style={{ backgroundColor: CELL_STYLES.hospital.color }} />
           <span className="legend-label-bp">Red = Hospital</span>
+        </div>
+        <div className="legend-item-bp">
+          <span className="zone-pick-swatch" style={{ backgroundColor: CELL_STYLES.school.color }} />
+          <span className="legend-label-bp">Purple = School</span>
         </div>
       </div>
     </motion.div>

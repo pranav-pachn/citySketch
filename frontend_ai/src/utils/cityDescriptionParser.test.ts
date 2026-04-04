@@ -1,6 +1,7 @@
 /**
  * Test suite for cityDescriptionParser
  * Demonstrates parsing of various natural language inputs
+ * Extended with Guide Section 1 keyword coverage
  */
 
 import { parseText } from './cityDescriptionParser';
@@ -85,6 +86,60 @@ const testCases = [
         low_traffic: true,
         high_density: true,
       },
+    },
+  },
+  // ── Guide Section 1 — New test cases ──
+  {
+    name: 'Guide example 1 — eco city',
+    input: 'Design a 10 acre eco friendly city with parks, hospitals, low traffic and commercial zones',
+    expected: {
+      area_in_acres: 10,
+      priority: 'low traffic',
+      constraints: {
+        eco: true,
+        low_traffic: true,
+        high_density: false,
+      },
+    },
+  },
+  {
+    name: 'Guide example 2 — smart urban area',
+    input: 'Build a smart urban area with healthcare, green spaces, high density housing and balanced traffic',
+    expected: {
+      area_in_acres: 5,  // No acre specified → default 5
+      priority: 'high density',
+      constraints: {
+        eco: false,
+        low_traffic: false,
+        high_density: true,
+      },
+    },
+  },
+  {
+    name: 'School keyword extraction',
+    input: 'A city with schools near residential areas',
+    expected: {
+      area_in_acres: 5,
+      priority: 'balanced',
+    },
+  },
+  {
+    name: 'Acreage edge case — very small (1 acre)',
+    input: '1 acre eco city',
+    expected: {
+      area_in_acres: 1,
+      priority: 'eco priority',
+      constraints: {
+        eco: true,
+      },
+    },
+  },
+  {
+    name: 'Acreage edge case — very large (100 acres)',
+    input: '100 acre mega city',
+    expected: {
+      area_in_acres: 100,
+      priority: 'balanced',
     },
   },
 ];

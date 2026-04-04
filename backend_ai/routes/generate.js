@@ -31,10 +31,56 @@ function getRotatedKeys(provider, keys) {
   return [...keys.slice(startIndex), ...keys.slice(0, startIndex)]
 }
 
+// ─── Guide Section 9 — Fallback Templates ─────────────────────────────────
+const FALLBACK_TEMPLATES = {
+  eco: {
+    waterStyle: 'none',
+    primaryZone: 'residential',
+    density: 'medium',
+    parkStyle: 'scattered',
+    roadStyle: 'grid',
+    hospitalZone: true,
+    schoolZone: false,
+    forestDensity: 'normal',
+    riverScale: 'normal',
+  },
+  urban: {
+    waterStyle: 'none',
+    primaryZone: 'commercial',
+    density: 'high',
+    parkStyle: 'scattered',
+    roadStyle: 'grid',
+    hospitalZone: true,
+    schoolZone: false,
+    forestDensity: 'normal',
+    riverScale: 'normal',
+  },
+  default: {
+    waterStyle: 'none',
+    primaryZone: 'residential',
+    density: 'medium',
+    parkStyle: 'scattered',
+    roadStyle: 'grid',
+    hospitalZone: false,
+    schoolZone: false,
+    forestDensity: 'normal',
+    riverScale: 'normal',
+  },
+}
+
+function selectFallbackTemplate(prompt) {
+  const lower = (prompt || '').toLowerCase()
+  if (/eco|green|sustainable|environment/.test(lower)) return FALLBACK_TEMPLATES.eco
+  if (/urban|smart|dense|city|metropolitan/.test(lower)) return FALLBACK_TEMPLATES.urban
+  return FALLBACK_TEMPLATES.default
+}
+
+// ─── Guide-Aligned Keyword Parser (Sections 1 + 10) ───────────────────────
 function inferPromptOverrides(prompt) {
   const text = prompt.toLowerCase()
   const overrides = {}
 
+  // ── Water style ──
   const hasVerticalRiver =
     /(vertical|north[-\s]?south).{0,30}river/.test(text) ||
     /river.{0,30}(vertical|north[-\s]?south)/.test(text)
@@ -54,22 +100,24 @@ function inferPromptOverrides(prompt) {
     overrides.waterStyle = 'lake_center'
   }
 
+  // ── Road style ──
   if (/winding|organic|curvy|curved|meandering|snaking/.test(text)) {
     overrides.roadStyle = 'organic'
   } else if (/grid|orthogonal|block pattern|straight roads/.test(text)) {
     overrides.roadStyle = 'grid'
   }
 
+  // ── Density ──
   if (/low[-\s]?density|sparse|quiet town|small town|village|hamlet/.test(text)) {
     overrides.density = 'low'
-  } else if (/high[-\s]?density|dense urban|metropolitan|downtown|packed/.test(text)) {
+  } else if (/high[-\s]?density|dense urban|metropolitan|downtown|packed|compact/.test(text)) {
     overrides.density = 'high'
   }
 
+  // ── Primary zone ──
   const industrialHint = /logging|sawmill|lumber|mill town|industrial|factory|warehouse/.test(text)
   const residentialHint = /residential|housing|homes|suburb/.test(text)
   const commercialHint = /commercial|business district|offices|retail|mall/.test(text)
-    const hospitalHint = /hospital|hospitals|clinic|clinics|medical|healthcare|health center|medical center/.test(text)
 
   if (industrialHint) {
     overrides.primaryZone = 'industrial'
@@ -79,10 +127,19 @@ function inferPromptOverrides(prompt) {
     overrides.primaryZone = 'commercial'
   }
 
-    if (hospitalHint) {
-      overrides.hospitalZone = true
-    }
+  // ── Hospital zone ──
+  const hospitalHint = /hospital|hospitals|clinic|clinics|medical|healthcare|health center|medical center/.test(text)
+  if (hospitalHint) {
+    overrides.hospitalZone = true
+  }
 
+  // ── School zone (Guide Section 1) ──
+  const schoolHint = /school|education|campus|college/.test(text)
+  if (schoolHint) {
+    overrides.schoolZone = true
+  }
+
+  // ── Park style ──
   const noParkHint = /without parks|no parks|no green space/.test(text)
   const centralParkHint = /central park|single central park/.test(text)
   const borderingParkHint = /green belt|bordering forest|edge forest|forest border/.test(text)
@@ -102,6 +159,7 @@ function inferPromptOverrides(prompt) {
     overrides.forestDensity = 'high'
   }
 
+  // ── River scale ──
   if (
     /(massive|wide|huge|major|broad).{0,20}(river|waterway)/.test(text) ||
     /(river|waterway).{0,20}(massive|wide|huge|major|broad)/.test(text)
@@ -109,7 +167,65 @@ function inferPromptOverrides(prompt) {
     overrides.riverScale = 'wide'
   }
 
+  // ── Guide Section 1 — Traffic Level ──
+  if (/low traffic|less traffic|minimal traffic|low[-\s]?traffic/.test(text)) {
+    overrides.trafficLevel = 'low'
+  } else if (/high traffic|busy|heavy traffic/.test(text)) {
+    overrides.trafficLevel = 'high'
+  } else if (/balanced traffic|medium traffic/.test(text)) {
+    overrides.trafficLevel = 'balanced'
+  }
+
+  // ── Guide Section 1 — Area in acres ──
+  const areaMatch = text.match(/(\d+)\s*acres?/i)
+  if (areaMatch) {
+    overrides.areaInAcres = parseInt(areaMatch[1], 10)
+  }
+
+  // ── Guide Section 1 — Eco flag ──
+  if (/eco|sustainable|green|environment/.test(text)) {
+    overrides.eco = true
+  }
+
+  // ── Guide Section 1 — Smart flag ──
+  if (/smart|intelligent|modern/.test(text)) {
+    overrides.smart = true
+  }
+
   return overrides
+}
+
+// ─── Normalize Intent — Merge LLM + Overrides + Guide Rules ───────────────
+function normalizeIntent(llmConfig, overrides, prompt) {
+  const merged = {
+    waterStyle: overrides.waterStyle || llmConfig.waterStyle || 'none',
+    primaryZone: overrides.primaryZone || llmConfig.primaryZone || 'commercial',
+    density: overrides.density || llmConfig.density || 'medium',
+    parkStyle: overrides.parkStyle || llmConfig.parkStyle || 'scattered',
+    roadStyle: overrides.roadStyle || llmConfig.roadStyle || 'grid',
+    forestDensity: overrides.forestDensity || 'normal',
+    riverScale: overrides.riverScale || 'normal',
+    hospitalZone: overrides.hospitalZone || llmConfig.hospitalZone || false,
+    schoolZone: overrides.schoolZone || llmConfig.schoolZone || false,
+    trafficLevel: overrides.trafficLevel || 'balanced',
+    areaInAcres: overrides.areaInAcres || null,
+    eco: overrides.eco || false,
+    smart: overrides.smart || false,
+  }
+
+  // Guide Section 10 — If eco=true and no park mentioned, ensure parks
+  if (merged.eco && merged.parkStyle === 'none') {
+    merged.parkStyle = 'scattered'
+  }
+
+  // Guide Section 2 — Compute grid_size from area
+  // Default area = 5 acres → grid_size = 18 (≈20×20 guide default)
+  const area = merged.areaInAcres || 5
+  const rawGridSize = Math.round(Math.sqrt(area) * 8)
+  // Guide Section 10 — Clamp grid_size to 10–40
+  merged.gridSize = Math.max(10, Math.min(40, rawGridSize))
+
+  return merged
 }
 
 function promptRequestsHospital(prompt) {
@@ -191,12 +307,13 @@ The user will provide a descriptive prompt for a city. You must read it and outp
   "primaryZone": "commercial" | "industrial" | "residential",
   "density": "high" | "medium" | "low",
   "parkStyle": "central" | "scattered" | "bordering" | "none",
-  "roadStyle": "grid" | "organic"
+  "roadStyle": "grid" | "organic",
   "hospitalZone": boolean,
+  "schoolZone": boolean
 }
 
 Do NOT output an array. Just output the JSON configuration object.
-Example: {"waterStyle":"coastal_left", "primaryZone":"commercial", "density":"high", "parkStyle":"bordering", "roadStyle":"organic"}
+Example: {"waterStyle":"coastal_left", "primaryZone":"commercial", "density":"high", "parkStyle":"bordering", "roadStyle":"organic", "hospitalZone":false, "schoolZone":false}
 `
 
     let rawContent = null
@@ -277,42 +394,57 @@ Example: {"waterStyle":"coastal_left", "primaryZone":"commercial", "density":"hi
       }
     }
 
-    if (!rawContent) {
-      throw new Error('All AI providers (OpenRouter, Gemini, Groq) failed.')
-    }
-
-    // Safely parse JSON
+    // Guide Section 9 — Fallback templates when all providers fail
     let config = {}
-    try {
+    let usedFallback = false
+
+    if (!rawContent) {
+      console.warn('All AI providers failed. Using fallback template.')
+      config = selectFallbackTemplate(prompt)
+      modelUsed = 'fallback-template'
+      usedFallback = true
+    } else {
+      // Safely parse JSON (Guide Section 10 — handle malformed JSON)
+      try {
         let cleanedContent = rawContent.replace(/```json/g, '').replace(/```/g, '').trim()
         // Extract JSON object by finding first { and last }
         const jsonStart = cleanedContent.indexOf('{')
         const jsonEnd = cleanedContent.lastIndexOf('}')
-      
+
         if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
           cleanedContent = cleanedContent.substring(jsonStart, jsonEnd + 1)
         }
-      
+
         config = JSON.parse(cleanedContent)
-    } catch (e) {
-      console.error('JSON Parse error', e)
-      console.log('Raw output was:', rawContent)
-      throw new Error('Failed to parse AI output into valid JSON')
+      } catch (e) {
+        console.error('JSON Parse error, falling back to keyword parser:', e)
+        console.log('Raw output was:', rawContent)
+        // Guide Section 10 — Fall back to keyword parser on malformed JSON
+        config = selectFallbackTemplate(prompt)
+        usedFallback = true
+      }
     }
 
     // Apply deterministic keyword overrides so prompt-critical intent is preserved.
     const overrides = inferPromptOverrides(prompt)
 
+    // Build normalized intent (Guide Sections 1-2)
+    const normalizedIntent = normalizeIntent(config, overrides, prompt)
+
     // Intercept LLM intent and generate perfect mathematical grid
     const engine = new CityGenerator({
-      waterStyle: overrides.waterStyle || config.waterStyle || 'none',
-      primaryZone: overrides.primaryZone || config.primaryZone || 'commercial',
-      density: overrides.density || config.density || 'medium',
-      parkStyle: overrides.parkStyle || config.parkStyle || 'scattered',
-      roadStyle: overrides.roadStyle || config.roadStyle || 'grid',
-      forestDensity: overrides.forestDensity || 'normal',
-      riverScale: overrides.riverScale || 'normal',
-      hospitalZone: overrides.hospitalZone || config.hospitalZone || false,
+      waterStyle: normalizedIntent.waterStyle,
+      primaryZone: normalizedIntent.primaryZone,
+      density: normalizedIntent.density,
+      parkStyle: normalizedIntent.parkStyle,
+      roadStyle: normalizedIntent.roadStyle,
+      forestDensity: normalizedIntent.forestDensity,
+      riverScale: normalizedIntent.riverScale,
+      hospitalZone: normalizedIntent.hospitalZone,
+      schoolZone: normalizedIntent.schoolZone,
+      trafficLevel: normalizedIntent.trafficLevel,
+      gridSize: normalizedIntent.gridSize,
+      eco: normalizedIntent.eco,
     })
 
     const grid = engine.generate()
@@ -321,15 +453,27 @@ Example: {"waterStyle":"coastal_left", "primaryZone":"commercial", "density":"hi
       ensureHospitalInGrid(grid)
     }
 
+    // Build backward-compatible response with guide metadata
+    const buildPayload = (id, saved) => ({
+      id,
+      prompt,
+      layoutData: grid,
+      timestamp: Date.now(),
+      ai_model: modelUsed,
+      saved,
+      normalizedIntent: {
+        areaInAcres: normalizedIntent.areaInAcres || 5,
+        gridSize: normalizedIntent.gridSize,
+        density: normalizedIntent.density,
+        trafficLevel: normalizedIntent.trafficLevel,
+        eco: normalizedIntent.eco,
+        smart: normalizedIntent.smart,
+        usedFallback,
+      },
+    })
+
     if (!saveToHistory) {
-      return res.json({
-        id: null,
-        prompt,
-        layoutData: grid,
-        timestamp: Date.now(),
-        ai_model: modelUsed,
-        saved: false,
-      })
+      return res.json(buildPayload(null, false))
     }
 
     // Persist in Supabase first; fallback to local history file if DB table is unavailable.
@@ -349,11 +493,8 @@ Example: {"waterStyle":"coastal_left", "primaryZone":"commercial", "density":"hi
       if (error) throw error
 
       payload = {
-        id: data.id,
-        prompt: data.prompt,
-        layoutData: data.grid,
+        ...buildPayload(data.id, true),
         timestamp: new Date(data.created_at).getTime(),
-        saved: true,
       }
     } catch (dbError) {
       console.warn('Supabase insert failed, using local history fallback:', dbError.message || dbError)
@@ -365,13 +506,7 @@ Example: {"waterStyle":"coastal_left", "primaryZone":"commercial", "density":"hi
         ai_model: modelUsed,
       }
       await addLocalHistoryItem(fallbackItem)
-      payload = {
-        id: fallbackItem.id,
-        prompt: fallbackItem.prompt,
-        layoutData: fallbackItem.layoutData,
-        timestamp: fallbackItem.timestamp,
-        saved: true,
-      }
+      payload = buildPayload(fallbackItem.id, true)
     }
 
     // Return generated grid and persistence result to frontend.
