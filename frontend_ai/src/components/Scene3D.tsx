@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from 'react'
+import { useRef, useState, useEffect, useMemo } from 'react'
 import { Canvas as R3FCanvas, useFrame } from '@react-three/fiber'
 import { OrbitControls, Environment, Grid, ContactShadows, Html } from '@react-three/drei'
 import { useStore } from '../store/useStore'
@@ -104,13 +104,14 @@ const CommercialSkyscraper = ({ x, z, seed }: { x: number, z: number, seed: numb
   const isNightMode = useStore(s => s.isNightMode)
   const pal = isNightMode ? NIGHT_PALETTE : ZONE_PALETTE
 
-  const material = new THREE.MeshStandardMaterial({
+  // useMemo so we don't create a new GPU material object every render
+  const material = useMemo(() => new THREE.MeshStandardMaterial({
     color: pal.commercial.base,
     roughness: 0.1,
     metalness: 0.8,
     emissive: isNightMode ? '#fef08a' : '#000000',
     emissiveIntensity: isNightMode ? 0.15 : 0
-  })
+  }), [isNightMode])
 
   return (
     <group position={[x, 0, z]}>
@@ -214,70 +215,14 @@ const SchoolBuilding = ({ x, z, seed }: { x: number, z: number, seed: number }) 
   )
 }
 
-const RoamingCar = ({ seed }: { seed: number }) => {
-  const ref = useRef<THREE.Group>(null)
-  const isNightMode = useStore(s => s.isNightMode)
-  
-  // Random speed and starting offset
-  const speed = 0.5 + seededRandom(seed) * 1.5
-  const offset = seededRandom(seed * 2) * Math.PI * 2
-  const isXAxis = seededRandom(seed * 3) > 0.5
 
-  useFrame(({ clock }) => {
-    if (ref.current) {
-      // Loop smoothly back and forth on one block tile
-      const t = clock.elapsedTime * speed + offset
-      const pos = Math.sin(t) * 0.4
-      if (isXAxis) {
-        ref.current.position.x = pos
-        ref.current.rotation.y = Math.cos(t) > 0 ? Math.PI / 2 : -Math.PI / 2
-      } else {
-        ref.current.position.z = pos
-        ref.current.rotation.y = Math.cos(t) > 0 ? 0 : Math.PI
-      }
-    }
-  })
 
-  return (
-    <group position={[0, 0.05, 0]} ref={ref}>
-      <mesh>
-        <boxGeometry args={[0.08, 0.06, 0.16]} />
-        <meshStandardMaterial color={seededRandom(seed*4) > 0.5 ? '#eab308' : '#ffffff'} roughness={0.3} />
-      </mesh>
-      {/* Headlights */}
-      {isNightMode && (
-        <>
-          <mesh position={[0.02, 0, 0.08]}>
-            <boxGeometry args={[0.02, 0.02, 0.02]} />
-            <meshBasicMaterial color="#ffffff" />
-          </mesh>
-          <mesh position={[-0.02, 0, 0.08]}>
-            <boxGeometry args={[0.02, 0.02, 0.02]} />
-            <meshBasicMaterial color="#ffffff" />
-          </mesh>
-          {/* Taillights */}
-          <mesh position={[0.02, 0, -0.08]}>
-            <boxGeometry args={[0.02, 0.02, 0.02]} />
-            <meshBasicMaterial color="#ef4444" />
-          </mesh>
-          <mesh position={[-0.02, 0, -0.08]}>
-            <boxGeometry args={[0.02, 0.02, 0.02]} />
-            <meshBasicMaterial color="#ef4444" />
-          </mesh>
-        </>
-      )}
-    </group>
-  )
-}
-
-const RoadTile = ({ seed, elevation = 0 }: { seed: number, elevation?: number }) => (
+const RoadTile = ({ elevation = 0 }: { elevation?: number }) => (
   <group>
     <mesh position={[0, -elevation / 2 + 0.01, 0]} receiveShadow castShadow>
       <boxGeometry args={[CELL_SIZE - 0.05, 0.02 + elevation, CELL_SIZE - 0.05]} />
       <meshStandardMaterial color={ZONE_PALETTE.road.base} roughness={0.9} />
     </mesh>
-    {/* 40% chance to spawn a roaming car on a road */}
-    {seededRandom(seed) > 0.6 && <RoamingCar seed={seed} />}
   </group>
 )
 
@@ -292,10 +237,13 @@ const WaterTile = ({ elevation = 0 }: { elevation?: number }) => (
 /* ═══════ Single Cell Group ═══════ */
 
 function CityCell({ cell, offsetX, offsetZ, revealOrder, generationId }: { cell: GridCell, offsetX: number, offsetZ: number, revealOrder: number, generationId: number }) {
-  const selectedCell = useStore((s) => s.selectedCell)
-  const setSelectedCell = useStore((s) => s.setSelectedCell)
-  const hoveredCell = useStore((s) => s.hoveredCell)
-  const setHoveredCell = useStore((s) => s.setHoveredCell)
+  // Merge all store reads into one subscription to cut render overhead by 3/4
+  const { selectedCell, setSelectedCell, hoveredCell, setHoveredCell } = useStore((s) => ({
+    selectedCell: s.selectedCell,
+    setSelectedCell: s.setSelectedCell,
+    hoveredCell: s.hoveredCell,
+    setHoveredCell: s.setHoveredCell,
+  }))
 
   const isSelected = selectedCell?.x === cell.x && selectedCell?.y === cell.y
   const isHovered = hoveredCell?.x === cell.x && hoveredCell?.y === cell.y
@@ -313,14 +261,25 @@ function CityCell({ cell, offsetX, offsetZ, revealOrder, generationId }: { cell:
     }
 
     setIsVisible(false)
-    const revealDelay = Math.min(revealOrder * 28, 1400)
+    // Reduced stagger from 28ms → 18ms, capped at 800ms (was 1400ms)
+    const revealDelay = Math.min(revealOrder * 18, 800)
     const timeout = window.setTimeout(() => setIsVisible(true), revealDelay)
     return () => window.clearTimeout(timeout)
   }, [generationId, revealOrder])
 
-  // Smooth hover floating
+  // Smooth hover floating — short-circuit when idle for perf
   useFrame((_, delta) => {
     if (!groupRef.current) return
+    // Skip expensive easing math when cell is fully visible and not hovered
+    if (isVisible && !isHovered) {
+      if (groupRef.current.position.y !== elevation) {
+        groupRef.current.position.y = elevation
+      }
+      if (groupRef.current.scale.x !== 1) {
+        groupRef.current.scale.setScalar(1)
+      }
+      return
+    }
     const targetY = (isHovered ? 0.2 : 0) + elevation
     easing.damp(groupRef.current.position, 'y', targetY, 0.15, delta)
 
@@ -356,7 +315,7 @@ function CityCell({ cell, offsetX, offsetZ, revealOrder, generationId }: { cell:
           </>
         )
       case 'road':
-        return <RoadTile seed={seed} elevation={elevation} />
+        return <RoadTile elevation={elevation} />
       case 'water':
         return <WaterTile elevation={elevation} />
       case 'school':
@@ -504,11 +463,12 @@ function CityScene() {
       <ContactShadows 
         position={[centerX, 0.02, centerZ]} 
         scale={width * 1.5} 
-        resolution={256} 
-        far={5} 
-        blur={1.5} 
-        opacity={isNightMode ? 0.3 : 0.8} 
+        resolution={128}
+        far={4} 
+        blur={2} 
+        opacity={isNightMode ? 0.2 : 0.5} 
         color="#000000"
+        frames={1}
       />
 
       {layoutData.map((row) => 

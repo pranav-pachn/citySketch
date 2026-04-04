@@ -115,7 +115,6 @@ npm run preview
 - Backend: Node.js, Express, Supabase, OpenAI-compatible providers, Groq
 
 ## Point of Contact
-
 Primary maintainer: **Rahul S,Pranav,Siddarth**
 
 - GitHub: https://github.com/rahulsp19
