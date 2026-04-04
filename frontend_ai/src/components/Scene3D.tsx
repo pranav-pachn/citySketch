@@ -20,6 +20,19 @@ const ZONE_PALETTE = {
   empty:       { base: '#1a202c' }
 }
 
+/* ═══════ Night / Dark-mode Palette (icy, whitish, high contrast) ═══════ */
+const NIGHT_PALETTE = {
+  road:        { base: '#cbd5e1', highlight: '#94a3b8' },
+  residential: { base: '#bfdbfe', roof: '#93c5fd' },
+  commercial:  { base: '#fca5a5', trim: '#f87171' },
+  hospital:    { base: '#fecaca', cross: '#ffffff' },
+  park:        { base: '#bbf7d0', trunk: '#a3e635', foliage: '#86efac' },
+  industrial:  { base: '#e2e8f0', smokestack: '#cbd5e1' },
+  water:       { base: '#7dd3fc', wave: '#bae6fd' },
+  school:      { base: '#e9d5ff', roof: '#d8b4fe', flag: '#fca5a5' },
+  empty:       { base: '#1e293b' }
+}
+
 function seededRandom(seed: number): number {
   const x = Math.sin(seed) * 10000
   return x - Math.floor(x)
@@ -29,11 +42,13 @@ function seededRandom(seed: number): number {
 
 const ParkTree = ({ x, z, scale, seed }: { x: number, z: number, scale: number, seed: number }) => {
   const isPond = seededRandom(seed * 4) > 0.8
+  const isNightMode = useStore(s => s.isNightMode)
+  const pal = isNightMode ? NIGHT_PALETTE : ZONE_PALETTE
   if (isPond) {
     return (
       <mesh position={[x, 0.03, z]} receiveShadow rotation={[-Math.PI/2, 0, 0]}>
         <circleGeometry args={[0.2 * scale, 12]} />
-        <meshStandardMaterial color={ZONE_PALETTE.water.base} roughness={0.1} metalness={0.9} />
+        <meshStandardMaterial color={pal.water.base} roughness={0.1} metalness={0.9} />
       </mesh>
     )
   }
@@ -42,11 +57,11 @@ const ParkTree = ({ x, z, scale, seed }: { x: number, z: number, scale: number, 
     <group position={[x, 0, z]} scale={scale}>
       <mesh position={[0, 0.1, 0]}>
         <cylinderGeometry args={[0.03, 0.04, 0.2, 5]} />
-        <meshStandardMaterial color={ZONE_PALETTE.park.trunk} roughness={0.9} />
+        <meshStandardMaterial color={pal.park.trunk} roughness={0.9} />
       </mesh>
       <mesh position={[0, 0.3, 0]}>
         <dodecahedronGeometry args={[0.15, 0]} />
-        <meshStandardMaterial color={ZONE_PALETTE.park.foliage} roughness={0.8} />
+        <meshStandardMaterial color={pal.park.foliage} roughness={0.8} />
       </mesh>
     </group>
   )
@@ -56,12 +71,13 @@ const ResidentialHouse = ({ x, z, scale, seed }: { x: number, z: number, scale: 
   const height = 0.2 + seededRandom(seed) * 0.15
   const isNightMode = useStore(s => s.isNightMode)
   const isLightOn = seededRandom(seed * 5) > 0.5
+  const pal = isNightMode ? NIGHT_PALETTE : ZONE_PALETTE
 
   return (
     <group position={[x, 0, z]} scale={scale}>
       <mesh position={[0, height / 2, 0]} castShadow receiveShadow>
         <boxGeometry args={[0.4, height, 0.4]} />
-        <meshStandardMaterial color={ZONE_PALETTE.residential.base} roughness={0.8} />
+        <meshStandardMaterial color={pal.residential.base} roughness={0.8} />
       </mesh>
       {/* Night window glow */}
       {isNightMode && isLightOn && (
@@ -72,7 +88,7 @@ const ResidentialHouse = ({ x, z, scale, seed }: { x: number, z: number, scale: 
       )}
       <mesh position={[0, height + 0.1, 0]} rotation={[0, Math.PI / 4, 0]} castShadow>
         <coneGeometry args={[0.35, 0.2, 4]} />
-        <meshStandardMaterial color={ZONE_PALETTE.residential.roof} roughness={0.9} />
+        <meshStandardMaterial color={pal.residential.roof} roughness={0.9} />
       </mesh>
     </group>
   )
@@ -86,13 +102,14 @@ const CommercialSkyscraper = ({ x, z, seed }: { x: number, z: number, seed: numb
   const hasAntenna = seededRandom(seed * 5) > 0.3
 
   const isNightMode = useStore(s => s.isNightMode)
+  const pal = isNightMode ? NIGHT_PALETTE : ZONE_PALETTE
 
   const material = new THREE.MeshStandardMaterial({
-    color: ZONE_PALETTE.commercial.base,
+    color: pal.commercial.base,
     roughness: 0.1,
     metalness: 0.8,
     emissive: isNightMode ? '#fef08a' : '#000000',
-    emissiveIntensity: isNightMode ? 0.2 : 0
+    emissiveIntensity: isNightMode ? 0.15 : 0
   })
 
   return (
@@ -120,19 +137,20 @@ const CommercialSkyscraper = ({ x, z, seed }: { x: number, z: number, seed: numb
 
 const IndustrialFactory = ({ x, z }: { x: number, z: number }) => {
   const isNightMode = useStore(s => s.isNightMode)
+  const pal = isNightMode ? NIGHT_PALETTE : ZONE_PALETTE
   return (
     <group position={[x, 0, z]}>
       <mesh position={[-0.1, 0.2, 0]} castShadow receiveShadow>
         <boxGeometry args={[0.5, 0.4, 0.7]} />
-        <meshStandardMaterial color={ZONE_PALETTE.industrial.base} roughness={0.7} />
+        <meshStandardMaterial color={pal.industrial.base} roughness={0.7} />
       </mesh>
       <mesh position={[0.3, 0.5, -0.15]} castShadow>
         <cylinderGeometry args={[0.12, 0.12, 1.0, 12]} />
-        <meshStandardMaterial color={ZONE_PALETTE.industrial.smokestack} roughness={0.6} />
+        <meshStandardMaterial color={pal.industrial.smokestack} roughness={0.6} />
       </mesh>
       <mesh position={[0.3, 0.4, 0.2]} castShadow>
         <cylinderGeometry args={[0.1, 0.1, 0.8, 12]} />
-        <meshStandardMaterial color={ZONE_PALETTE.industrial.smokestack} roughness={0.6} />
+        <meshStandardMaterial color={pal.industrial.smokestack} roughness={0.6} />
       </mesh>
       {isNightMode && (
          <pointLight position={[0, 0.8, 0]} intensity={2} distance={2} color="#f97316" />
@@ -143,20 +161,22 @@ const IndustrialFactory = ({ x, z }: { x: number, z: number }) => {
 
 const HospitalClinic = ({ x, z, seed }: { x: number, z: number, seed: number }) => {
   const roofHeight = 0.5 + seededRandom(seed) * 0.2
+  const isNightMode = useStore(s => s.isNightMode)
+  const pal = isNightMode ? NIGHT_PALETTE : ZONE_PALETTE
 
   return (
     <group position={[x, 0, z]}>
       <mesh position={[0, roofHeight / 2, 0]} castShadow receiveShadow>
         <boxGeometry args={[0.72, roofHeight, 0.72]} />
-        <meshStandardMaterial color={ZONE_PALETTE.hospital.base} roughness={0.5} />
+        <meshStandardMaterial color={pal.hospital.base} roughness={0.5} />
       </mesh>
       <mesh position={[0, roofHeight + 0.08, 0]} castShadow>
         <boxGeometry args={[0.18, 0.42, 0.08]} />
-        <meshStandardMaterial color={ZONE_PALETTE.hospital.cross} />
+        <meshStandardMaterial color={pal.hospital.cross} />
       </mesh>
       <mesh position={[0, roofHeight + 0.08, 0]} castShadow>
         <boxGeometry args={[0.08, 0.18, 0.08]} />
-        <meshStandardMaterial color={ZONE_PALETTE.hospital.cross} />
+        <meshStandardMaterial color={pal.hospital.cross} />
       </mesh>
     </group>
   )
@@ -165,18 +185,20 @@ const HospitalClinic = ({ x, z, seed }: { x: number, z: number, seed: number }) 
 /* Guide Section 8 — School building: height 1.8, multi-floor with flag pole */
 const SchoolBuilding = ({ x, z, seed }: { x: number, z: number, seed: number }) => {
   const height = 0.6 + seededRandom(seed) * 0.3
+  const isNightMode = useStore(s => s.isNightMode)
+  const pal = isNightMode ? NIGHT_PALETTE : ZONE_PALETTE
 
   return (
     <group position={[x, 0, z]}>
       {/* Main building */}
       <mesh position={[0, height / 2, 0]} castShadow receiveShadow>
         <boxGeometry args={[0.7, height, 0.5]} />
-        <meshStandardMaterial color={ZONE_PALETTE.school.base} roughness={0.6} />
+        <meshStandardMaterial color={pal.school.base} roughness={0.6} />
       </mesh>
       {/* Roof */}
       <mesh position={[0, height + 0.05, 0]} castShadow>
         <boxGeometry args={[0.74, 0.06, 0.54]} />
-        <meshStandardMaterial color={ZONE_PALETTE.school.roof} roughness={0.7} />
+        <meshStandardMaterial color={pal.school.roof} roughness={0.7} />
       </mesh>
       {/* Flag pole */}
       <mesh position={[0.3, height + 0.35, 0]}>
@@ -186,7 +208,7 @@ const SchoolBuilding = ({ x, z, seed }: { x: number, z: number, seed: number }) 
       {/* Flag */}
       <mesh position={[0.3, height + 0.55, 0.06]}>
         <boxGeometry args={[0.01, 0.12, 0.12]} />
-        <meshStandardMaterial color={ZONE_PALETTE.school.flag} />
+        <meshStandardMaterial color={pal.school.flag} />
       </mesh>
     </group>
   )
@@ -526,15 +548,21 @@ export function Scene3D() {
 
         {isNightMode ? (
           <>
-            <ambientLight intensity={0.1} color="#3b82f6" />
+            <ambientLight intensity={0.7} color="#e2e8f0" />
             <directionalLight
               position={[15, 25, -10]}
-              intensity={0.2}
-              color="#3b82f6"
+              intensity={1.8}
+              color="#f8fafc"
               castShadow
               shadow-mapSize={[2048, 2048]}
+              shadow-camera-far={80}
+              shadow-camera-left={-25}
+              shadow-camera-right={25}
+              shadow-camera-top={25}
+              shadow-camera-bottom={-25}
             />
-            <pointLight position={[0, 15, 0]} intensity={2} color="#8b5cf6" distance={30} />
+            <pointLight position={[0, 15, 0]} intensity={1.5} color="#bae6fd" distance={40} />
+            <pointLight position={[-15, 8, 15]} intensity={0.8} color="#e0f2fe" distance={30} />
           </>
         ) : (
           <>
