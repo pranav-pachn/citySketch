@@ -186,18 +186,18 @@ export function SiteSelector({ onClose, onConfirm }: SiteSelectorProps) {
         </div>
 
         {/* Search */}
-        <div ref={searchBoxRef} className="relative hidden w-full max-w-[380px] sm:block flex-1 mx-4">
+        <div ref={searchBoxRef} className="relative hidden w-full max-w-[500px] sm:block flex-1 mx-6">
           <div className="relative">
             <input
               type="text"
               value={query}
               onChange={handleQueryChange}
               placeholder="Search city, neighborhood, or landmark…"
-              className="w-full rounded-xl border border-zinc-700/80 bg-zinc-900/90 py-2.5 pl-10 pr-10 text-sm text-white outline-none transition placeholder:text-zinc-500 focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/40"
+              className="w-full rounded-xl border border-zinc-700/80 bg-zinc-900/90 py-2.5 pl-12 pr-12 text-sm text-white outline-none transition placeholder:text-zinc-500 focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/40"
               onFocus={() => results.length > 0 && setShowResults(true)}
             />
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={16} />
-            {isSearching && <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 animate-spin text-zinc-500" size={16} />}
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={18} />
+            {isSearching && <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 animate-spin text-zinc-500" size={18} />}
           </div>
 
           {/* Autocomplete dropdown */}

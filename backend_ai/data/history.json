@@ -1,5 +1,2853 @@
 [
   {
+    "id": "13c17b6c-f34d-4820-9252-43f6d152c595",
+    "prompt": "Map simulation: 12.9716, 77.5946",
+    "layoutData": [
+      [
+        {
+          "x": 0,
+          "y": 0,
+          "type": "empty",
+          "elevation": 0.0070170505644928105,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "type": "empty",
+          "elevation": 0.04643035462312241,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "type": "empty",
+          "elevation": 0.04421816571135365,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "type": "empty",
+          "elevation": 0.04319780364027605,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "type": "empty",
+          "elevation": 0.01733046416074111,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 5,
+          "y": 0,
+          "type": "road",
+          "elevation": 0.05,
+          "subtype": "street"
+        },
+        {
+          "x": 6,
+          "y": 0,
+          "type": "residential",
+          "elevation": 0.006504497790096398,
+          "subtype": "suburban_house"
+        },
+        {
+          "x": 7,
+          "y": 0,
+          "type": "residential",
+          "elevation": 0.02275490196111726,
+          "subtype": "suburban_house"
+        },
+        {
+          "x": 8,
+          "y": 0,
+          "type": "residential",
+          "elevation": 0.032932084736266035,
+          "subtype": "suburban_house"
+        },
+        {
+          "x": 9,
+          "y": 0,
+          "type": "residential",
+          "elevation": 0.0460410667502798,
+          "subtype": "suburban_house"
+        },
+        {
+          "x": 10,
+          "y": 0,
+          "type": "road",
+          "elevation": 0.05,
+          "subtype": "street"
+        },
+        {
+          "x": 11,
+          "y": 0,
+          "type": "empty",
+          "elevation": 0.00030563629033676377,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 12,
+          "y": 0,
+          "type": "empty",
+          "elevation": 0.04330800305094427,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 13,
+          "y": 0,
+          "type": "empty",
+          "elevation": 0.04606378804791285,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 14,
+          "y": 0,
+          "type": "park",
+          "elevation": 0.026591722626678818,
+          "subtype": "nature_reserve"
+        },
+        {
+          "x": 15,
+          "y": 0,
+          "type": "road",
+          "elevation": 0.05,
+          "subtype": "street"
+        },
+        {
+          "x": 16,
+          "y": 0,
+          "type": "park",
+          "elevation": 0.024205107057136733,
+          "subtype": "nature_reserve"
+        },
+        {
+          "x": 17,
+          "y": 0,
+          "type": "empty",
+          "elevation": 0.039032824059649175,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 18,
+          "y": 0,
+          "type": "empty",
+          "elevation": 0.023568002986971228,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 19,
+          "y": 0,
+          "type": "empty",
+          "elevation": 0.004085443438870251,
+          "subtype": "vacant_lot"
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 1,
+          "type": "park",
+          "elevation": 0.04567375494156278,
+          "subtype": "nature_reserve"
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "type": "empty",
+          "elevation": 0.15593785576838756,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "type": "empty",
+          "elevation": 0.1734149009074166,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "type": "park",
+          "elevation": 0.1919605061254463,
+          "subtype": "community_garden"
+        },
+        {
+          "x": 4,
+          "y": 1,
+          "type": "empty",
+          "elevation": 0.19196435492338404,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 5,
+          "y": 1,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "street"
+        },
+        {
+          "x": 6,
+          "y": 1,
+          "type": "residential",
+          "elevation": 0.1728613642278238,
+          "subtype": "garden_villa"
+        },
+        {
+          "x": 7,
+          "y": 1,
+          "type": "residential",
+          "elevation": 0.15249634792845038,
+          "subtype": "family_home"
+        },
+        {
+          "x": 8,
+          "y": 1,
+          "type": "empty",
+          "elevation": 0.17155856466548497,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 9,
+          "y": 1,
+          "type": "residential",
+          "elevation": 0.1845709117152983,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 10,
+          "y": 1,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "street"
+        },
+        {
+          "x": 11,
+          "y": 1,
+          "type": "park",
+          "elevation": 0.1729375103969901,
+          "subtype": "community_garden"
+        },
+        {
+          "x": 12,
+          "y": 1,
+          "type": "park",
+          "elevation": 0.15583581238907476,
+          "subtype": "community_garden"
+        },
+        {
+          "x": 13,
+          "y": 1,
+          "type": "park",
+          "elevation": 0.15013535861225066,
+          "subtype": "community_garden"
+        },
+        {
+          "x": 14,
+          "y": 1,
+          "type": "park",
+          "elevation": 0.19664064616924085,
+          "subtype": "community_garden"
+        },
+        {
+          "x": 15,
+          "y": 1,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "street"
+        },
+        {
+          "x": 16,
+          "y": 1,
+          "type": "residential",
+          "elevation": 0.18258387615584035,
+          "subtype": "garden_villa"
+        },
+        {
+          "x": 17,
+          "y": 1,
+          "type": "empty",
+          "elevation": 0.18724026062292748,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 18,
+          "y": 1,
+          "type": "empty",
+          "elevation": 0.19704516475620676,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 19,
+          "y": 1,
+          "type": "empty",
+          "elevation": 0.0014841037320016627,
+          "subtype": "vacant_lot"
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 2,
+          "type": "residential",
+          "elevation": 0.04674534853696628,
+          "subtype": "garden_villa"
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "type": "park",
+          "elevation": 0.1923001479442052,
+          "subtype": "community_garden"
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "type": "empty",
+          "elevation": 0.3111744645738517,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 3,
+          "y": 2,
+          "type": "residential",
+          "elevation": 0.32604292866196344,
+          "subtype": "garden_villa"
+        },
+        {
+          "x": 4,
+          "y": 2,
+          "type": "residential",
+          "elevation": 0.31319528817979614,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 5,
+          "y": 2,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street"
+        },
+        {
+          "x": 6,
+          "y": 2,
+          "type": "park",
+          "elevation": 0.30992464991374064,
+          "subtype": "community_garden"
+        },
+        {
+          "x": 7,
+          "y": 2,
+          "type": "residential",
+          "elevation": 0.3012736765633613,
+          "subtype": "garden_villa"
+        },
+        {
+          "x": 8,
+          "y": 2,
+          "type": "residential",
+          "elevation": 0.30648208906397334,
+          "subtype": "family_home"
+        },
+        {
+          "x": 9,
+          "y": 2,
+          "type": "residential",
+          "elevation": 0.3348787759693572,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 10,
+          "y": 2,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street"
+        },
+        {
+          "x": 11,
+          "y": 2,
+          "type": "empty",
+          "elevation": 0.31354326510221403,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 12,
+          "y": 2,
+          "type": "empty",
+          "elevation": 0.33946147108887637,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 13,
+          "y": 2,
+          "type": "empty",
+          "elevation": 0.33772688094656855,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 14,
+          "y": 2,
+          "type": "park",
+          "elevation": 0.3288736200184468,
+          "subtype": "community_garden"
+        },
+        {
+          "x": 15,
+          "y": 2,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street"
+        },
+        {
+          "x": 16,
+          "y": 2,
+          "type": "residential",
+          "elevation": 0.3101497553531822,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 17,
+          "y": 2,
+          "type": "residential",
+          "elevation": 0.3241791835969893,
+          "subtype": "garden_villa"
+        },
+        {
+          "x": 18,
+          "y": 2,
+          "type": "park",
+          "elevation": 0.15910308600004006,
+          "subtype": "community_garden"
+        },
+        {
+          "x": 19,
+          "y": 2,
+          "type": "empty",
+          "elevation": 0.030374728488397642,
+          "subtype": "vacant_lot"
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 3,
+          "type": "empty",
+          "elevation": 0.03722826865312922,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 1,
+          "y": 3,
+          "type": "empty",
+          "elevation": 0.16651225950535808,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 2,
+          "y": 3,
+          "type": "empty",
+          "elevation": 0.3043709515696058,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 3,
+          "y": 3,
+          "type": "residential",
+          "elevation": 0.47869496233768544,
+          "subtype": "family_home"
+        },
+        {
+          "x": 4,
+          "y": 3,
+          "type": "residential",
+          "elevation": 0.48155953970562076,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 5,
+          "y": 3,
+          "type": "road",
+          "elevation": 0.22499999999999998,
+          "subtype": "street"
+        },
+        {
+          "x": 6,
+          "y": 3,
+          "type": "residential",
+          "elevation": 0.4977843748370339,
+          "subtype": "garden_villa"
+        },
+        {
+          "x": 7,
+          "y": 3,
+          "type": "empty",
+          "elevation": 0.4966295107162544,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 8,
+          "y": 3,
+          "type": "residential",
+          "elevation": 0.4636094413632191,
+          "subtype": "family_home"
+        },
+        {
+          "x": 9,
+          "y": 3,
+          "type": "empty",
+          "elevation": 0.4868430143151856,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 10,
+          "y": 3,
+          "type": "road",
+          "elevation": 0.22499999999999998,
+          "subtype": "street"
+        },
+        {
+          "x": 11,
+          "y": 3,
+          "type": "residential",
+          "elevation": 0.46543708867439093,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 12,
+          "y": 3,
+          "type": "empty",
+          "elevation": 0.48543576166898317,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 13,
+          "y": 3,
+          "type": "empty",
+          "elevation": 0.4503105818279916,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 14,
+          "y": 3,
+          "type": "empty",
+          "elevation": 0.46095009178184865,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 15,
+          "y": 3,
+          "type": "road",
+          "elevation": 0.22499999999999998,
+          "subtype": "street"
+        },
+        {
+          "x": 16,
+          "y": 3,
+          "type": "residential",
+          "elevation": 0.4899315056846311,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 17,
+          "y": 3,
+          "type": "residential",
+          "elevation": 0.30667018197175483,
+          "subtype": "family_home"
+        },
+        {
+          "x": 18,
+          "y": 3,
+          "type": "residential",
+          "elevation": 0.17139858910470607,
+          "subtype": "garden_villa"
+        },
+        {
+          "x": 19,
+          "y": 3,
+          "type": "empty",
+          "elevation": 0.0015916781397364967,
+          "subtype": "vacant_lot"
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 4,
+          "type": "residential",
+          "elevation": 0.00831296628225422,
+          "subtype": "suburban_house"
+        },
+        {
+          "x": 1,
+          "y": 4,
+          "type": "residential",
+          "elevation": 0.198911224882362,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 2,
+          "y": 4,
+          "type": "residential",
+          "elevation": 0.31734941322859045,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 3,
+          "y": 4,
+          "type": "residential",
+          "elevation": 0.49755363654703727,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 4,
+          "y": 4,
+          "type": "residential",
+          "elevation": 0.6081299156428852,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 5,
+          "y": 4,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street"
+        },
+        {
+          "x": 6,
+          "y": 4,
+          "type": "residential",
+          "elevation": 0.6063804267544658,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 7,
+          "y": 4,
+          "type": "empty",
+          "elevation": 0.6268806904710755,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 8,
+          "y": 4,
+          "type": "empty",
+          "elevation": 0.6041274889410784,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 9,
+          "y": 4,
+          "type": "residential",
+          "elevation": 0.6305856049084071,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 10,
+          "y": 4,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street"
+        },
+        {
+          "x": 11,
+          "y": 4,
+          "type": "residential",
+          "elevation": 0.6004650684969443,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 12,
+          "y": 4,
+          "type": "empty",
+          "elevation": 0.6316797509043447,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 13,
+          "y": 4,
+          "type": "residential",
+          "elevation": 0.6091012987959212,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 14,
+          "y": 4,
+          "type": "residential",
+          "elevation": 0.6188113148551632,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 15,
+          "y": 4,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street"
+        },
+        {
+          "x": 16,
+          "y": 4,
+          "type": "residential",
+          "elevation": 0.4552576263466552,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 17,
+          "y": 4,
+          "type": "residential",
+          "elevation": 0.3343242039211239,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 18,
+          "y": 4,
+          "type": "residential",
+          "elevation": 0.19164584503564486,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 19,
+          "y": 4,
+          "type": "residential",
+          "elevation": 0.012382443386260378,
+          "subtype": "suburban_house"
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 5,
+          "type": "road",
+          "elevation": 0.05,
+          "subtype": "street"
+        },
+        {
+          "x": 1,
+          "y": 5,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "street"
+        },
+        {
+          "x": 2,
+          "y": 5,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street"
+        },
+        {
+          "x": 3,
+          "y": 5,
+          "type": "road",
+          "elevation": 0.22499999999999998,
+          "subtype": "street"
+        },
+        {
+          "x": 4,
+          "y": 5,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street"
+        },
+        {
+          "x": 5,
+          "y": 5,
+          "type": "road",
+          "elevation": 0.375,
+          "subtype": "street"
+        },
+        {
+          "x": 6,
+          "y": 5,
+          "type": "road",
+          "elevation": 0.375,
+          "subtype": "street"
+        },
+        {
+          "x": 7,
+          "y": 5,
+          "type": "road",
+          "elevation": 0.375,
+          "subtype": "street"
+        },
+        {
+          "x": 8,
+          "y": 5,
+          "type": "road",
+          "elevation": 0.375,
+          "subtype": "street"
+        },
+        {
+          "x": 9,
+          "y": 5,
+          "type": "road",
+          "elevation": 0.375,
+          "subtype": "street"
+        },
+        {
+          "x": 10,
+          "y": 5,
+          "type": "road",
+          "elevation": 0.375,
+          "subtype": "street"
+        },
+        {
+          "x": 11,
+          "y": 5,
+          "type": "road",
+          "elevation": 0.375,
+          "subtype": "street"
+        },
+        {
+          "x": 12,
+          "y": 5,
+          "type": "road",
+          "elevation": 0.375,
+          "subtype": "street"
+        },
+        {
+          "x": 13,
+          "y": 5,
+          "type": "road",
+          "elevation": 0.375,
+          "subtype": "street"
+        },
+        {
+          "x": 14,
+          "y": 5,
+          "type": "road",
+          "elevation": 0.375,
+          "subtype": "street"
+        },
+        {
+          "x": 15,
+          "y": 5,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street"
+        },
+        {
+          "x": 16,
+          "y": 5,
+          "type": "road",
+          "elevation": 0.22499999999999998,
+          "subtype": "street"
+        },
+        {
+          "x": 17,
+          "y": 5,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street"
+        },
+        {
+          "x": 18,
+          "y": 5,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "street"
+        },
+        {
+          "x": 19,
+          "y": 5,
+          "type": "road",
+          "elevation": 0.05,
+          "subtype": "street"
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 6,
+          "type": "residential",
+          "elevation": 0.024308184305361726,
+          "subtype": "suburban_house"
+        },
+        {
+          "x": 1,
+          "y": 6,
+          "type": "residential",
+          "elevation": 0.18739510766230927,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 2,
+          "y": 6,
+          "type": "residential",
+          "elevation": 0.3412832502360357,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 3,
+          "y": 6,
+          "type": "residential",
+          "elevation": 0.4659394404757345,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 4,
+          "y": 6,
+          "type": "residential",
+          "elevation": 0.6115922723698447,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 5,
+          "y": 6,
+          "type": "road",
+          "elevation": 0.375,
+          "subtype": "street"
+        },
+        {
+          "x": 6,
+          "y": 6,
+          "type": "residential",
+          "elevation": 0.9130526373179643,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 7,
+          "y": 6,
+          "type": "residential",
+          "elevation": 0.924011153061449,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 8,
+          "y": 6,
+          "type": "residential",
+          "elevation": 0.9138286679741335,
+          "subtype": "garden_villa"
+        },
+        {
+          "x": 9,
+          "y": 6,
+          "type": "park",
+          "elevation": 0.9307877995423345,
+          "subtype": "community_garden"
+        },
+        {
+          "x": 10,
+          "y": 6,
+          "type": "road",
+          "elevation": 0.44999999999999996,
+          "subtype": "street"
+        },
+        {
+          "x": 11,
+          "y": 6,
+          "type": "empty",
+          "elevation": 0.9243190566060296,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 12,
+          "y": 6,
+          "type": "residential",
+          "elevation": 0.9104850937741626,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 13,
+          "y": 6,
+          "type": "residential",
+          "elevation": 0.9360841688216529,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 14,
+          "y": 6,
+          "type": "empty",
+          "elevation": 0.7518770546873575,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 15,
+          "y": 6,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street"
+        },
+        {
+          "x": 16,
+          "y": 6,
+          "type": "residential",
+          "elevation": 0.4893164841473466,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 17,
+          "y": 6,
+          "type": "residential",
+          "elevation": 0.33555356540819375,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 18,
+          "y": 6,
+          "type": "residential",
+          "elevation": 0.16389799249413878,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 19,
+          "y": 6,
+          "type": "residential",
+          "elevation": 0.010857497312099285,
+          "subtype": "suburban_house"
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 7,
+          "type": "residential",
+          "elevation": 0.017930764971361403,
+          "subtype": "suburban_house"
+        },
+        {
+          "x": 1,
+          "y": 7,
+          "type": "empty",
+          "elevation": 0.19696421390815888,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 2,
+          "y": 7,
+          "type": "residential",
+          "elevation": 0.3226298919042162,
+          "subtype": "family_home"
+        },
+        {
+          "x": 3,
+          "y": 7,
+          "type": "empty",
+          "elevation": 0.498849537822189,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 4,
+          "y": 7,
+          "type": "residential",
+          "elevation": 0.6360106956591011,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 5,
+          "y": 7,
+          "type": "road",
+          "elevation": 0.375,
+          "subtype": "street"
+        },
+        {
+          "x": 6,
+          "y": 7,
+          "type": "residential",
+          "elevation": 0.9174238270954459,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 7,
+          "y": 7,
+          "type": "residential",
+          "elevation": 1.0634873011240706,
+          "subtype": "garden_villa"
+        },
+        {
+          "x": 8,
+          "y": 7,
+          "type": "park",
+          "elevation": 1.0897431006487568,
+          "subtype": "community_garden"
+        },
+        {
+          "x": 9,
+          "y": 7,
+          "type": "residential",
+          "elevation": 1.0632868873527643,
+          "subtype": "garden_villa"
+        },
+        {
+          "x": 10,
+          "y": 7,
+          "type": "road",
+          "elevation": 0.525,
+          "subtype": "street"
+        },
+        {
+          "x": 11,
+          "y": 7,
+          "type": "residential",
+          "elevation": 1.0968943327521976,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 12,
+          "y": 7,
+          "type": "empty",
+          "elevation": 1.0929981911606752,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 13,
+          "y": 7,
+          "type": "empty",
+          "elevation": 0.9484948088521191,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 14,
+          "y": 7,
+          "type": "empty",
+          "elevation": 0.7683434157056175,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 15,
+          "y": 7,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street"
+        },
+        {
+          "x": 16,
+          "y": 7,
+          "type": "residential",
+          "elevation": 0.4820824385128857,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 17,
+          "y": 7,
+          "type": "empty",
+          "elevation": 0.3400521231052545,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 18,
+          "y": 7,
+          "type": "empty",
+          "elevation": 0.15457706745341468,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 19,
+          "y": 7,
+          "type": "residential",
+          "elevation": 0.04044984628893627,
+          "subtype": "suburban_house"
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 8,
+          "type": "empty",
+          "elevation": 0.014733002034662934,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 1,
+          "y": 8,
+          "type": "empty",
+          "elevation": 0.19089175064958522,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 2,
+          "y": 8,
+          "type": "empty",
+          "elevation": 0.3465588835143138,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 3,
+          "y": 8,
+          "type": "residential",
+          "elevation": 0.4650679197651495,
+          "subtype": "family_home"
+        },
+        {
+          "x": 4,
+          "y": 8,
+          "type": "residential",
+          "elevation": 0.6155366237457209,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 5,
+          "y": 8,
+          "type": "road",
+          "elevation": 0.375,
+          "subtype": "street"
+        },
+        {
+          "x": 6,
+          "y": 8,
+          "type": "residential",
+          "elevation": 0.9137450353466302,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 7,
+          "y": 8,
+          "type": "empty",
+          "elevation": 1.0935896029461254,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 8,
+          "y": 8,
+          "type": "empty",
+          "elevation": 1.2156938003645585,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 9,
+          "y": 8,
+          "type": "residential",
+          "elevation": 1.2275573850245272,
+          "subtype": "urban_apartment"
+        },
+        {
+          "x": 10,
+          "y": 8,
+          "type": "road",
+          "elevation": 0.6,
+          "subtype": "street"
+        },
+        {
+          "x": 11,
+          "y": 8,
+          "type": "residential",
+          "elevation": 1.2180106431584754,
+          "subtype": "urban_apartment"
+        },
+        {
+          "x": 12,
+          "y": 8,
+          "type": "residential",
+          "elevation": 1.077400382547489,
+          "subtype": "urban_apartment"
+        },
+        {
+          "x": 13,
+          "y": 8,
+          "type": "residential",
+          "elevation": 0.9284803525004004,
+          "subtype": "family_home"
+        },
+        {
+          "x": 14,
+          "y": 8,
+          "type": "residential",
+          "elevation": 0.7599735151637604,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 15,
+          "y": 8,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street"
+        },
+        {
+          "x": 16,
+          "y": 8,
+          "type": "residential",
+          "elevation": 0.4570470602911259,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 17,
+          "y": 8,
+          "type": "residential",
+          "elevation": 0.3266856767155097,
+          "subtype": "family_home"
+        },
+        {
+          "x": 18,
+          "y": 8,
+          "type": "residential",
+          "elevation": 0.16700977672904346,
+          "subtype": "family_home"
+        },
+        {
+          "x": 19,
+          "y": 8,
+          "type": "empty",
+          "elevation": 0.02327565347348337,
+          "subtype": "vacant_lot"
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 9,
+          "type": "empty",
+          "elevation": 0.04533352721840032,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 1,
+          "y": 9,
+          "type": "residential",
+          "elevation": 0.15177151910337808,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 2,
+          "y": 9,
+          "type": "residential",
+          "elevation": 0.31770009239169966,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 3,
+          "y": 9,
+          "type": "residential",
+          "elevation": 0.4800767111228332,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 4,
+          "y": 9,
+          "type": "residential",
+          "elevation": 0.6075540178874386,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 5,
+          "y": 9,
+          "type": "road",
+          "elevation": 0.375,
+          "subtype": "street"
+        },
+        {
+          "x": 6,
+          "y": 9,
+          "type": "residential",
+          "elevation": 0.9380638986287824,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 7,
+          "y": 9,
+          "type": "school",
+          "elevation": 1.0767097736839184,
+          "subtype": "neighborhood_school"
+        },
+        {
+          "x": 8,
+          "y": 9,
+          "type": "residential",
+          "elevation": 1.2048723836153292,
+          "subtype": "urban_apartment"
+        },
+        {
+          "x": 9,
+          "y": 9,
+          "type": "residential",
+          "elevation": 1.384318895626837,
+          "subtype": "urban_apartment"
+        },
+        {
+          "x": 10,
+          "y": 9,
+          "type": "road",
+          "elevation": 0.6749999999999999,
+          "subtype": "street"
+        },
+        {
+          "x": 11,
+          "y": 9,
+          "type": "residential",
+          "elevation": 1.2379059938088508,
+          "subtype": "urban_apartment"
+        },
+        {
+          "x": 12,
+          "y": 9,
+          "type": "residential",
+          "elevation": 1.0641140052555693,
+          "subtype": "urban_apartment"
+        },
+        {
+          "x": 13,
+          "y": 9,
+          "type": "empty",
+          "elevation": 0.9347435428692669,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 14,
+          "y": 9,
+          "type": "residential",
+          "elevation": 0.7757439939872577,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 15,
+          "y": 9,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street"
+        },
+        {
+          "x": 16,
+          "y": 9,
+          "type": "residential",
+          "elevation": 0.4502782893193397,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 17,
+          "y": 9,
+          "type": "residential",
+          "elevation": 0.3399962562693237,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 18,
+          "y": 9,
+          "type": "residential",
+          "elevation": 0.16708376768104113,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 19,
+          "y": 9,
+          "type": "empty",
+          "elevation": 0.0029610700934966983,
+          "subtype": "vacant_lot"
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 10,
+          "type": "road",
+          "elevation": 0.05,
+          "subtype": "street"
+        },
+        {
+          "x": 1,
+          "y": 10,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "street"
+        },
+        {
+          "x": 2,
+          "y": 10,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street"
+        },
+        {
+          "x": 3,
+          "y": 10,
+          "type": "road",
+          "elevation": 0.22499999999999998,
+          "subtype": "street"
+        },
+        {
+          "x": 4,
+          "y": 10,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street"
+        },
+        {
+          "x": 5,
+          "y": 10,
+          "type": "road",
+          "elevation": 0.375,
+          "subtype": "street"
+        },
+        {
+          "x": 6,
+          "y": 10,
+          "type": "road",
+          "elevation": 0.44999999999999996,
+          "subtype": "street"
+        },
+        {
+          "x": 7,
+          "y": 10,
+          "type": "road",
+          "elevation": 0.525,
+          "subtype": "street"
+        },
+        {
+          "x": 8,
+          "y": 10,
+          "type": "road",
+          "elevation": 0.6,
+          "subtype": "street"
+        },
+        {
+          "x": 9,
+          "y": 10,
+          "type": "road",
+          "elevation": 0.6749999999999999,
+          "subtype": "street"
+        },
+        {
+          "x": 10,
+          "y": 10,
+          "type": "road",
+          "elevation": 0.6749999999999999,
+          "subtype": "street"
+        },
+        {
+          "x": 11,
+          "y": 10,
+          "type": "road",
+          "elevation": 0.6,
+          "subtype": "street"
+        },
+        {
+          "x": 12,
+          "y": 10,
+          "type": "road",
+          "elevation": 0.525,
+          "subtype": "street"
+        },
+        {
+          "x": 13,
+          "y": 10,
+          "type": "road",
+          "elevation": 0.44999999999999996,
+          "subtype": "street"
+        },
+        {
+          "x": 14,
+          "y": 10,
+          "type": "road",
+          "elevation": 0.375,
+          "subtype": "street"
+        },
+        {
+          "x": 15,
+          "y": 10,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street"
+        },
+        {
+          "x": 16,
+          "y": 10,
+          "type": "road",
+          "elevation": 0.22499999999999998,
+          "subtype": "street"
+        },
+        {
+          "x": 17,
+          "y": 10,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street"
+        },
+        {
+          "x": 18,
+          "y": 10,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "street"
+        },
+        {
+          "x": 19,
+          "y": 10,
+          "type": "road",
+          "elevation": 0.05,
+          "subtype": "street"
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 11,
+          "type": "residential",
+          "elevation": 0.047931883309304715,
+          "subtype": "suburban_house"
+        },
+        {
+          "x": 1,
+          "y": 11,
+          "type": "residential",
+          "elevation": 0.15747463619384228,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 2,
+          "y": 11,
+          "type": "residential",
+          "elevation": 0.3010679354509004,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 3,
+          "y": 11,
+          "type": "residential",
+          "elevation": 0.4992110124039009,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 4,
+          "y": 11,
+          "type": "residential",
+          "elevation": 0.645583630164131,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 5,
+          "y": 11,
+          "type": "road",
+          "elevation": 0.375,
+          "subtype": "street"
+        },
+        {
+          "x": 6,
+          "y": 11,
+          "type": "residential",
+          "elevation": 0.9106224426291868,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 7,
+          "y": 11,
+          "type": "school",
+          "elevation": 1.0713927310549376,
+          "subtype": "neighborhood_school"
+        },
+        {
+          "x": 8,
+          "y": 11,
+          "type": "residential",
+          "elevation": 1.226549010631658,
+          "subtype": "urban_apartment"
+        },
+        {
+          "x": 9,
+          "y": 11,
+          "type": "residential",
+          "elevation": 1.2461397589727807,
+          "subtype": "urban_apartment"
+        },
+        {
+          "x": 10,
+          "y": 11,
+          "type": "road",
+          "elevation": 0.6,
+          "subtype": "street"
+        },
+        {
+          "x": 11,
+          "y": 11,
+          "type": "residential",
+          "elevation": 1.2094515821829457,
+          "subtype": "urban_apartment"
+        },
+        {
+          "x": 12,
+          "y": 11,
+          "type": "residential",
+          "elevation": 1.0718224865358408,
+          "subtype": "urban_apartment"
+        },
+        {
+          "x": 13,
+          "y": 11,
+          "type": "residential",
+          "elevation": 0.9476466457399557,
+          "subtype": "garden_villa"
+        },
+        {
+          "x": 14,
+          "y": 11,
+          "type": "residential",
+          "elevation": 0.7856844375605087,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 15,
+          "y": 11,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street"
+        },
+        {
+          "x": 16,
+          "y": 11,
+          "type": "residential",
+          "elevation": 0.4795285333508808,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 17,
+          "y": 11,
+          "type": "residential",
+          "elevation": 0.3308932647043173,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 18,
+          "y": 11,
+          "type": "residential",
+          "elevation": 0.15525125907453313,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 19,
+          "y": 11,
+          "type": "residential",
+          "elevation": 0.039637281332366436,
+          "subtype": "suburban_house"
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 12,
+          "type": "empty",
+          "elevation": 0.023513362753195755,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 1,
+          "y": 12,
+          "type": "residential",
+          "elevation": 0.16357341985973528,
+          "subtype": "family_home"
+        },
+        {
+          "x": 2,
+          "y": 12,
+          "type": "residential",
+          "elevation": 0.31667344812919784,
+          "subtype": "family_home"
+        },
+        {
+          "x": 3,
+          "y": 12,
+          "type": "residential",
+          "elevation": 0.4779690421902465,
+          "subtype": "family_home"
+        },
+        {
+          "x": 4,
+          "y": 12,
+          "type": "residential",
+          "elevation": 0.6499684342586423,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 5,
+          "y": 12,
+          "type": "road",
+          "elevation": 0.375,
+          "subtype": "street"
+        },
+        {
+          "x": 6,
+          "y": 12,
+          "type": "residential",
+          "elevation": 0.9356341408237698,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 7,
+          "y": 12,
+          "type": "empty",
+          "elevation": 1.0987470012203,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 8,
+          "y": 12,
+          "type": "residential",
+          "elevation": 1.0507976132432872,
+          "subtype": "urban_apartment"
+        },
+        {
+          "x": 9,
+          "y": 12,
+          "type": "residential",
+          "elevation": 1.0692976631061761,
+          "subtype": "urban_apartment"
+        },
+        {
+          "x": 10,
+          "y": 12,
+          "type": "road",
+          "elevation": 0.525,
+          "subtype": "street"
+        },
+        {
+          "x": 11,
+          "y": 12,
+          "type": "residential",
+          "elevation": 1.0602683682527985,
+          "subtype": "garden_villa"
+        },
+        {
+          "x": 12,
+          "y": 12,
+          "type": "residential",
+          "elevation": 1.0713057770229066,
+          "subtype": "garden_villa"
+        },
+        {
+          "x": 13,
+          "y": 12,
+          "type": "park",
+          "elevation": 0.9428917319073877,
+          "subtype": "community_garden"
+        },
+        {
+          "x": 14,
+          "y": 12,
+          "type": "residential",
+          "elevation": 0.794854356794644,
+          "subtype": "garden_villa"
+        },
+        {
+          "x": 15,
+          "y": 12,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street"
+        },
+        {
+          "x": 16,
+          "y": 12,
+          "type": "empty",
+          "elevation": 0.45204563262576114,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 17,
+          "y": 12,
+          "type": "residential",
+          "elevation": 0.3123235572309612,
+          "subtype": "family_home"
+        },
+        {
+          "x": 18,
+          "y": 12,
+          "type": "empty",
+          "elevation": 0.18865677678384876,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 19,
+          "y": 12,
+          "type": "residential",
+          "elevation": 0.017448184723740313,
+          "subtype": "suburban_house"
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 13,
+          "type": "empty",
+          "elevation": 0.04677873522087098,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 1,
+          "y": 13,
+          "type": "residential",
+          "elevation": 0.19292314902560156,
+          "subtype": "family_home"
+        },
+        {
+          "x": 2,
+          "y": 13,
+          "type": "empty",
+          "elevation": 0.3294844784468379,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 3,
+          "y": 13,
+          "type": "residential",
+          "elevation": 0.4710357853798994,
+          "subtype": "family_home"
+        },
+        {
+          "x": 4,
+          "y": 13,
+          "type": "empty",
+          "elevation": 0.6016945657768262,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 5,
+          "y": 13,
+          "type": "road",
+          "elevation": 0.375,
+          "subtype": "street"
+        },
+        {
+          "x": 6,
+          "y": 13,
+          "type": "empty",
+          "elevation": 0.9248130685667838,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 7,
+          "y": 13,
+          "type": "empty",
+          "elevation": 0.9197781090366611,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 8,
+          "y": 13,
+          "type": "hospital",
+          "elevation": 0.9306293697703857,
+          "subtype": "emergency_hospital"
+        },
+        {
+          "x": 9,
+          "y": 13,
+          "type": "road",
+          "elevation": 0.44999999999999996,
+          "subtype": "street"
+        },
+        {
+          "x": 10,
+          "y": 13,
+          "type": "road",
+          "elevation": 0.44999999999999996,
+          "subtype": "street"
+        },
+        {
+          "x": 11,
+          "y": 13,
+          "type": "park",
+          "elevation": 0.9278678027737928,
+          "subtype": "community_garden"
+        },
+        {
+          "x": 12,
+          "y": 13,
+          "type": "empty",
+          "elevation": 0.9053336145635102,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 13,
+          "y": 13,
+          "type": "empty",
+          "elevation": 0.9091541870321505,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 14,
+          "y": 13,
+          "type": "residential",
+          "elevation": 0.7957651309611876,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 15,
+          "y": 13,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street"
+        },
+        {
+          "x": 16,
+          "y": 13,
+          "type": "residential",
+          "elevation": 0.4940117069949973,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 17,
+          "y": 13,
+          "type": "empty",
+          "elevation": 0.3412417760160842,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 18,
+          "y": 13,
+          "type": "empty",
+          "elevation": 0.169252856469796,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 19,
+          "y": 13,
+          "type": "residential",
+          "elevation": 0.03442972903108832,
+          "subtype": "suburban_house"
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 14,
+          "type": "residential",
+          "elevation": 0.033052047992278615,
+          "subtype": "suburban_house"
+        },
+        {
+          "x": 1,
+          "y": 14,
+          "type": "residential",
+          "elevation": 0.19019016522727547,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 2,
+          "y": 14,
+          "type": "residential",
+          "elevation": 0.3057765571732232,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 3,
+          "y": 14,
+          "type": "residential",
+          "elevation": 0.4798638003108876,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 4,
+          "y": 14,
+          "type": "residential",
+          "elevation": 0.613002245312092,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 5,
+          "y": 14,
+          "type": "road",
+          "elevation": 0.375,
+          "subtype": "street"
+        },
+        {
+          "x": 6,
+          "y": 14,
+          "type": "empty",
+          "elevation": 0.7878334826731752,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 7,
+          "y": 14,
+          "type": "residential",
+          "elevation": 0.7940345429425985,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 8,
+          "y": 14,
+          "type": "hospital",
+          "elevation": 0.7578085126176322,
+          "subtype": "emergency_hospital"
+        },
+        {
+          "x": 9,
+          "y": 14,
+          "type": "hospital",
+          "elevation": 0.7925639696276575,
+          "subtype": "emergency_hospital"
+        },
+        {
+          "x": 10,
+          "y": 14,
+          "type": "road",
+          "elevation": 0.375,
+          "subtype": "street"
+        },
+        {
+          "x": 11,
+          "y": 14,
+          "type": "residential",
+          "elevation": 0.7721012029621953,
+          "subtype": "garden_villa"
+        },
+        {
+          "x": 12,
+          "y": 14,
+          "type": "residential",
+          "elevation": 0.7892750464805252,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 13,
+          "y": 14,
+          "type": "residential",
+          "elevation": 0.797636898137724,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 14,
+          "y": 14,
+          "type": "empty",
+          "elevation": 0.7988064811349916,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 15,
+          "y": 14,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street"
+        },
+        {
+          "x": 16,
+          "y": 14,
+          "type": "residential",
+          "elevation": 0.49127226331250645,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 17,
+          "y": 14,
+          "type": "residential",
+          "elevation": 0.3075431803943356,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 18,
+          "y": 14,
+          "type": "residential",
+          "elevation": 0.18365398853785014,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 19,
+          "y": 14,
+          "type": "residential",
+          "elevation": 0.024786567413724925,
+          "subtype": "suburban_house"
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 15,
+          "type": "road",
+          "elevation": 0.05,
+          "subtype": "street"
+        },
+        {
+          "x": 1,
+          "y": 15,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "street"
+        },
+        {
+          "x": 2,
+          "y": 15,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street"
+        },
+        {
+          "x": 3,
+          "y": 15,
+          "type": "road",
+          "elevation": 0.22499999999999998,
+          "subtype": "street"
+        },
+        {
+          "x": 4,
+          "y": 15,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street"
+        },
+        {
+          "x": 5,
+          "y": 15,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street"
+        },
+        {
+          "x": 6,
+          "y": 15,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street"
+        },
+        {
+          "x": 7,
+          "y": 15,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street"
+        },
+        {
+          "x": 8,
+          "y": 15,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street"
+        },
+        {
+          "x": 9,
+          "y": 15,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street"
+        },
+        {
+          "x": 10,
+          "y": 15,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street"
+        },
+        {
+          "x": 11,
+          "y": 15,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street"
+        },
+        {
+          "x": 12,
+          "y": 15,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street"
+        },
+        {
+          "x": 13,
+          "y": 15,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street"
+        },
+        {
+          "x": 14,
+          "y": 15,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street"
+        },
+        {
+          "x": 15,
+          "y": 15,
+          "type": "road",
+          "elevation": 0.3,
+          "subtype": "street"
+        },
+        {
+          "x": 16,
+          "y": 15,
+          "type": "road",
+          "elevation": 0.22499999999999998,
+          "subtype": "street"
+        },
+        {
+          "x": 17,
+          "y": 15,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street"
+        },
+        {
+          "x": 18,
+          "y": 15,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "street"
+        },
+        {
+          "x": 19,
+          "y": 15,
+          "type": "road",
+          "elevation": 0.05,
+          "subtype": "street"
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 16,
+          "type": "residential",
+          "elevation": 0.010506444597343945,
+          "subtype": "suburban_house"
+        },
+        {
+          "x": 1,
+          "y": 16,
+          "type": "empty",
+          "elevation": 0.17733328195330253,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 2,
+          "y": 16,
+          "type": "residential",
+          "elevation": 0.3341357771539532,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 3,
+          "y": 16,
+          "type": "residential",
+          "elevation": 0.4510948963622685,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 4,
+          "y": 16,
+          "type": "empty",
+          "elevation": 0.4507558683053071,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 5,
+          "y": 16,
+          "type": "road",
+          "elevation": 0.22499999999999998,
+          "subtype": "street"
+        },
+        {
+          "x": 6,
+          "y": 16,
+          "type": "residential",
+          "elevation": 0.45057201992389084,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 7,
+          "y": 16,
+          "type": "residential",
+          "elevation": 0.4862774593885599,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 8,
+          "y": 16,
+          "type": "residential",
+          "elevation": 0.4597925516183081,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 9,
+          "y": 16,
+          "type": "residential",
+          "elevation": 0.46308819522641187,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 10,
+          "y": 16,
+          "type": "road",
+          "elevation": 0.22499999999999998,
+          "subtype": "street"
+        },
+        {
+          "x": 11,
+          "y": 16,
+          "type": "residential",
+          "elevation": 0.4868188607887253,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 12,
+          "y": 16,
+          "type": "residential",
+          "elevation": 0.45318241081645355,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 13,
+          "y": 16,
+          "type": "residential",
+          "elevation": 0.45306969665688157,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 14,
+          "y": 16,
+          "type": "residential",
+          "elevation": 0.48401166614780416,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 15,
+          "y": 16,
+          "type": "road",
+          "elevation": 0.22499999999999998,
+          "subtype": "street"
+        },
+        {
+          "x": 16,
+          "y": 16,
+          "type": "residential",
+          "elevation": 0.4873407013418852,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 17,
+          "y": 16,
+          "type": "residential",
+          "elevation": 0.3113265702720183,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 18,
+          "y": 16,
+          "type": "residential",
+          "elevation": 0.18690915243160527,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 19,
+          "y": 16,
+          "type": "residential",
+          "elevation": 0.036278469784411606,
+          "subtype": "suburban_house"
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 17,
+          "type": "residential",
+          "elevation": 0.011652071749257321,
+          "subtype": "suburban_house"
+        },
+        {
+          "x": 1,
+          "y": 17,
+          "type": "empty",
+          "elevation": 0.17658180617868277,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 2,
+          "y": 17,
+          "type": "residential",
+          "elevation": 0.3030154152949595,
+          "subtype": "family_home"
+        },
+        {
+          "x": 3,
+          "y": 17,
+          "type": "residential",
+          "elevation": 0.3311060017013073,
+          "subtype": "family_home"
+        },
+        {
+          "x": 4,
+          "y": 17,
+          "type": "residential",
+          "elevation": 0.3494889284791013,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 5,
+          "y": 17,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street"
+        },
+        {
+          "x": 6,
+          "y": 17,
+          "type": "residential",
+          "elevation": 0.32776261521542555,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 7,
+          "y": 17,
+          "type": "residential",
+          "elevation": 0.32545928324388146,
+          "subtype": "family_home"
+        },
+        {
+          "x": 8,
+          "y": 17,
+          "type": "residential",
+          "elevation": 0.34475000448021614,
+          "subtype": "family_home"
+        },
+        {
+          "x": 9,
+          "y": 17,
+          "type": "residential",
+          "elevation": 0.3071376220275948,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 10,
+          "y": 17,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street"
+        },
+        {
+          "x": 11,
+          "y": 17,
+          "type": "residential",
+          "elevation": 0.32420170145306415,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 12,
+          "y": 17,
+          "type": "residential",
+          "elevation": 0.32435535871935955,
+          "subtype": "family_home"
+        },
+        {
+          "x": 13,
+          "y": 17,
+          "type": "empty",
+          "elevation": 0.3491121887272106,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 14,
+          "y": 17,
+          "type": "residential",
+          "elevation": 0.32139787623395993,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 15,
+          "y": 17,
+          "type": "road",
+          "elevation": 0.15,
+          "subtype": "street"
+        },
+        {
+          "x": 16,
+          "y": 17,
+          "type": "residential",
+          "elevation": 0.3477989160048741,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 17,
+          "y": 17,
+          "type": "empty",
+          "elevation": 0.3171294439241855,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 18,
+          "y": 17,
+          "type": "residential",
+          "elevation": 0.1727296521750295,
+          "subtype": "family_home"
+        },
+        {
+          "x": 19,
+          "y": 17,
+          "type": "residential",
+          "elevation": 0.04221497764735893,
+          "subtype": "suburban_house"
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 18,
+          "type": "residential",
+          "elevation": 0.037179607574256014,
+          "subtype": "suburban_house"
+        },
+        {
+          "x": 1,
+          "y": 18,
+          "type": "residential",
+          "elevation": 0.18789720918144878,
+          "subtype": "family_home"
+        },
+        {
+          "x": 2,
+          "y": 18,
+          "type": "empty",
+          "elevation": 0.19384186631477585,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 3,
+          "y": 18,
+          "type": "residential",
+          "elevation": 0.19758887183483823,
+          "subtype": "family_home"
+        },
+        {
+          "x": 4,
+          "y": 18,
+          "type": "residential",
+          "elevation": 0.15549384988836767,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 5,
+          "y": 18,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "street"
+        },
+        {
+          "x": 6,
+          "y": 18,
+          "type": "residential",
+          "elevation": 0.17048159556821837,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 7,
+          "y": 18,
+          "type": "empty",
+          "elevation": 0.16684141836077415,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 8,
+          "y": 18,
+          "type": "empty",
+          "elevation": 0.17585151630298956,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 9,
+          "y": 18,
+          "type": "residential",
+          "elevation": 0.16182137687870365,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 10,
+          "y": 18,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "street"
+        },
+        {
+          "x": 11,
+          "y": 18,
+          "type": "residential",
+          "elevation": 0.19637771448314695,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 12,
+          "y": 18,
+          "type": "residential",
+          "elevation": 0.17421080865963706,
+          "subtype": "family_home"
+        },
+        {
+          "x": 13,
+          "y": 18,
+          "type": "residential",
+          "elevation": 0.19233440939000282,
+          "subtype": "family_home"
+        },
+        {
+          "x": 14,
+          "y": 18,
+          "type": "empty",
+          "elevation": 0.17915415294570708,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 15,
+          "y": 18,
+          "type": "road",
+          "elevation": 0.075,
+          "subtype": "street"
+        },
+        {
+          "x": 16,
+          "y": 18,
+          "type": "residential",
+          "elevation": 0.1672152285842565,
+          "subtype": "townhouse"
+        },
+        {
+          "x": 17,
+          "y": 18,
+          "type": "empty",
+          "elevation": 0.15569103845078133,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 18,
+          "y": 18,
+          "type": "empty",
+          "elevation": 0.1574011706023149,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 19,
+          "y": 18,
+          "type": "residential",
+          "elevation": 0.01413952374454649,
+          "subtype": "suburban_house"
+        }
+      ],
+      [
+        {
+          "x": 0,
+          "y": 19,
+          "type": "residential",
+          "elevation": 0.005083414714948765,
+          "subtype": "suburban_house"
+        },
+        {
+          "x": 1,
+          "y": 19,
+          "type": "residential",
+          "elevation": 0.044052503722041204,
+          "subtype": "suburban_house"
+        },
+        {
+          "x": 2,
+          "y": 19,
+          "type": "empty",
+          "elevation": 0.034048469873863084,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 3,
+          "y": 19,
+          "type": "residential",
+          "elevation": 0.017892629380037352,
+          "subtype": "suburban_house"
+        },
+        {
+          "x": 4,
+          "y": 19,
+          "type": "residential",
+          "elevation": 0.009234689793114282,
+          "subtype": "suburban_house"
+        },
+        {
+          "x": 5,
+          "y": 19,
+          "type": "road",
+          "elevation": 0.05,
+          "subtype": "street"
+        },
+        {
+          "x": 6,
+          "y": 19,
+          "type": "residential",
+          "elevation": 0.026623439709854327,
+          "subtype": "suburban_house"
+        },
+        {
+          "x": 7,
+          "y": 19,
+          "type": "empty",
+          "elevation": 0.047569104017235464,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 8,
+          "y": 19,
+          "type": "empty",
+          "elevation": 0.015078861800980859,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 9,
+          "y": 19,
+          "type": "residential",
+          "elevation": 0.019187568792058653,
+          "subtype": "suburban_house"
+        },
+        {
+          "x": 10,
+          "y": 19,
+          "type": "road",
+          "elevation": 0.05,
+          "subtype": "street"
+        },
+        {
+          "x": 11,
+          "y": 19,
+          "type": "residential",
+          "elevation": 0.015805599634623493,
+          "subtype": "suburban_house"
+        },
+        {
+          "x": 12,
+          "y": 19,
+          "type": "empty",
+          "elevation": 0.011496573007254063,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 13,
+          "y": 19,
+          "type": "empty",
+          "elevation": 0.01762792580857905,
+          "subtype": "vacant_lot"
+        },
+        {
+          "x": 14,
+          "y": 19,
+          "type": "residential",
+          "elevation": 0.021153563559696623,
+          "subtype": "suburban_house"
+        },
+        {
+          "x": 15,
+          "y": 19,
+          "type": "road",
+          "elevation": 0.05,
+          "subtype": "street"
+        },
+        {
+          "x": 16,
+          "y": 19,
+          "type": "residential",
+          "elevation": 0.018850692141564374,
+          "subtype": "suburban_house"
+        },
+        {
+          "x": 17,
+          "y": 19,
+          "type": "residential",
+          "elevation": 0.03115086303328877,
+          "subtype": "suburban_house"
+        },
+        {
+          "x": 18,
+          "y": 19,
+          "type": "residential",
+          "elevation": 0.01763518838481598,
+          "subtype": "suburban_house"
+        },
+        {
+          "x": 19,
+          "y": 19,
+          "type": "empty",
+          "elevation": 0.019229183514899852,
+          "subtype": "vacant_lot"
+        }
+      ]
+    ],
+    "timestamp": 1775285987915,
+    "ai_model": "map-osm-seed"
+  },
+  {
     "id": "53960d0e-e678-4f9f-a025-6b479107855c",
     "prompt": "Map simulation: Karimnagar Bypass, Karimnagar - 505001, TG, India",
     "layoutData": [
