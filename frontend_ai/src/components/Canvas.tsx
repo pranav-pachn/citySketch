@@ -4,8 +4,9 @@ import { Grid2D } from './Grid2D'
 import { Scene3D } from './Scene3D'
 import { BlueprintView } from './BlueprintView'
 import { CodeView } from './CodeView'
+import { CompareView } from './CompareView'
 import { Sparkles } from 'lucide-react'
-import { CityMetricsSidebar } from './CityMetricsSidebar'
+import { ScoreDashboard } from './ScoreDashboard'
 import type { GridCell } from '../types'
 
 interface CanvasProps {
@@ -76,9 +77,10 @@ export function Canvas({ onCellExplain }: CanvasProps) {
             {viewMode === '3D' && <Scene3D />}
             {viewMode === 'CODE' && <CodeView />}
             {viewMode === 'BLUEPRINT' && <BlueprintView />}
+            {viewMode === 'COMPARE' && <CompareView />}
             
             {/* Real-time metrics overlay */}
-            <CityMetricsSidebar />
+            {viewMode !== 'COMPARE' && <ScoreDashboard />}
           </motion.div>
         </AnimatePresence>
       )}

@@ -1,8 +1,9 @@
-import { useRef, useState, useEffect } from 'react'
+import { useRef, useState, useEffect, useMemo } from 'react'
 import { Canvas as R3FCanvas, useFrame } from '@react-three/fiber'
 import { OrbitControls, Environment, Grid, ContactShadows, Html } from '@react-three/drei'
 import { useStore } from '../store/useStore'
 import type { GridCell } from '../types'
+import { calculateCellHighlights } from '../utils/scoring'
 import * as THREE from 'three'
 import { easing } from 'maath'
 const CELL_SIZE = 1.2
@@ -291,7 +292,7 @@ const WaterTile = ({ elevation = 0 }: { elevation?: number }) => (
 
 /* ═══════ Single Cell Group ═══════ */
 
-function CityCell({ cell, offsetX, offsetZ, revealOrder, generationId }: { cell: GridCell, offsetX: number, offsetZ: number, revealOrder: number, generationId: number }) {
+function CityCell({ cell, offsetX, offsetZ, revealOrder, generationId, highlightInfo }: { cell: GridCell, offsetX: number, offsetZ: number, revealOrder: number, generationId: number, highlightInfo?: { color: string, type: string, reason?: string } }) {
   const selectedCell = useStore((s) => s.selectedCell)
   const setSelectedCell = useStore((s) => s.setSelectedCell)
   const hoveredCell = useStore((s) => s.hoveredCell)
@@ -419,15 +420,28 @@ function CityCell({ cell, offsetX, offsetZ, revealOrder, generationId }: { cell:
           </mesh>
         ) : null}
 
+        {/* Highlight Overlay */}
+        {highlightInfo && (
+          <mesh position={[0, elevation + 0.2, 0]}>
+            <boxGeometry args={[CELL_SIZE, 0.1, CELL_SIZE]} />
+            <meshStandardMaterial color={highlightInfo.type === 'bad' ? '#ef4444' : '#22c55e'} opacity={0.3} transparent depthWrite={false} />
+          </mesh>
+        )}
+
         {/* 3D Tooltip when Hovered */}
         {isHovered && cell.type !== 'empty' && (
           <Html position={[0, cell.type === 'commercial' || cell.type === 'hospital' ? 2.5 : 1, 0]} center style={{ pointerEvents: 'none' }}>
-            <div className="bg-zinc-900/95 backdrop-blur-md text-white px-3 py-2 rounded-lg shadow-2xl border border-zinc-700/50 text-xs min-w-[130px] transform transition-all duration-200 pointer-events-none">
+            <div className={`bg-zinc-900/95 backdrop-blur-md text-white px-3 py-2 rounded-lg shadow-2xl border ${highlightInfo ? (highlightInfo.type === 'bad' ? 'border-red-500/50 shadow-red-500/20' : 'border-green-500/50 shadow-green-500/20') : 'border-zinc-700/50'} text-xs min-w-[130px] transform transition-all duration-200 pointer-events-none`}>
               <div className="font-bold mb-1 uppercase tracking-widest text-[10px] text-zinc-400">Sector {cell.x}-{cell.y}</div>
               <div className="flex items-center gap-2">
                 <div className={`w-2.5 h-2.5 rounded-full ${tailwindColorMap[cell.type] || 'bg-zinc-500'}`} />
                 <span className="capitalize font-semibold text-sm">{displayZoneName} Zone</span>
               </div>
+              {highlightInfo && highlightInfo.reason && (
+                <div className={`mt-2 pt-1.5 border-t ${highlightInfo.type === 'bad' ? 'border-red-900/50 text-red-300' : 'border-green-900/50 text-green-300'} text-[10px] leading-tight font-medium`}>
+                  {highlightInfo.reason}
+                </div>
+              )}
             </div>
           </Html>
         )}
@@ -469,6 +483,13 @@ function CityScene() {
   const layoutData = useStore((s) => s.layoutData)
   const isNightMode = useStore((s) => s.isNightMode)
   const generationId = useStore((s) => s.generationId)
+  const highlightMode = useStore((s) => s.highlightMode)
+
+  // MUST be before any conditional returns (Rules of Hooks)
+  const highlights = useMemo(() => {
+    if (!layoutData || !highlightMode) return {}
+    return calculateCellHighlights(layoutData)
+  }, [layoutData, highlightMode])
 
   if (!layoutData) return null
 
@@ -520,6 +541,7 @@ function CityScene() {
             offsetZ={cell.y * CELL_SIZE}
             revealOrder={cell.y * cols + cell.x}
             generationId={generationId}
+            highlightInfo={highlights[`${cell.x},${cell.y}`]}
           />
         ))
       )}

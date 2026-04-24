@@ -45,6 +45,8 @@ interface AppState {
   activeHistoryId: string | null
   addHistory: (item: HistoryItem) => void
   setActiveHistoryId: (id: string | null) => void
+  compareHistoryId: string | null
+  setCompareHistoryId: (id: string | null) => void
   loadHistory: (id: string) => void
   clearHistory: () => void
   deleteHistoryItem: (id: string) => void
@@ -57,6 +59,12 @@ interface AppState {
   // Cell editing
   updateCellType: (x: number, y: number, type: GridCell['type']) => void
   hasUnsavedLayoutChanges: boolean
+
+  // AI Insights
+  evaluation: EvaluationData | null
+  setEvaluation: (data: EvaluationData | null) => void
+  highlightMode: boolean
+  setHighlightMode: (mode: boolean) => void
 
   // Actions
   submitPrompt: (saveToHistory?: boolean) => Promise<void>
@@ -102,6 +110,12 @@ export const useStore = create<AppState>((set, get) => ({
   detailOpen: false,
   setDetailOpen: (open) => set({ detailOpen: open, selectedCell: open ? get().selectedCell : null }),
 
+  evaluation: null,
+  setEvaluation: (evaluation) => set({ evaluation }),
+  
+  highlightMode: false,
+  setHighlightMode: (highlightMode) => set({ highlightMode }),
+
   isNightMode: false,
   setNightMode: (night) => set({ isNightMode: night }),
   
@@ -118,12 +132,15 @@ export const useStore = create<AppState>((set, get) => ({
   addHistory: (item) =>
     set((state) => ({ history: [item, ...state.history] })),
   setActiveHistoryId: (id) => set({ activeHistoryId: id }),
+  compareHistoryId: null,
+  setCompareHistoryId: (id) => set({ compareHistoryId: id }),
   loadHistory: (id) => {
     const item = get().history.find((h) => h.id === id)
     if (item) {
       set({
         activeHistoryId: id,
         layoutData: item.layoutData,
+        evaluation: item.evaluation || null,
         selectedCell: null,
         detailOpen: false,
         prompt: '',
@@ -132,7 +149,7 @@ export const useStore = create<AppState>((set, get) => ({
     }
   },
   clearHistory: () => {
-    set({ history: [], activeHistoryId: null, layoutData: null, selectedCell: null, detailOpen: false, hasUnsavedLayoutChanges: false })
+    set({ history: [], activeHistoryId: null, layoutData: null, evaluation: null, selectedCell: null, detailOpen: false, hasUnsavedLayoutChanges: false, highlightMode: false })
     get().addToast('History cleared')
   },
   deleteHistoryItem: async (id) => {
@@ -144,9 +161,11 @@ export const useStore = create<AppState>((set, get) => ({
       if (activeHistoryId === id) {
         updates.activeHistoryId = null
         updates.layoutData = null
+        updates.evaluation = null
         updates.selectedCell = null
         updates.detailOpen = false
         updates.hasUnsavedLayoutChanges = false
+        updates.highlightMode = false
       }
       set(updates as AppState)
     } catch (error) {
@@ -200,6 +219,9 @@ export const useStore = create<AppState>((set, get) => ({
       const data = await res.json()
 
       setLayoutData(data.layoutData)
+      const evalData = data.score !== undefined ? { score: data.score, breakdown: data.breakdown, suggestions: data.suggestions, insights: data.insights } : null;
+      set({ evaluation: evalData })
+
       if (saveToHistory && data?.id) {
         addHistory(data)
         setActiveHistoryId(data.id)
@@ -241,6 +263,9 @@ export const useStore = create<AppState>((set, get) => ({
       const data = await res.json()
 
       setLayoutData(data.layoutData)
+      const evalData = data.score !== undefined ? { score: data.score, breakdown: data.breakdown, suggestions: data.suggestions, insights: data.insights } : null;
+      set({ evaluation: evalData })
+
       if (data?.id) {
         addHistory(data)
         setActiveHistoryId(data.id)
@@ -301,6 +326,8 @@ export const useStore = create<AppState>((set, get) => ({
   newSession: () => {
     set({
       layoutData: null,
+      evaluation: null,
+      highlightMode: false,
       activeHistoryId: null,
       selectedCell: null,
       detailOpen: false,

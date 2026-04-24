@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url'
 import { generateRoute } from './routes/generate.js'
 import { historyRoute } from './routes/history.js'
 import { mapRoute } from './routes/mapContext.js'
+import { simulateRoute } from './routes/simulate.js'
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
 dotenv.config({ path: resolve(__dirname, '../.env') })
@@ -51,6 +52,7 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
 app.use('/api', generateRoute)
 app.use('/api', historyRoute)
 app.use('/api', mapRoute)
+app.use('/api', simulateRoute)
 
 // Auth route
 app.post('/api/auth/google', async (req, res) => {

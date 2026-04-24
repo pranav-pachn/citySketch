@@ -625,8 +625,7 @@ function drawCityOverview(
     stroke: '#2d1f14', strokeWidth: 2.5, roughness: 0.6, bowing: 0.3,
   })
 
-  // Legend
-  const legendY = startY + totalH + 20
+  const legendY = startY + totalH + 30
   const legendItems = [
     { label: 'R — Residential', color: BLUEPRINT_ZONE_COLORS.residential },
     { label: 'C — Commercial', color: BLUEPRINT_ZONE_COLORS.commercial },
@@ -640,18 +639,18 @@ function drawCityOverview(
   const itemsPerRow = 4
   const legendItemW = totalW / itemsPerRow
   const legendPaddingX = 8
-  const legendPaddingY = 6
-  const legendHorizontalPadding = 12
+  const legendPaddingY = 10
+  const legendHorizontalPadding = 20
   legendItems.forEach((item, i) => {
     const row = Math.floor(i / itemsPerRow)
     const col = i % itemsPerRow
     const lx = startX + col * legendItemW + legendPaddingX + col * legendHorizontalPadding
-    const ly = legendY + row * 22 + legendPaddingY
+    const ly = legendY + row * 28 + legendPaddingY
     ctx.font = '7px "Courier New", monospace'
     ctx.fillStyle = '#6b5d4d'
     ctx.textAlign = 'left'
     ctx.textBaseline = 'middle'
-    ctx.fillText(item.label, lx + 14, ly + 8)
+    ctx.fillText(item.label, lx + 16, ly + 8)
     rc.rectangle(lx, ly, 10, 10, {
       stroke: '#6b5d4d',
       strokeWidth: 0.8,

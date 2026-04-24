@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { CityGenerator } from '../utils/CityGenerator.js'
 import { addLocalHistoryItem } from '../utils/historyStore.js'
 import { supabase } from '../supabaseClient.js'
+import { generateInsights } from '../utils/explainer.js'
 
 export const mapRoute = Router()
 
@@ -79,6 +80,8 @@ mapRoute.post('/generate-from-map', async (req, res) => {
       ? `Map simulation: ${locationName}`
       : `Map simulation at [${south.toFixed(4)}, ${west.toFixed(4)}]`
 
+    const evaluation = generateInsights(grid)
+
     let payload = null
 
     try {
@@ -98,9 +101,14 @@ mapRoute.post('/generate-from-map', async (req, res) => {
         id: data.id,
         prompt: mapPrompt,
         layoutData: grid,
+        layout: grid,
+        score: evaluation.scores.overall,
+        breakdown: evaluation.scores,
+        suggestions: evaluation.suggestions,
         timestamp: new Date(data.created_at).getTime(),
         ai_model: 'map-osm-seed',
         saved: true,
+        evaluation,
         mapContext: {
           bbox,
           gridSize: N,
@@ -116,10 +124,15 @@ mapRoute.post('/generate-from-map', async (req, res) => {
         layoutData: grid,
         timestamp: Date.now(),
         ai_model: 'map-osm-seed',
+        evaluation,
       }
       await addLocalHistoryItem(fallbackItem)
       payload = {
         ...fallbackItem,
+        layout: grid,
+        score: evaluation.scores.overall,
+        breakdown: evaluation.scores,
+        suggestions: evaluation.suggestions,
         saved: true,
         mapContext: {
           bbox,

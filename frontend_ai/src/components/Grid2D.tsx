@@ -1,8 +1,10 @@
+import { useMemo } from 'react'
 import { useStore } from '../store/useStore'
 import { motion } from 'framer-motion'
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch'
 import { Building2, Home, Trees, Waves, Factory, Route, Stethoscope, GraduationCap } from 'lucide-react'
 import type { GridCell } from '../types'
+import { calculateCellHighlights } from '../utils/scoring'
 
 const CELL_STYLES: Record<GridCell['type'], { color: string, icon: any, label: string }> = {
   road: { color: '#52525b', icon: Route, label: 'RD' },
@@ -27,6 +29,12 @@ export function Grid2D({ onCellExplain }: Grid2DProps) {
   const setSelectedCell = useStore((s) => s.setSelectedCell)
   const hoveredCell = useStore((s) => s.hoveredCell)
   const setHoveredCell = useStore((s) => s.setHoveredCell)
+  const highlightMode = useStore((s) => s.highlightMode)
+
+  const highlights = useMemo(() => {
+    if (!layoutData || !highlightMode) return {}
+    return calculateCellHighlights(layoutData)
+  }, [layoutData, highlightMode])
 
   if (!layoutData) return null
 
@@ -42,11 +50,15 @@ export function Grid2D({ onCellExplain }: Grid2DProps) {
     >
       <TransformWrapper
         initialScale={1}
-        minScale={0.5}
-        maxScale={3}
+        minScale={0.3}
+        maxScale={4}
         centerOnInit
-        wheel={{ step: 0.1 }}
+        wheel={{ step: 0.08, smoothStep: 0.003 }}
+        panning={{ velocityDisabled: false, excluded: ['blueprint-cell', 'cell-content', 'cell-label', 'cell-coords'] }}
+        doubleClick={{ mode: 'reset' }}
+        limitToBounds={false}
       >
+        {({ resetTransform }) => (
         <TransformComponent wrapperClass="w-full h-full" contentClass="w-full h-full flex items-center justify-center">
           <div
             className="grid-2d-blueprint"
@@ -82,7 +94,9 @@ export function Grid2D({ onCellExplain }: Grid2DProps) {
                   className={`blueprint-cell ${isSelected ? 'selected' : ''}`}
                   style={{
                     borderColor: isSelected ? style.color : 'var(--color-border)',
-                    backgroundColor: isSelected ? `${style.color}15` : 'transparent',
+                    backgroundColor: highlights[`${cell.x},${cell.y}`] 
+                                       ? highlights[`${cell.x},${cell.y}`].color 
+                                       : (isSelected ? `${style.color}15` : 'transparent'),
                     boxShadow: isSelected ? `0 0 15px ${style.color}30` : 'none',
                   }}
                 >
@@ -109,6 +123,7 @@ export function Grid2D({ onCellExplain }: Grid2DProps) {
             })}
           </div>
         </TransformComponent>
+        )}
       </TransformWrapper>
 
       {/* Blueprint Legend Floating */}

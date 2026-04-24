@@ -4,6 +4,7 @@ import Groq from 'groq-sdk'
 import { supabase } from '../supabaseClient.js'
 import { CityGenerator } from '../utils/CityGenerator.js'
 import { addLocalHistoryItem } from '../utils/historyStore.js'
+import { generateInsights } from '../utils/explainer.js'
 import dotenv from 'dotenv'
 
 // Force reload of env vars so server doesn't need to be restarted immediately
@@ -453,14 +454,21 @@ Example: {"waterStyle":"coastal_left", "primaryZone":"commercial", "density":"hi
       ensureHospitalInGrid(grid)
     }
 
+    const evaluation = generateInsights(grid)
+
     // Build backward-compatible response with guide metadata
     const buildPayload = (id, saved) => ({
       id,
       prompt,
-      layoutData: grid,
+      layoutData: grid, // keep for backward compatibility
+      layout: grid,
+      score: evaluation.scores.overall,
+      breakdown: evaluation.scores,
+      suggestions: evaluation.suggestions,
       timestamp: Date.now(),
       ai_model: modelUsed,
       saved,
+      evaluation, // keep for backward compatibility
       normalizedIntent: {
         areaInAcres: normalizedIntent.areaInAcres || 5,
         gridSize: normalizedIntent.gridSize,

@@ -256,3 +256,33 @@ export const calculateScores = (grid) => {
     },
   };
 };
+
+export const calculateCellHighlights = (grid) => {
+  const highlights = {};
+
+  if (!Array.isArray(grid) || grid.length === 0) return highlights;
+
+  grid.forEach((row) => {
+    if (!Array.isArray(row)) return;
+
+    row.forEach((cell) => {
+      if (!cell || cell.type !== 'residential') return;
+
+      const parkDist = getNearestParkDistance(grid, cell);
+      const amenityDist = getNearestAmenityDistance(grid, cell);
+
+      if (parkDist > 4 || amenityDist > 5) {
+        let reason = 'Critical: ';
+        if (parkDist > 4 && amenityDist > 5) reason += 'No nearby nature or amenities.';
+        else if (parkDist > 4) reason += 'Too far from green spaces (>4 blocks).';
+        else reason += 'Poor access to healthcare/shops (>5 blocks).';
+        
+        highlights[`${cell.x},${cell.y}`] = { color: 'rgba(239, 68, 68, 0.4)', type: 'bad', reason };
+      } else if (parkDist <= 2 && amenityDist <= 3) {
+        highlights[`${cell.x},${cell.y}`] = { color: 'rgba(34, 197, 94, 0.4)', type: 'good', reason: 'Optimal zone: High walkability to nature & amenities.' };
+      }
+    });
+  });
+
+  return highlights;
+};

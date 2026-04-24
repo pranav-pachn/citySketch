@@ -1,7 +1,9 @@
+import { useMemo } from 'react'
 import { useStore } from '../store/useStore'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, MapPin, Pencil, Save } from 'lucide-react'
+import { X, MapPin, Pencil, Save, AlertTriangle, CheckCircle2, Info } from 'lucide-react'
 import type { GridCell } from '../types'
+import { calculateCellHighlights } from '../utils/scoring'
 
 const ZONE_INFO: Record<GridCell['type'], { color: string; description: string }> = {
   road: { color: '#374151', description: 'Transportation infrastructure — streets, highways, and pathways.' },
@@ -19,66 +21,143 @@ const ALL_TYPES: GridCell['type'][] = ['road', 'residential', 'commercial', 'par
 
 function getNeighborCells(grid: GridCell[][], cell: GridCell) {
   const neighbors: GridCell[] = []
-  const offsets = [
-    [-1, 0],
-    [1, 0],
-    [0, -1],
-    [0, 1],
-  ]
-
+  const offsets = [[-1, 0], [1, 0], [0, -1], [0, 1]]
   for (const [dx, dy] of offsets) {
     const neighbor = grid[cell.y + dy]?.[cell.x + dx]
     if (neighbor) neighbors.push(neighbor)
   }
-
   return neighbors
 }
 
-function getBlockExplanation(grid: GridCell[][], cell: GridCell) {
+function getManhattanDistance(a: GridCell, b: GridCell) {
+  return Math.abs(a.x - b.x) + Math.abs(a.y - b.y)
+}
+
+function getNearestOfType(grid: GridCell[][], cell: GridCell, types: string[]): { cell: GridCell; dist: number } | null {
+  let nearest: { cell: GridCell; dist: number } | null = null
+  grid.forEach(row => row.forEach(c => {
+    if (!types.includes(c.type)) return
+    const d = getManhattanDistance(cell, c)
+    if (!nearest || d < nearest.dist) nearest = { cell: c, dist: d }
+  }))
+  return nearest
+}
+
+function buildAnalysis(grid: GridCell[][], cell: GridCell): { status: 'good' | 'warn' | 'info'; lines: string[] } {
   const neighbors = getNeighborCells(grid, cell)
-  const neighborTypes = new Set(neighbors.map((neighbor) => neighbor.type))
+  const neighborTypes = new Set(neighbors.map(n => n.type))
+  const lines: string[] = []
+  let status: 'good' | 'warn' | 'info' = 'info'
 
   switch (cell.type) {
-    case 'park':
-      if (neighborTypes.has('residential')) {
-        return 'Park placed near residential for walkability.'
+    case 'residential': {
+      const nearPark = getNearestOfType(grid, cell, ['park'])
+      const nearHospital = getNearestOfType(grid, cell, ['hospital'])
+      const nearShop = getNearestOfType(grid, cell, ['commercial'])
+
+      if (nearPark) {
+        if (nearPark.dist <= 2) { lines.push(`✅ Park only ${nearPark.dist} block(s) away — excellent walkability.`); status = 'good' }
+        else if (nearPark.dist <= 4) { lines.push(`⚠️ Nearest park is ${nearPark.dist} blocks away — walkability could improve.`); if (status !== 'good') status = 'warn' }
+        else { lines.push(`❌ No park within 4 blocks (nearest: ${nearPark.dist}) — poor green access.`); status = 'warn' }
+      } else {
+        lines.push('❌ No parks in layout — residents lack green space.')
+        status = 'warn'
       }
-      return 'Park placed to add green space and soften the district.'
-    case 'hospital':
-      if (neighborTypes.has('road')) {
-        return 'Hospital placed near roads for emergency access and visibility.'
+
+      if (nearHospital) {
+        if (nearHospital.dist <= 4) lines.push(`✅ Hospital ${nearHospital.dist} block(s) away — good healthcare access.`)
+        else { lines.push(`⚠️ Hospital is ${nearHospital.dist} blocks away — healthcare access is limited.`); if (status === 'info') status = 'warn' }
+      } else {
+        lines.push('❌ No hospital in layout — healthcare gap detected.')
+        if (status === 'info') status = 'warn'
       }
-      return 'Hospital placed to serve nearby neighborhoods.'
-    case 'residential':
-      if (neighborTypes.has('park')) {
-        return 'Residential placed beside a park to improve livability and access to green space.'
+
+      if (nearShop) {
+        if (nearShop.dist <= 3) lines.push(`✅ Commercial zone ${nearShop.dist} block(s) away — convenient access to services.`)
+        else lines.push(`ℹ️ Nearest commercial zone is ${nearShop.dist} blocks away.`)
       }
-      if (neighborTypes.has('road')) {
-        return 'Residential connected to roads for easy access while keeping homes reachable.'
+
+      if (neighborTypes.has('road')) lines.push('✅ Connected to road network.')
+      else lines.push('⚠️ No direct road access — connectivity may be limited.')
+      break
+    }
+
+    case 'park': {
+      const resCount = neighbors.filter(n => n.type === 'residential').length
+      if (resCount > 0) { lines.push(`✅ Serves ${resCount} adjacent residential block(s) — high walkability impact.`); status = 'good' }
+      else {
+        const nearRes = getNearestOfType(grid, cell, ['residential'])
+        if (nearRes) lines.push(`ℹ️ Nearest residential is ${nearRes.dist} blocks away — limited direct walkability benefit.`)
+        else lines.push('ℹ️ No residential zones in layout to benefit from this park.')
       }
-      return 'Residential zone creates housing capacity for the city.'
-    case 'commercial':
-      if (neighborTypes.has('road')) {
-        return 'Commercial placed near roads for access, visibility, and foot traffic.'
+      if (neighborTypes.has('school')) lines.push('✅ Adjacent to school — outdoor activity space for students.')
+      break
+    }
+
+    case 'hospital': {
+      const nearRoad = getNearestOfType(grid, cell, ['road'])
+      if (neighborTypes.has('road')) { lines.push('✅ Direct road access — optimal for emergency response.'); status = 'good' }
+      else if (nearRoad && nearRoad.dist <= 2) lines.push(`⚠️ Road is ${nearRoad.dist} blocks away — emergency access could be faster.`)
+      else { lines.push('❌ No nearby road — emergency access is severely limited.'); status = 'warn' }
+
+      const nearRes = getNearestOfType(grid, cell, ['residential'])
+      if (nearRes) {
+        if (nearRes.dist <= 4) { lines.push(`✅ Serves residential blocks within ${nearRes.dist} block(s).`); if (status !== 'warn') status = 'good' }
+        else lines.push(`ℹ️ Closest residential zone is ${nearRes.dist} blocks away.`)
       }
-      return 'Commercial zone placed to support nearby neighborhoods with services and jobs.'
-    case 'industrial':
-      return 'Industrial area placed away from homes to separate heavy activity and traffic.'
-    case 'school':
-      if (neighborTypes.has('residential')) {
-        return 'School near residential area — reduces commute time for students.'
+      break
+    }
+
+    case 'commercial': {
+      if (neighborTypes.has('road')) { lines.push('✅ Road access — good for foot traffic and deliveries.'); status = 'good' }
+      else lines.push('⚠️ No road access — limits commercial viability.')
+      const resCount = neighbors.filter(n => n.type === 'residential').length
+      if (resCount > 0) { lines.push(`✅ Adjacent to ${resCount} residential block(s) — strong local customer base.`); if (status !== 'warn') status = 'good' }
+      else lines.push('ℹ️ No residential neighbors — may have lower foot traffic.')
+      break
+    }
+
+    case 'school': {
+      const nearRes = getNearestOfType(grid, cell, ['residential'])
+      if (nearRes && nearRes.dist <= 3) { lines.push(`✅ ${nearRes.dist} block(s) from residential — short commute for students.`); status = 'good' }
+      else if (nearRes) lines.push(`⚠️ Residential is ${nearRes.dist} blocks away — longer commute for students.`)
+      if (neighborTypes.has('park')) lines.push('✅ Adjacent park provides outdoor space for students.')
+      if (!neighborTypes.has('road') && !neighborTypes.has('commercial')) lines.push('✅ Placed in low-traffic interior — safe environment.')
+      break
+    }
+
+    case 'road': {
+      const connectedTypes = new Set(neighbors.map(n => n.type))
+      connectedTypes.delete('road')
+      if (connectedTypes.size > 0) {
+        lines.push(`✅ Connects: ${[...connectedTypes].join(', ')} zones.`)
+        status = 'good'
+      } else {
+        lines.push('ℹ️ Connects to other road segments — part of the road network.')
       }
-      if (neighborTypes.has('park')) {
-        return 'School adjacent to park — provides outdoor activity space for students.'
-      }
-      return 'School placed in safe, low-traffic interior zone.'
-    case 'road':
-      return 'Road connects districts and keeps movement through the city efficient.'
+      break
+    }
+
+    case 'industrial': {
+      const nearRes = getNearestOfType(grid, cell, ['residential'])
+      if (nearRes) {
+        if (nearRes.dist >= 4) { lines.push(`✅ Industrial well-separated from residential (${nearRes.dist} blocks).`); status = 'good' }
+        else { lines.push(`⚠️ Too close to residential zone (${nearRes.dist} blocks) — pollution and noise risk.`); status = 'warn' }
+      } else lines.push('✅ No nearby residential — safe industrial placement.')
+      if (neighborTypes.has('road')) lines.push('✅ Road access for freight and logistics.')
+      break
+    }
+
     case 'water':
-      return 'Water defines the landscape and shapes surrounding development.'
+      lines.push('ℹ️ Water body shapes urban form and may restrict adjacent development.')
+      if (neighborTypes.has('park')) lines.push('✅ Adjacent park — waterfront green space enhances livability.')
+      break
+
     default:
-      return 'This area is reserved for future development.'
+      lines.push('ℹ️ This cell is currently unassigned and available for development.')
   }
+
+  return { status, lines }
 }
 
 export function CellDetail() {
@@ -91,7 +170,17 @@ export function CellDetail() {
   const hasUnsavedLayoutChanges = useStore((s) => s.hasUnsavedLayoutChanges)
 
   const info = selectedCell ? ZONE_INFO[selectedCell.type] : null
-  const explanation = selectedCell && layoutData ? getBlockExplanation(layoutData, selectedCell) : ''
+
+  const analysis = useMemo(() => {
+    if (!selectedCell || !layoutData) return null
+    return buildAnalysis(layoutData, selectedCell)
+  }, [selectedCell, layoutData])
+
+  const highlightInfo = useMemo(() => {
+    if (!selectedCell || !layoutData) return null
+    const highlights = calculateCellHighlights(layoutData)
+    return highlights[`${selectedCell.x},${selectedCell.y}`] || null
+  }, [selectedCell, layoutData])
 
   return (
     <AnimatePresence>
@@ -106,13 +195,13 @@ export function CellDetail() {
           <div className="cell-detail-inner">
             {/* Header */}
             <div className="cell-detail-header">
-              <span className="cell-detail-title">Zone Details</span>
+              <span className="cell-detail-title">Zone Analysis</span>
               <button className="cell-detail-close" onClick={() => setDetailOpen(false)}>
                 <X size={16} strokeWidth={1.5} />
               </button>
             </div>
 
-            {/* Zone info */}
+            {/* Zone type badge + description */}
             <div className="cell-detail-section">
               <div className="zone-badge" style={{ backgroundColor: info.color }}>
                 <span className="zone-badge-text">{selectedCell.type}</span>
@@ -120,41 +209,42 @@ export function CellDetail() {
               <p className="zone-description">{info.description}</p>
             </div>
 
-            <div className="cell-detail-section">
-              <div className="detail-section-header">
-                <span>Planning Rationale</span>
+            {/* Visual Analysis score if applicable */}
+            {highlightInfo && (
+              <div className="cell-detail-section">
+                <div className="detail-section-header">
+                  {highlightInfo.type === 'good'
+                    ? <CheckCircle2 size={13} strokeWidth={1.5} color="#22c55e" />
+                    : <AlertTriangle size={13} strokeWidth={1.5} color="#ef4444" />}
+                  <span style={{ color: highlightInfo.type === 'good' ? '#22c55e' : '#ef4444' }}>
+                    {highlightInfo.type === 'good' ? 'Well-Placed Zone' : 'Zone Problem Detected'}
+                  </span>
+                </div>
+                <div className="explanation-panel" style={{
+                  borderColor: highlightInfo.type === 'good' ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)',
+                  color: highlightInfo.type === 'good' ? 'rgba(187,247,208,0.9)' : 'rgba(254,202,202,0.9)'
+                }}>
+                  {highlightInfo.reason}
+                </div>
               </div>
-              <div className="explanation-panel">
-                Read the layout like a planning board, with quick context on why each zone was placed where it is.
-              </div>
-            </div>
+            )}
 
-            <div className="cell-detail-section">
-              <div className="detail-section-header">
-                <span>• Selected Cell Reason</span>
+            {/* Dynamic analysis lines */}
+            {analysis && analysis.lines.length > 0 && (
+              <div className="cell-detail-section">
+                <div className="detail-section-header">
+                  <Info size={13} strokeWidth={1.5} />
+                  <span>Planning Analysis</span>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  {analysis.lines.map((line, i) => (
+                    <div key={i} className="explanation-panel" style={{ padding: '6px 10px', fontSize: '12px', lineHeight: 1.5 }}>
+                      {line}
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div className="explanation-panel">
-                {explanation}
-              </div>
-            </div>
-
-            <div className="cell-detail-section">
-              <div className="detail-section-header">
-                <span>ⓘ Why This Exists</span>
-              </div>
-              <div className="explanation-panel">
-                This panel helps users read the city like an <strong>urban-planning</strong> <strong>sketch</strong>, translating each zone placement into a simple planning decision.
-              </div>
-            </div>
-
-            <div className="cell-detail-section">
-              <div className="detail-section-header">
-                <span>2 Interaction Hint</span>
-              </div>
-              <div className="explanation-panel">
-                Click different cells in the <strong>2D grid</strong> to compare why homes, parks, roads, and hospitals were placed where they are.
-              </div>
-            </div>
+            )}
 
             {/* Coordinates */}
             <div className="cell-detail-section">
@@ -201,3 +291,4 @@ export function CellDetail() {
     </AnimatePresence>
   )
 }
+
