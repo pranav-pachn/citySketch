@@ -52,7 +52,7 @@ export function CityMetricsSidebar() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.95 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="w-72 bg-zinc-950/90 backdrop-blur-xl border border-zinc-800/60 rounded-xl p-5 shadow-2xl flex flex-col gap-6 origin-top-right pointer-events-auto"
+            className="w-72 max-h-[600px] overflow-y-auto bg-zinc-950/90 backdrop-blur-xl border border-zinc-800/60 rounded-xl px-8 py-8 shadow-2xl flex flex-col gap-6 origin-top-right pointer-events-auto scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-zinc-900/50"
           >
             <div className="flex items-center gap-2 pb-4 border-b border-zinc-800/80">
               <Activity size={14} className="text-zinc-400" />

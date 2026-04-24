@@ -1,73 +1,98 @@
-# React + TypeScript + Vite
+# CitySketch Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Frontend application for CitySketch, built with React + TypeScript + Vite.
 
-Currently, two official plugins are available:
+## Core Responsibilities
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Landing, login, and workspace routes
+- Prompt submission and map-context submission to backend APIs
+- Multi-view city visualization (2D, 3D, blueprint, code)
+- Layout editing and history interactions
+- Google OAuth client flow
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- React 19
+- TypeScript
+- Vite 8
+- Zustand (app state)
+- React Router
+- React Three Fiber / Three.js
+- Tailwind CSS + Radix UI primitives
 
-## Expanding the ESLint configuration
+## Routing
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- `/` landing page
+- `/login` login and auth page
+- `/app` main workspace
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+Defined in `src/App.tsx`.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## API Configuration
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Client URL construction is handled in `src/lib/api.ts`:
+
+- `VITE_API_BASE_URL`:
+  - if set, requests become `${VITE_API_BASE_URL}/api/...`
+  - if empty, requests stay relative (`/api/...`)
+
+Development proxy is configured in `vite.config.ts`:
+
+- `VITE_DEV_API_TARGET` (default: `http://localhost:3001`)
+- `/api/*` is proxied to that target in dev mode
+
+## Required Environment Variables
+
+These are read from the root `.env` (Vite `envDir` points to `../`):
+
+- `VITE_GOOGLE_CLIENT_ID` for `GoogleOAuthProvider`
+- `VITE_API_BASE_URL` optional absolute API base
+- `VITE_DEV_API_TARGET` dev proxy target
+
+## Key Source Files
+
+- `src/main.tsx` app bootstrap and Google provider
+- `src/App.tsx` route definitions
+- `src/Workspace.tsx` workspace shell and map import modal
+- `src/store/useStore.ts` app state and API actions
+- `src/components/` visual modules (grid, scene, blueprint, sidebar, etc.)
+- `src/pages/` landing and login screens
+
+## State + Actions
+
+The main store (`src/store/useStore.ts`) includes:
+
+- Prompt flow: `submitPrompt(saveToHistory?)`
+- Map flow: `submitMapContext(bbox, locationName, gridSize?)`
+- History flow: fetch/load/save/delete snapshots
+- UI flow: selected cell, panel state, toasts, view mode, canvas maximize
+
+## Available Scripts
+
+- `npm run dev` start Vite dev server
+- `npm run build` type-check + production build
+- `npm run preview` preview build output
+- `npm run lint` run ESLint
+
+## Local Development
+
+1. Install dependencies:
+
+```bash
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+2. Ensure backend is running (default `http://localhost:3001`).
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+3. Start frontend:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run dev
 ```
+
+4. Open `http://localhost:5173`.
+
+## Notes
+
+- Map-based generation depends on backend route `POST /api/generate-from-map`.
+- Google sign-in posts the ID token to backend `POST /api/auth/google` for verification.

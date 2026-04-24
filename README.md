@@ -1,132 +1,150 @@
 # CitySketch
 
-CitySketch is an AI-assisted urban layout tool that converts natural language prompts into city plans and visualizes them in multiple modes:
+CitySketch is an AI-assisted urban layout studio that converts natural-language prompts into structured city plans and lets you inspect/edit the result across multiple views.
 
-- 2D zoning grid
-- 3D scene preview
-- Blueprint/floor-plan renderer
-- Code/JSON layout view
+## What You Can Do
+
+- Generate zoning layouts from text prompts
+- Import a real-world map area (OpenStreetMap/Overpass) and generate a contextual simulation
+- Explore generated plans in 2D, 3D, blueprint, and code views
+- Edit cells manually and save snapshots
+- Store and reload history (Supabase with automatic local fallback)
+- Sign in with Google (frontend + backend token verification)
 
 ## Repository Structure
 
-- `backend_ai/`: Express API for generation, history, health checks, and auth integration
-- `frontend_ai/`: React + Vite + TypeScript client app
-- `prd.md`: product requirements and design notes
-- `.env` (local only): runtime configuration (do not commit secrets)
+- `backend_ai/` Express API and generation engine
+  - `server.js` app bootstrap and route mounting
+  - `routes/` API routes (`generate`, `history`, `mapContext`)
+  - `utils/` city generation and local history fallback
+- `frontend_ai/` React + Vite + TypeScript UI
+  - `src/` app routes, workspace, components, store, helpers
+  - `landing_ui/next-landing/` experimental/alternate landing implementation
+- `.env.example` environment variable template
+- `prd.md` product notes
+- `CitySketch_Logic_Guide.html` generation logic guide
 
-## Source Code
-
-The full source code is included in this repository:
-
-- Backend source: `backend_ai/server.js`, `backend_ai/routes/*`, `backend_ai/utils/*`
-- Frontend source: `frontend_ai/src/*`
-
-## Documentation
-
-This `README.md` is the main project documentation.
-
-Additional references:
-
-- `prd.md`: product scope, UI and architecture intent
-- `frontend_ai/README.md`: frontend scaffold notes (Vite template)
-
-## Setup Instructions
-
-### Prerequisites
+## Prerequisites
 
 - Node.js 20+
 - npm 10+
 
-### 1. Clone and install dependencies
+## Quick Start
+
+1. Install backend dependencies:
 
 ```bash
-git clone https://github.com/rahulsp19/CitySketch1.git
-cd CitySketch1
-
 cd backend_ai
 npm install
+```
 
+2. Install frontend dependencies:
+
+```bash
 cd ../frontend_ai
 npm install
 ```
 
-### 2. Configure environment
+3. Create root `.env` from `.env.example` and set values.
 
-Create a root `.env` file from `.env.example` and fill in valid values.
+4. Start backend:
 
-Required variables include:
+```bash
+cd ../backend_ai
+npm run dev
+```
 
-- `PORT`
+5. Start frontend:
+
+```bash
+cd ../frontend_ai
+npm run dev
+```
+
+Default local URLs:
+
+- Frontend: `http://localhost:5173`
+- Backend: `http://localhost:3001`
+
+## Environment Variables
+
+Environment is loaded from the root `.env` file.
+
+### Backend
+
+- `PORT` (default: `3001`)
 - `SUPABASE_URL`
 - `SUPABASE_ANON_KEY`
-- One or more AI provider keys:
-  - `OPENROUTER_API_KEY` (or `OPENROUTER_API_KEYS`)
-  - `GEMINI_API_KEY` (or `GEMINI_API_KEYS`)
-  - `GROQ_API_KEY` (or `GROQ_API_KEYS`)
-- `GOOGLE_CLIENT_ID`
-- `VITE_GOOGLE_CLIENT_ID`
-- `VITE_DEV_API_TARGET`
+- AI provider keys (at least one provider required):
+  - `OPENROUTER_API_KEY` or `OPENROUTER_API_KEYS`
+  - `GEMINI_API_KEY` or `GEMINI_API_KEYS`
+  - `GROQ_API_KEY` or `GROQ_API_KEYS`
+- `GOOGLE_CLIENT_ID` (required for `/api/auth/google` verification)
 
-### 3. Run backend
+### Frontend
 
-```bash
-cd backend_ai
-npm run dev
-```
+- `VITE_GOOGLE_CLIENT_ID` (used by Google OAuth client)
+- `VITE_API_BASE_URL` (optional; if empty, frontend uses relative `/api`)
+- `VITE_DEV_API_TARGET` (used by Vite dev proxy, default `http://localhost:3001`)
 
-Backend default URL: `http://localhost:3001`
+## API Overview
 
-### 4. Run frontend
+Base URL: `http://localhost:3001`
 
-```bash
-cd frontend_ai
-npm run dev
-```
+- `GET /` backend status summary
+- `GET /api` endpoint index
+- `GET /api/health` health check
+- `POST /api/generate` generate layout from prompt
+  - Body: `{ prompt: string, saveToHistory?: boolean }`
+- `POST /api/generate-from-map` generate from bounding box + OSM context
+  - Body: `{ bbox: [south, west, north, east], gridSize?: number, locationName?: string }`
+- `GET /api/history` list history snapshots
+- `POST /api/history` save current layout snapshot
+  - Body: `{ prompt?: string, layoutData: GridCell[][], ai_model?: string }`
+- `DELETE /api/history/:id` delete snapshot
+- `POST /api/auth/google` verify Google ID token
+  - Body: `{ token: string }`
 
-Frontend default URL: `http://localhost:5173`
+## Persistence Behavior
 
-The frontend proxies `/api/*` to `VITE_DEV_API_TARGET`.
+History writes/reads use Supabase table `city_layouts` when available.
+If Supabase fails or is unavailable, the backend automatically falls back to:
 
-### 5. Production build
+- `backend_ai/data/history.json`
 
-```bash
-cd frontend_ai
-npm run build
-npm run preview
-```
+## Scripts
 
-## Project Details
+### Backend (`backend_ai/package.json`)
 
-### Core Features
+- `npm run dev` start with file watch
+- `npm start` start normally
 
-- Prompt-driven city layout generation (`POST /api/generate`)
-- History persistence with Supabase + local fallback (`/api/history`)
-- Google auth verification endpoint (`POST /api/auth/google`)
-- Health endpoint (`GET /api/health`)
-- Multi-view workspace:
-  - 2D interactive grid
-  - 3D scene and snapshot export
-  - Blueprint export with selectable scale (2x, 3x, 4x, 5x Large Print)
-  - JSON/code view
+### Frontend (`frontend_ai/package.json`)
 
-### Tech Stack
+- `npm run dev` start Vite dev server
+- `npm run build` type-check + production build
+- `npm run preview` preview production build
+- `npm run lint` run ESLint
 
-- Frontend: React, TypeScript, Vite, Zustand, Three.js, React Three Fiber, Tailwind
-- Backend: Node.js, Express, Supabase, OpenAI-compatible providers, Groq
+## Testing Notes
 
-## Point of Contact
+The backend includes utility test scripts (for manual API/engine validation):
 
-Primary maintainer: **Rahul S,Pranav,Siddarth**
+- `backend_ai/test_engine.js`
+- `backend_ai/tmp_test.js`
 
-- GitHub: https://github.com/rahulsp19
-- GitHub: https://github.com/pranav-pachn
-- GitHub: https://github.com/lalithsiddartha69
-- Repository issues: https://github.com/rahulsp19/CitySketch1/issues
+Run only when backend is up and endpoint assumptions match your local config.
 
+## Additional Docs
 
-For support, open an issue with:
+- `frontend_ai/README.md` frontend-specific setup and architecture notes
+- `prd.md` product requirements
+- `CitySketch_Logic_Guide.html` generator logic reference
 
-- Reproduction steps
-- Expected vs actual behavior
-- Console logs/screenshots
-- Environment details (OS, Node version)
+## Maintainers
+
+- Rahul S: https://github.com/rahulsp19
+- Pranav: https://github.com/pranav-pachn
+- Siddarth: https://github.com/lalithsiddartha69
+
+For issues, include reproduction steps, expected/actual behavior, logs, and environment details.
