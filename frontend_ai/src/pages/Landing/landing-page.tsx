@@ -356,7 +356,7 @@ export function LandingPage() {
               <div className="metric-grid gs-reveal">
                 {metricCards.map((metric) => (
                   <Card key={metric.label} className="metric-card">
-                    <CardContent className="p-4">
+                    <CardContent className="!p-0">
                       <p className="metric-value font-display">{metric.value}</p>
                       <p className="metric-label">{metric.label}</p>
                     </CardContent>
@@ -375,14 +375,14 @@ export function LandingPage() {
               </Card>
 
               <Card className="floating-data data-a">
-                <CardContent className="p-4">
+                <CardContent className="!p-0">
                   <p className="floating-kicker">Prompt</p>
                   <p className="floating-copy">River city with high-density mixed-use spine and forested edges.</p>
                 </CardContent>
               </Card>
 
               <Card className="floating-data data-b">
-                <CardContent className="p-4">
+                <CardContent className="!p-0">
                   <p className="floating-kicker">Resolver</p>
                   <p className="floating-copy">Crossings placed. Industrial buffers enforced. Roads connected.</p>
                 </CardContent>
@@ -421,7 +421,7 @@ export function LandingPage() {
             </Card>
 
             <Card className="map-visual parallax-card">
-              <CardContent className="h-full p-4">
+              <CardContent className="h-full !p-0">
                 <div className="shell-wire">
                   <aside className="wire-sidebar">
                     <p className="wire-logo font-display">CitySketch</p>
@@ -485,6 +485,29 @@ export function LandingPage() {
                     Core intensity and edge transitions are constrained by zoning buffers and livability rules.
                   </TabsContent>
                 </Tabs>
+
+                {/* Decorative zone visualization */}
+                <div className="engine-zone-map">
+                  {[
+                    { color: "#3b82f6", label: "Residential" },
+                    { color: "#f59e0b", label: "Commercial" },
+                    { color: "#22c55e", label: "Park" },
+                    { color: "#52525b", label: "Road" },
+                    { color: "#06b6d4", label: "Water" },
+                    { color: "#a855f7", label: "Industrial" },
+                  ].map((zone) => (
+                    <div key={zone.label} className="engine-zone-pill">
+                      <span className="engine-zone-dot" style={{ background: zone.color }} />
+                      <span className="engine-zone-label">{zone.label}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="engine-signal-bar">
+                  <div className="engine-signal-track" />
+                  <div className="engine-signal-track" style={{ opacity: 0.6, width: "72%" }} />
+                  <div className="engine-signal-track" style={{ opacity: 0.4, width: "45%" }} />
+                </div>
               </CardContent>
             </Card>
 
@@ -572,8 +595,26 @@ export function LandingPage() {
         </main>
 
         <footer className="footer-shell gs-reveal">
-          <p>CitySketch</p>
-          <p>Spatial intelligence for urban futures</p>
+          <div className="footer-brand">
+            <span className="footer-brand-name">CITYSKETCH</span>
+            <span className="footer-brand-tagline">Spatial intelligence for urban futures</span>
+          </div>
+
+          <nav className="footer-nav">
+            <div className="footer-nav-group">
+              <span className="footer-nav-heading">Product</span>
+              <a href="#product" className="footer-nav-link">Overview</a>
+              <a href="#engine" className="footer-nav-link">Engine</a>
+              <a href="#workflow" className="footer-nav-link">Workflow</a>
+            </div>
+            <div className="footer-nav-group">
+              <span className="footer-nav-heading">Access</span>
+              <a href="#get-started" className="footer-nav-link">Early access</a>
+              <a href="/login" className="footer-nav-link">Sign in</a>
+            </div>
+          </nav>
+
+          <span className="footer-copy">© 2025 CitySketch. All rights reserved.</span>
         </footer>
       </div>
     </TooltipProvider>
