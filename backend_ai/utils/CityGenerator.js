@@ -376,14 +376,18 @@ export class CityGenerator {
         }
       }
       
-      // High traffic: grid roads every 4 cells (Guide Section 5)
+      // High traffic: grid roads every 4 cells — rows AND columns (Bug 1 fix)
       if (trafficLevel === 'high') {
         for (let i = 0; i < this.height; i += 4) {
-          for (let j = 0; j < this.width; j++) {
-            if (this.grid[i][j] !== 'water') this.grid[i][j] = 'road';
-            if (this.grid[j < this.height ? j : 0][i < this.width ? i : 0] !== 'water' && i < this.width && j < this.height) {
-              this.grid[j][i] = 'road';
-            }
+          // Draw full horizontal row
+          for (let x = 0; x < this.width; x++) {
+            if (this.grid[i][x] !== 'water') this.grid[i][x] = 'road';
+          }
+        }
+        for (let i = 0; i < this.width; i += 4) {
+          // Draw full vertical column
+          for (let y = 0; y < this.height; y++) {
+            if (this.grid[y][i] !== 'water') this.grid[y][i] = 'road';
           }
         }
       }
@@ -393,7 +397,7 @@ export class CityGenerator {
          const hSpine2 = this.height - 2;
          const vSpine2 = Math.floor(this.width / 4);
          const vSpine3 = Math.floor((this.width / 4) * 3);
-         
+
          for (let x = 0; x < this.width; x++) if (this.grid[hSpine2][x] !== 'water') this.grid[hSpine2][x] = 'road';
          for (let y = 0; y < this.height; y++) {
              if (this.grid[y][vSpine2] !== 'water') this.grid[y][vSpine2] = 'road';
@@ -401,7 +405,17 @@ export class CityGenerator {
          }
       }
 
-      // Low traffic: only center cross already done (Guide Section 5 — "only perimeter + center cross")
+      // Low traffic: center cross + perimeter ring so edge zones stay connected (Bug 2 fix)
+      if (trafficLevel === 'low') {
+        for (let x = 0; x < this.width; x++) {
+          if (this.grid[0][x] !== 'water') this.grid[0][x] = 'road';
+          if (this.grid[this.height - 1][x] !== 'water') this.grid[this.height - 1][x] = 'road';
+        }
+        for (let y = 0; y < this.height; y++) {
+          if (this.grid[y][0] !== 'water') this.grid[y][0] = 'road';
+          if (this.grid[y][this.width - 1] !== 'water') this.grid[y][this.width - 1] = 'road';
+        }
+      }
     } else {
       // Organic: create meandering corridors instead of rigid loops.
       const cx = Math.floor(this.width / 2);
@@ -462,8 +476,14 @@ export class CityGenerator {
         for(let x = cx-radius; x <= cx+radius && coreCount > 0; x++) {
           if (y >= 0 && y < this.height && x >= 0 && x < this.width) {
             if (this.grid[y][x] === 'empty') {
-               // Only zone if adjacent to a road to guarantee walkability
-               if (this.isAdjacentTo(x, y, 'road') || this.isAdjacentTo(x, y, this.config.primaryZone)) {
+               // Bug 3 fix: allow center-proximity as fallback so commercial cores
+               // aren't starved on first pass when no primaryZone neighbours exist yet
+               const centerDist = Math.abs(x - cx) + Math.abs(y - cy);
+               const eligible =
+                 this.isAdjacentTo(x, y, 'road') ||
+                 this.isAdjacentTo(x, y, this.config.primaryZone) ||
+                 centerDist <= 2;
+               if (eligible) {
                  this.grid[y][x] = this.config.primaryZone;
                  coreCount--;
                }
@@ -667,19 +687,29 @@ export class CityGenerator {
       }
     } else if (this.config.parkStyle === 'scattered') {
       // Guide Section 4 — Park: adjacent to residential clusters
-      // First pass: try to place parks near residential
+      // Bug 5 fix: raise first-pass chance from 0.35 → 0.65 so small grids
+      // reliably reach their target park count (prevents chronic low green coverage)
       for(let y=0; y<this.height && parkCount > 0; y++) {
         for(let x=0; x<this.width && parkCount > 0; x++) {
-          if (this.grid[y][x] === 'empty' && this.isAdjacentTo(x, y, 'residential') && Math.random() < 0.35) {
+          if (this.grid[y][x] === 'empty' && this.isAdjacentTo(x, y, 'residential') && Math.random() < 0.65) {
             this.grid[y][x] = 'park';
             parkCount--;
           }
         }
       }
-      // Second pass: scatter remaining parks
+      // Second pass: scatter remaining parks near roads
       for(let y=0; y<this.height && parkCount > 0; y++) {
         for(let x=0; x<this.width && parkCount > 0; x++) {
-          if (this.grid[y][x] === 'empty' && Math.random() < 0.2) {
+          if (this.grid[y][x] === 'empty' && this.isAdjacentTo(x, y, 'road') && Math.random() < 0.4) {
+            this.grid[y][x] = 'park';
+            parkCount--;
+          }
+        }
+      }
+      // Third pass: fill quota from any remaining empty cell
+      for(let y=0; y<this.height && parkCount > 0; y++) {
+        for(let x=0; x<this.width && parkCount > 0; x++) {
+          if (this.grid[y][x] === 'empty' && Math.random() < 0.25) {
             this.grid[y][x] = 'park';
             parkCount--;
           }
@@ -712,29 +742,48 @@ export class CityGenerator {
   }
 
   fillResidential() {
-    // Fill all remaining empty space with residential (suburbs)
+    // Bug 4 fix: when primaryZone is commercial, fill empty cells with commercial
+    // so commercial districts actually dominate rather than getting buried in residential.
+    // Residential is always used as a secondary fill for remaining empty space.
+    const primaryFillType = this.config.primaryZone === 'commercial' ? 'commercial' : 'residential';
+
     // High density = fill 100%, low density = fill 40%
     let fillRate = this.config.density === 'high' ? 1.0 : this.config.density === 'medium' ? 0.8 : 0.4;
     if (this.config.forestDensity === 'high') fillRate *= 0.85;
+    // Commercial fill gets a reduced rate so some variety remains
+    const primaryFillRate = primaryFillType === 'commercial' ? fillRate * 0.55 : fillRate;
+
     let residentialCount = 0;
-    
+
+    // First pass: fill with primaryFillType near roads
     for (let y = 0; y < this.height; y++) {
       for (let x = 0; x < this.width; x++) {
-        if (this.grid[y][x] === 'residential') {
-          residentialCount++;
+        if (this.grid[y][x] !== 'empty') {
+          if (this.grid[y][x] === 'residential') residentialCount++;
           continue;
         }
+        const nearRoad = this.isAdjacentTo(x, y, 'road');
+        const nearIndustrial = this.isAdjacentTo(x, y, 'industrial');
+        let chance = nearRoad ? primaryFillRate : primaryFillRate * 0.3;
+        if (nearIndustrial) chance *= 0.08;
+        if (Math.random() < chance) {
+          this.grid[y][x] = primaryFillType;
+          if (primaryFillType === 'residential') residentialCount++;
+        }
+      }
+    }
 
-        if (this.grid[y][x] === 'empty') {
-          const nearRoad = this.isAdjacentTo(x, y, 'road');
-          const nearResidential = this.isAdjacentTo(x, y, 'residential');
-          const nearIndustrial = this.isAdjacentTo(x, y, 'industrial');
-          let chance = nearRoad ? fillRate : nearResidential ? fillRate * 0.7 : fillRate * 0.12;
-          if (nearIndustrial) chance *= 0.08;
-          if (Math.random() < chance) {
-             this.grid[y][x] = 'residential';
-             residentialCount++;
-          }
+    // Second pass: fill remaining empty with residential regardless of primaryZone
+    for (let y = 0; y < this.height; y++) {
+      for (let x = 0; x < this.width; x++) {
+        if (this.grid[y][x] !== 'empty') continue;
+        const nearResidential = this.isAdjacentTo(x, y, 'residential');
+        const nearIndustrial = this.isAdjacentTo(x, y, 'industrial');
+        let chance = nearResidential ? fillRate * 0.6 : fillRate * 0.12;
+        if (nearIndustrial) chance *= 0.08;
+        if (Math.random() < chance) {
+          this.grid[y][x] = 'residential';
+          residentialCount++;
         }
       }
     }

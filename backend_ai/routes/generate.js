@@ -454,21 +454,34 @@ Example: {"waterStyle":"coastal_left", "primaryZone":"commercial", "density":"hi
       ensureHospitalInGrid(grid)
     }
 
+    // ─── Explainable AI Pipeline ───────────────────────────────────────────
+    // Runs: analyze → score → explain → suggest → summarize
     const evaluation = generateInsights(grid)
 
-    // Build backward-compatible response with guide metadata
+    // Build response with full explainable AI payload
     const buildPayload = (id, saved) => ({
       id,
       prompt,
-      layoutData: grid, // keep for backward compatibility
+      layoutData: grid,
       layout: grid,
+
+      // ── Scores (backward-compatible flat fields) ──
       score: evaluation.scores.overall,
       breakdown: evaluation.scores,
+
+      // ── Explainable AI Layer ──
+      metrics: evaluation.metrics,
+      explanations: evaluation.explanations,
       suggestions: evaluation.suggestions,
+      summary: evaluation.summary,
+
+      // ── Legacy fields kept for backward compatibility ──
+      insights: evaluation.explanations.map(e => e.message),
+      evaluation,
+
       timestamp: Date.now(),
       ai_model: modelUsed,
       saved,
-      evaluation, // keep for backward compatibility
       normalizedIntent: {
         areaInAcres: normalizedIntent.areaInAcres || 5,
         gridSize: normalizedIntent.gridSize,

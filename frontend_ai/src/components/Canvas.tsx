@@ -6,7 +6,7 @@ import { BlueprintView } from './BlueprintView'
 import { CodeView } from './CodeView'
 import { CompareView } from './CompareView'
 import { Sparkles } from 'lucide-react'
-import { ScoreDashboard } from './ScoreDashboard'
+import { InsightsPanel } from './InsightsPanel'
 import type { GridCell } from '../types'
 
 interface CanvasProps {
@@ -79,8 +79,8 @@ export function Canvas({ onCellExplain }: CanvasProps) {
             {viewMode === 'BLUEPRINT' && <BlueprintView />}
             {viewMode === 'COMPARE' && <CompareView />}
             
-            {/* Real-time metrics overlay */}
-            {viewMode !== 'COMPARE' && <ScoreDashboard />}
+            {/* Explainable AI Insights Panel */}
+            {viewMode !== 'COMPARE' && <InsightsPanel />}
           </motion.div>
         </AnimatePresence>
       )}

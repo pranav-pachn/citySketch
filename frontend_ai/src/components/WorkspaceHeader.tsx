@@ -164,29 +164,61 @@ export function WorkspaceHeader() {
         doc.text(`- Healthcare Access: ${displayEval.breakdown.healthcare}`, 25, y + 18)
         y += 30
         
-        if (displayEval.insights && displayEval.insights.length > 0) {
+        // Explanations / Insights section
+        const explanations = displayEval.explanations || []
+        const legacyInsights = displayEval.insights || []
+        const insightItems = explanations.length > 0
+          ? explanations.map((e: any) => {
+              const prefix = e.severity === 'critical' ? '⚠ ' : e.severity === 'good' ? '✓ ' : '• '
+              return prefix + e.message
+            })
+          : legacyInsights
+
+        if (insightItems.length > 0) {
           doc.setFontSize(14)
-          doc.text('AI Insights:', 20, y)
+          doc.text('Planning Insights:', 20, y)
           y += 8
           doc.setFontSize(11)
-          displayEval.insights.forEach((insight: string) => {
-            const lines = doc.splitTextToSize(`• ${insight}`, 170)
+          insightItems.forEach((insight: string) => {
+            if (y > 270) { doc.addPage(); y = 20; }
+            const lines = doc.splitTextToSize(insight, 170)
             doc.text(lines, 25, y)
-            y += lines.length * 5
+            y += lines.length * 5 + 1
           })
           y += 5
         }
         
-        if (displayEval.suggestions && displayEval.suggestions.length > 0) {
-          if (y > 250) { doc.addPage(); y = 20; }
+        // Structured Suggestions section
+        const suggestions = displayEval.suggestions || []
+        if (suggestions.length > 0) {
+          if (y > 230) { doc.addPage(); y = 20; }
           doc.setFontSize(14)
-          doc.text('Suggestions for Improvement:', 20, y)
+          doc.text('Improvement Actions:', 20, y)
           y += 8
           doc.setFontSize(11)
-          displayEval.suggestions.forEach((sugg: string) => {
-            const lines = doc.splitTextToSize(`• ${sugg}`, 170)
-            doc.text(lines, 25, y)
-            y += lines.length * 5
+          suggestions.forEach((sugg: any) => {
+            if (y > 260) { doc.addPage(); y = 20; }
+            // Handle both structured { action, reason, impact } and legacy string format
+            if (typeof sugg === 'string') {
+              const lines = doc.splitTextToSize(`• ${sugg}`, 170)
+              doc.text(lines, 25, y)
+              y += lines.length * 5
+            } else {
+              const actionLines = doc.splitTextToSize(`→ ${sugg.action}`, 165)
+              doc.setTextColor(0)
+              doc.text(actionLines, 25, y)
+              y += actionLines.length * 5
+              
+              doc.setTextColor(100)
+              const reasonLines = doc.splitTextToSize(`  Reason: ${sugg.reason}`, 160)
+              doc.text(reasonLines, 28, y)
+              y += reasonLines.length * 5
+              
+              doc.setTextColor(34, 139, 34)
+              doc.text(`  Impact: ${sugg.impact}`, 28, y)
+              doc.setTextColor(0)
+              y += 8
+            }
           })
           y += 10
         }

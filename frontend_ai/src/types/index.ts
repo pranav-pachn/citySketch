@@ -10,6 +10,28 @@ export interface GridCell {
   explanation?: string
 }
 
+export interface Explanation {
+  message: string
+  severity: 'critical' | 'warning' | 'good'
+}
+
+export interface Suggestion {
+  action: string
+  reason: string
+  impact: string
+}
+
+export interface LayoutMetrics {
+  hospitalDistance: number
+  parkDistance: number
+  commercialDistance: number
+  schoolDistance: number
+  greenCoverage: number
+  roadCoverage: number
+  roadConnectivity: number
+  counts: Record<string, number>
+}
+
 export interface EvaluationData {
   score: number
   breakdown: {
@@ -18,10 +40,14 @@ export interface EvaluationData {
     healthcare: number
     traffic: number
     sustainability: number
-    metrics?: Record<string, any>
   }
-  suggestions: string[]
-  insights: string[]
+  // New structured fields from Explainable AI pipeline
+  metrics?: LayoutMetrics
+  explanations?: Explanation[]
+  suggestions?: Suggestion[]
+  summary?: string
+  // Legacy flat string arrays (backward compat)
+  insights?: string[]
   impactAnalysis?: string[]
 }
 

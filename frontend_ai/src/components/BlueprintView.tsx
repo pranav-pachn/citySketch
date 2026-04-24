@@ -637,27 +637,29 @@ function drawCityOverview(
     { label: 'RD — Road', color: BLUEPRINT_ZONE_COLORS.road },
   ]
   const itemsPerRow = 4
-  const legendItemW = totalW / itemsPerRow
-  const legendPaddingX = 8
-  const legendPaddingY = 10
-  const legendHorizontalPadding = 20
+  const legendItemW = 110
+  const legendTotalW = itemsPerRow * legendItemW
+  const legendStartX = (W - legendTotalW) / 2 + 15
+
   legendItems.forEach((item, i) => {
     const row = Math.floor(i / itemsPerRow)
     const col = i % itemsPerRow
-    const lx = startX + col * legendItemW + legendPaddingX + col * legendHorizontalPadding
-    const ly = legendY + row * 28 + legendPaddingY
-    ctx.font = '7px "Courier New", monospace'
-    ctx.fillStyle = '#6b5d4d'
-    ctx.textAlign = 'left'
-    ctx.textBaseline = 'middle'
-    ctx.fillText(item.label, lx + 16, ly + 8)
-    rc.rectangle(lx, ly, 10, 10, {
+    const lx = legendStartX + col * legendItemW
+    const ly = legendY + row * 24
+    
+    rc.rectangle(lx, ly, 12, 12, {
       stroke: '#6b5d4d',
       strokeWidth: 0.8,
       roughness: 0.8,
       fill: item.color,
       fillStyle: 'solid',
     })
+
+    ctx.font = '8px "Courier New", monospace'
+    ctx.fillStyle = '#6b5d4d'
+    ctx.textAlign = 'left'
+    ctx.textBaseline = 'middle'
+    ctx.fillText(item.label, lx + 20, ly + 6)
   })
 
   drawNorthArrow(ctx, rc, W - 40, 70)

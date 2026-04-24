@@ -219,7 +219,15 @@ export const useStore = create<AppState>((set, get) => ({
       const data = await res.json()
 
       setLayoutData(data.layoutData)
-      const evalData = data.score !== undefined ? { score: data.score, breakdown: data.breakdown, suggestions: data.suggestions, insights: data.insights } : null;
+      const evalData = data.score !== undefined ? {
+        score: data.score,
+        breakdown: data.breakdown,
+        metrics: data.metrics,
+        explanations: data.explanations,
+        suggestions: data.suggestions,
+        summary: data.summary,
+        insights: data.insights,
+      } : null;
       set({ evaluation: evalData })
 
       if (saveToHistory && data?.id) {
@@ -263,7 +271,15 @@ export const useStore = create<AppState>((set, get) => ({
       const data = await res.json()
 
       setLayoutData(data.layoutData)
-      const evalData = data.score !== undefined ? { score: data.score, breakdown: data.breakdown, suggestions: data.suggestions, insights: data.insights } : null;
+      const evalData = data.score !== undefined ? {
+        score: data.score,
+        breakdown: data.breakdown,
+        metrics: data.metrics,
+        explanations: data.explanations,
+        suggestions: data.suggestions,
+        summary: data.summary,
+        insights: data.insights,
+      } : null;
       set({ evaluation: evalData })
 
       if (data?.id) {
