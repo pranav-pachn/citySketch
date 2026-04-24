@@ -35,9 +35,15 @@ export function LoginPage() {
     }
   };
 
-  // For demo: form submit navigates to /app
+  // For demo: form submit sets a mock user and navigates to /app
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setUser({
+      uid: "local-demo-user",
+      email: "demo@citysketch.ai",
+      name: "Demo Planner",
+      picture: "https://api.dicebear.com/7.x/avataaars/svg?seed=demo",
+    });
     navigate("/app");
   };
 

@@ -130,11 +130,11 @@ export function InsightsPanel() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.95 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="w-[340px] max-h-[calc(100vh-180px)] bg-zinc-950/95 backdrop-blur-xl border border-zinc-800/60 rounded-2xl shadow-2xl flex flex-col origin-top-right pointer-events-auto overflow-hidden"
+            className="w-[340px] max-h-[calc(100vh-180px)] bg-zinc-950/95 backdrop-blur-xl border border-zinc-800/60 rounded-2xl shadow-2xl flex flex-col origin-top-right pointer-events-auto overflow-hidden p-4"
           >
             {/* Header with Score */}
-            <div className={`px-5 pt-5 pb-4 bg-gradient-to-br ${getScoreGradient(score)} border-b border-zinc-800/50`}>
-              <div className="flex items-center justify-between mb-3">
+            <div className={`insights-panel-header bg-gradient-to-br ${getScoreGradient(score)}`}>
+              <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <Sparkles size={16} className="text-blue-400" />
                   <h3 className="text-zinc-200 text-xs font-bold tracking-wider uppercase">City Intelligence</h3>
@@ -155,7 +155,7 @@ export function InsightsPanel() {
 
               {/* Summary Line */}
               {summary && (
-                <p className="text-zinc-400 text-xs leading-relaxed mt-2">{summary}</p>
+                <p className="text-zinc-400 text-xs leading-relaxed mt-3">{summary}</p>
               )}
             </div>
 
