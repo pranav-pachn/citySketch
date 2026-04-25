@@ -2,10 +2,10 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, ArrowRight, Eye, EyeOff } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from '@/shared/ui/button';
 import { GoogleLogin } from "@react-oauth/google";
-import { useStore } from "@/store/useStore";
-import { apiUrl } from "@/lib/api";
+import { useStore } from '@/entities/store/useStore';
+import { apiUrl } from '@/shared/api/api';
 
 type Tab = "signin" | "signup";
 
