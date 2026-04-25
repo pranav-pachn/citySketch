@@ -1,14 +1,11 @@
-import { Router } from 'express'
 import { OpenAI } from 'openai'
 import Groq from 'groq-sdk'
-import { supabase } from '../supabaseClient.js'
-import { CityGenerator } from '../utils/CityGenerator.js'
-import { addLocalHistoryItem } from '../utils/historyStore.js'
-import { generateInsights } from '../utils/explainer.js'
-import dotenv from 'dotenv'
-
-// Force reload of env vars so server doesn't need to be restarted immediately
-dotenv.config({ override: true })
+import { supabase } from '../config/supabase.js'
+import { env } from '../config/env.js'
+import { CityGenerator } from '../services/generator/CityGenerator.js'
+import { addLocalHistoryItem } from '../services/historyStore.js'
+import { generateInsights } from '../services/explainer.js'
+import { asyncHandler } from '../middlewares/errorHandler.js'
 
 const keyRotationState = {
   openrouter: 0,
@@ -275,15 +272,7 @@ function ensureHospitalInGrid(grid) {
   }
 }
 
-export const generateRoute = Router()
-
-generateRoute.get('/generate', (_req, res) => {
-  res.status(200).json({
-    message: 'Use POST /api/generate with JSON body: { "prompt": "..." }',
-  })
-})
-
-generateRoute.post('/generate', async (req, res) => {
+export const generateCity = asyncHandler(async (req, res) => {
   const { prompt, saveToHistory = true } = req.body || {}
 
   if (!prompt) {

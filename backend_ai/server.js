@@ -1,18 +1,15 @@
 import express from 'express'
 import cors from 'cors'
-import dotenv from 'dotenv'
-import { resolve } from 'path'
-import { fileURLToPath } from 'url'
-import { generateRoute } from './routes/generate.js'
-import { historyRoute } from './routes/history.js'
-import { mapRoute } from './routes/mapContext.js'
-import { simulateRoute } from './routes/simulate.js'
-
-const __dirname = fileURLToPath(new URL('.', import.meta.url))
-dotenv.config({ path: resolve(__dirname, '../.env') })
+import { env } from './src/config/env.js'
+import { generateRouter } from './src/routes/generateRoutes.js'
+import { historyRouter } from './src/routes/historyRoutes.js'
+import { mapRouter } from './src/routes/mapContextRoutes.js'
+import { simulateRouter } from './src/routes/simulateRoutes.js'
+import { errorHandler } from './src/middlewares/errorHandler.js'
+import { OAuth2Client } from 'google-auth-library'
 
 const app = express()
-const PORT = process.env.PORT || 3001
+const PORT = env.PORT
 
 // Middleware
 app.use(cors({ origin: ['http://localhost:5173', 'http://localhost:4173', 'http://127.0.0.1:5173'] }))
@@ -44,33 +41,35 @@ app.get('/api', (_req, res) => {
   })
 })
 
-import { OAuth2Client } from 'google-auth-library'
-
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
+const client = new OAuth2Client(env.GOOGLE_CLIENT_ID)
 
 // Routes
-app.use('/api', generateRoute)
-app.use('/api', historyRoute)
-app.use('/api', mapRoute)
-app.use('/api', simulateRoute)
+app.use('/api', generateRouter)
+app.use('/api', historyRouter)
+app.use('/api', mapRouter)
+app.use('/api', simulateRouter)
 
 // Auth route
-app.post('/api/auth/google', async (req, res) => {
+app.post('/api/auth/google', async (req, res, next) => {
   const { token } = req.body
 
   if (!token) {
-    return res.status(400).json({ error: 'Token is required' })
+    const error = new Error('Token is required')
+    error.statusCode = 400
+    return next(error)
   }
 
   try {
     const ticket = await client.verifyIdToken({
       idToken: token,
-      audience: process.env.GOOGLE_CLIENT_ID,
+      audience: env.GOOGLE_CLIENT_ID,
     })
 
     const payload = ticket.getPayload()
     if (!payload || !payload.email_verified) {
-      return res.status(401).json({ error: 'Invalid Google account' })
+      const error = new Error('Invalid Google account')
+      error.statusCode = 401
+      return next(error)
     }
 
     // Success - user is verified
@@ -83,7 +82,9 @@ app.post('/api/auth/google', async (req, res) => {
     })
   } catch (error) {
     console.error('Google Auth verification error:', error.message)
-    res.status(401).json({ error: 'Authentication failed' })
+    const authError = new Error('Authentication failed')
+    authError.statusCode = 401
+    next(authError)
   }
 })
 
@@ -92,10 +93,12 @@ app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: Date.now() })
 })
 
+// Global Error Handler
+app.use(errorHandler)
+
 app.listen(PORT, () => {
   console.log(`⚡ CitySketch backend running on http://localhost:${PORT}`)
-  const googleId = process.env.GOOGLE_CLIENT_ID
-  if (!googleId || googleId === '<YOUR_GOOGLE_CLIENT_ID>') {
+  if (!env.GOOGLE_CLIENT_ID || env.GOOGLE_CLIENT_ID === '<YOUR_GOOGLE_CLIENT_ID>') {
     console.warn('⚠️  WARNING: GOOGLE_CLIENT_ID is not set in root .env — Google Auth will fail')
   } else {
     console.log('✅ Google Auth credentials loaded')

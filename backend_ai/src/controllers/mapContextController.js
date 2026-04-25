@@ -1,22 +1,10 @@
-import { Router } from 'express'
-import { CityGenerator } from '../utils/CityGenerator.js'
-import { addLocalHistoryItem } from '../utils/historyStore.js'
-import { supabase } from '../supabaseClient.js'
-import { generateInsights } from '../utils/explainer.js'
+import { CityGenerator } from '../services/generator/CityGenerator.js'
+import { addLocalHistoryItem } from '../services/historyStore.js'
+import { supabase } from '../config/supabase.js'
+import { generateInsights } from '../services/explainer.js'
+import { asyncHandler } from '../middlewares/errorHandler.js'
 
-export const mapRoute = Router()
-
-/**
- * POST /api/generate-from-map
- *
- * Accepts a bounding box from the frontend map selector, fetches real-world
- * roads and water from the Overpass (OpenStreetMap) API, converts them into
- * a seed grid, then runs the CityGenerator on top to fill remaining zones.
- *
- * Body:
- *   { bbox: [south, west, north, east], gridSize?: number, prompt?: string }
- */
-mapRoute.post('/generate-from-map', async (req, res) => {
+export const generateFromMap = asyncHandler(async (req, res) => {
   const { bbox, gridSize = 20, prompt = 'Map-based generation', locationName = '' } = req.body || {}
 
   if (!bbox || bbox.length !== 4) {

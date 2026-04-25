@@ -1,10 +1,8 @@
-import { Router } from 'express'
-import { generateInsights } from '../utils/explainer.js'
-import { calculateScores } from '../utils/scoringEngine.js'
+import { generateInsights } from '../services/explainer.js'
+import { calculateScores } from '../services/scoringEngine.js'
+import { asyncHandler } from '../middlewares/errorHandler.js'
 
-export const simulateRoute = Router()
-
-simulateRoute.post('/simulate', async (req, res) => {
+export const simulateChanges = asyncHandler(async (req, res) => {
   const { grid, modifications } = req.body || {}
 
   if (!grid || !Array.isArray(grid)) {
