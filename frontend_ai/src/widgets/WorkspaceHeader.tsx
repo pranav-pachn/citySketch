@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { useStore } from '@/entities/store/useStore'
-import { Grid3X3, Box, Code, Maximize2, Copy, Download, Moon, Sun, Minimize2, PenTool, FileJson, ChevronDown, Save, FileText, SplitSquareHorizontal } from 'lucide-react'
+import { Grid3X3, Box, Code, Maximize2, Copy, Download, Moon, Sun, Minimize2, PenTool, FileJson, ChevronDown, Save, FileText, SplitSquareHorizontal, RefreshCw } from 'lucide-react'
 import type { ViewMode, EvaluationData } from '@/entities/types'
 import { calculateScores } from '@/shared/utils/scoring'
 
@@ -25,6 +25,7 @@ export function WorkspaceHeader() {
   const setCanvasMaximized = useStore((s) => s.setCanvasMaximized)
   const saveCurrentLayout = useStore((s) => s.saveCurrentLayout)
   const evaluation = useStore((s) => s.evaluation)
+  const regeneratePrompt = useStore((s) => s.regeneratePrompt)
 
   const [showExportMenu, setShowExportMenu] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -285,6 +286,9 @@ export function WorkspaceHeader() {
             </button>
             <button className="util-btn" onClick={saveCurrentLayout} title="Save to history">
               <Save size={15} strokeWidth={1.5} />
+            </button>
+            <button className="util-btn" onClick={() => regeneratePrompt?.()} title="Regenerate alternative">
+              <RefreshCw size={15} strokeWidth={1.5} />
             </button>
             <div className="relative" ref={menuRef}>
               <button 

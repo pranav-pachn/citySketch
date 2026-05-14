@@ -19,6 +19,7 @@ export interface LayoutSlice {
   submitMapContext: (bbox: [number, number, number, number], locationName: string, gridSize?: number) => Promise<void>
   saveCurrentLayout: () => Promise<void>
   newSession: () => void
+  regeneratePrompt: () => Promise<void>
 }
 
 export const createLayoutSlice: StateCreator<AppState, [], [], LayoutSlice> = (set, get) => ({
@@ -117,6 +118,47 @@ export const createLayoutSlice: StateCreator<AppState, [], [], LayoutSlice> = (s
       await fetchHistory()
     } catch (error: any) {
       addToast(error.message || 'Failed to save layout', 'info')
+    }
+  },
+
+  regeneratePrompt: async () => {
+    const { layoutData, prompt, evaluation, addHistory, setCompareHistoryId, setViewMode, setIsLoading, addToast, generationId } = get()
+    if (!layoutData) {
+      addToast('Nothing to regenerate from', 'info')
+      return
+    }
+
+    // Create a temp history entry to compare against
+    const tempId = `temp-${Date.now()}`
+    const tempItem = {
+      id: tempId,
+      prompt: prompt || 'Before regenerate',
+      layoutData,
+      evaluation: evaluation || null,
+      timestamp: Date.now(),
+      saved: false,
+    }
+    addHistory(tempItem)
+    setCompareHistoryId(tempId)
+    setViewMode('COMPARE')
+
+    // Call generation without saving to history to get an alternative layout
+    setIsLoading(true)
+    try {
+      const data = await apiClient.generateCity(prompt || '', false)
+      set({
+        layoutData: data.layoutData || data.layout,
+        evaluation: data.evaluation,
+        selectedCell: null,
+        detailOpen: false,
+        generationId: generationId + 1,
+        hasUnsavedLayoutChanges: false,
+      })
+      addToast('Regenerated alternative layout')
+    } catch (err: any) {
+      addToast(err?.message || 'Regenerate failed', 'info')
+    } finally {
+      setIsLoading(false)
     }
   },
 
