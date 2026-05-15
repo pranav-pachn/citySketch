@@ -1,8 +1,10 @@
 @import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@400;500;600;700&display=swap");
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /* ═══════════ THEME ═══════════ */
-@theme {
+:root {
   --color-bg: #0b0f14;
   --color-sidebar: #0f172a;
   --color-panel: #111827;
@@ -572,6 +574,33 @@ body {
   letter-spacing: 0.5px;
 }
 
+.legend-emoji {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.chat-suggestions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.suggestion-chip {
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.suggestion-chip:hover:not(:disabled) {
+  background: rgba(255,255,255,0.05);
+  color: var(--color-text-primary);
+}
+
 /* ═══════════ CELL DETAIL PANEL ═══════════ */
 .cell-detail {
   border-left: 1px solid var(--color-border);
@@ -990,7 +1019,7 @@ body {
   --font-display: "Unbounded", "Segoe UI", system-ui, sans-serif;
 }
 
-@theme inline {
+:root {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-body);
@@ -2164,10 +2193,10 @@ body.landing-route {
   text-underline-offset: 2px;
 }
 
- / *   I n s i g h t s   P a n e l   * / 
- . i n s i g h t s - p a n e l - h e a d e r   { 
-     p a d d i n g :   1 . 5 r e m   1 . 5 r e m   1 . 2 5 r e m   1 . 5 r e m ; 
-     b o r d e r - b o t t o m :   1 p x   s o l i d   r g b a ( 3 9 ,   3 9 ,   4 2 ,   0 . 5 ) ; 
- } 
-  
- 
+/* Insights Panel */
+.insights-panel-header {
+  padding: 1.5rem 1.5rem 1.25rem 1.5rem;
+  border-bottom: 1px solid rgba(39, 39, 42, 0.5);
+}
+
+

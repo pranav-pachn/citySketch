@@ -43,7 +43,8 @@ export function InsightsPanel() {
 
   if (!displayEval) return null
 
-  const { score, breakdown } = displayEval
+  const score = (displayEval as any).score ?? 0
+  const breakdown = (displayEval as any).breakdown ?? { overall: 0, walkability: 0, traffic: 0, sustainability: 0, healthcare: 0 }
   const explanations: Explanation[] = displayEval.explanations || []
   const suggestions: Suggestion[] = displayEval.suggestions || []
   const summary: string = displayEval.summary || ''

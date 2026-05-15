@@ -26,7 +26,7 @@ function LoadingSkeleton() {
           <div key={i} className="skeleton-cell" style={{ animationDelay: `${i * 30}ms` }} />
         ))}
       </div>
-      <span className="loading-text">Generating layout…</span>
+      <span className="loading-text">Generating optimized layout…</span>
     </motion.div>
   )
 }

@@ -405,8 +405,9 @@ export class CityGenerator {
          }
       }
 
-      // Low traffic: center cross + perimeter ring so edge zones stay connected (Bug 2 fix)
+      // Low traffic: center cross + perimeter ring + minimal internals for walkable neighborhoods
       if (trafficLevel === 'low') {
+        // Perimeter ring for connectivity
         for (let x = 0; x < this.width; x++) {
           if (this.grid[0][x] !== 'water') this.grid[0][x] = 'road';
           if (this.grid[this.height - 1][x] !== 'water') this.grid[this.height - 1][x] = 'road';
@@ -415,6 +416,7 @@ export class CityGenerator {
           if (this.grid[y][0] !== 'water') this.grid[y][0] = 'road';
           if (this.grid[y][this.width - 1] !== 'water') this.grid[y][this.width - 1] = 'road';
         }
+        // Only center spines, no quarter-lines for low traffic (walkable neighborhoods)
       }
     } else {
       // Organic: create meandering corridors instead of rigid loops.
@@ -460,6 +462,11 @@ export class CityGenerator {
     // Scale core count with grid size (base was designed for 12×8 = 96 cells)
     const areaRatio = (this.width * this.height) / 96;
     coreCount = Math.max(coreCount, Math.round(coreCount * Math.sqrt(areaRatio)));
+    
+    // If high_density, boost core count for more commercial/primary zones
+    if (this.config.density === 'high') {
+      coreCount = Math.round(coreCount * 1.4);
+    }
 
     if (this.config.primaryZone === 'industrial') {
       this.addIndustrialCore(coreCount);
@@ -495,6 +502,9 @@ export class CityGenerator {
   }
 
   addIndustrialCore(coreCount) {
+    // If eco mode is enabled, skip industrial zones entirely (eco cities avoid heavy industry)
+    if (this.config.eco) return;
+
     const cx = Math.floor(this.width / 2);
     const cy = Math.floor(this.height / 2);
     const candidates = [];
@@ -667,9 +677,15 @@ export class CityGenerator {
       : this.config.parkStyle === 'scattered' ? Math.round(8 * scaleMultiplier) 
       : 0;
 
-    // Guide Section 10 — If eco=true, boost park count
-    if (this.config.eco && parkCount < Math.round(5 * scaleMultiplier)) {
-      parkCount = Math.round(5 * scaleMultiplier);
+    // Guide Section 10 — If eco=true, strongly boost park count
+    if (this.config.eco) {
+      // Eco mode targets 12% of the map as parks for healthy, sustainable cities
+      const basePct = 0.12;
+      const densityFactor = this.config.density === 'high' ? 1.1 : this.config.density === 'low' ? 0.9 : 1.0;
+      const minEcoParks = Math.round(this.width * this.height * basePct * densityFactor);
+      // Also keep a reasonable absolute floor relative to small grids
+      const floorByScale = Math.round(10 * scaleMultiplier);
+      parkCount = Math.max(parkCount, minEcoParks, floorByScale);
     }
     
     if (this.config.parkStyle === 'central') {
@@ -689,9 +705,14 @@ export class CityGenerator {
       // Guide Section 4 — Park: adjacent to residential clusters
       // Bug 5 fix: raise first-pass chance from 0.35 → 0.65 so small grids
       // reliably reach their target park count (prevents chronic low green coverage)
+      // If eco mode is enabled, increase placement probabilities
+      const firstPassProb = this.config.eco ? 0.95 : 0.65;
+      const secondPassProb = this.config.eco ? 0.8 : 0.4;
+      const thirdPassProb = this.config.eco ? 0.65 : 0.25;
+
       for(let y=0; y<this.height && parkCount > 0; y++) {
         for(let x=0; x<this.width && parkCount > 0; x++) {
-          if (this.grid[y][x] === 'empty' && this.isAdjacentTo(x, y, 'residential') && Math.random() < 0.65) {
+          if (this.grid[y][x] === 'empty' && this.isAdjacentTo(x, y, 'residential') && Math.random() < firstPassProb) {
             this.grid[y][x] = 'park';
             parkCount--;
           }
@@ -700,7 +721,7 @@ export class CityGenerator {
       // Second pass: scatter remaining parks near roads
       for(let y=0; y<this.height && parkCount > 0; y++) {
         for(let x=0; x<this.width && parkCount > 0; x++) {
-          if (this.grid[y][x] === 'empty' && this.isAdjacentTo(x, y, 'road') && Math.random() < 0.4) {
+          if (this.grid[y][x] === 'empty' && this.isAdjacentTo(x, y, 'road') && Math.random() < secondPassProb) {
             this.grid[y][x] = 'park';
             parkCount--;
           }
@@ -709,9 +730,37 @@ export class CityGenerator {
       // Third pass: fill quota from any remaining empty cell
       for(let y=0; y<this.height && parkCount > 0; y++) {
         for(let x=0; x<this.width && parkCount > 0; x++) {
-          if (this.grid[y][x] === 'empty' && Math.random() < 0.25) {
+          if (this.grid[y][x] === 'empty' && Math.random() < thirdPassProb) {
             this.grid[y][x] = 'park';
             parkCount--;
+          }
+        }
+      }
+
+      // Fourth pass (eco only): aggressively convert some low-impact empty cells
+      if (this.config.eco && parkCount > 0) {
+        for(let y=0; y<this.height && parkCount > 0; y++) {
+          for(let x=0; x<this.width && parkCount > 0; x++) {
+            if (this.grid[y][x] === 'empty' && (this.isAdjacentTo(x, y, 'residential') || this.isAdjacentTo(x,y,'road')) && Math.random() < 0.75) {
+              this.grid[y][x] = 'park';
+              parkCount--;
+            }
+          }
+        }
+      }
+
+      // Fifth pass (eco only): convert low-priority roads at edges or dead-ends to parks
+      if (this.config.eco && parkCount > 0) {
+        for(let y=0; y<this.height && parkCount > 0; y++) {
+          for(let x=0; x<this.width && parkCount > 0; x++) {
+            if (this.grid[y][x] === 'road') {
+              // Only convert roads that aren't critical connectors (single neighbor or edge)
+              const roadNeighbors = this.getCardinalNeighbors(x, y).filter(n => n.type === 'road').length;
+              if (roadNeighbors <= 1 && Math.random() < 0.4) {
+                this.grid[y][x] = 'park';
+                parkCount--;
+              }
+            }
           }
         }
       }
@@ -750,6 +799,8 @@ export class CityGenerator {
     // High density = fill 100%, low density = fill 40%
     let fillRate = this.config.density === 'high' ? 1.0 : this.config.density === 'medium' ? 0.8 : 0.4;
     if (this.config.forestDensity === 'high') fillRate *= 0.85;
+    // Eco mode reduces fill rate to preserve more empty green space for later conversion to parks
+    if (this.config.eco) fillRate *= 0.75;
     // Commercial fill gets a reduced rate so some variety remains
     const primaryFillRate = primaryFillType === 'commercial' ? fillRate * 0.55 : fillRate;
 

@@ -273,7 +273,7 @@ function ensureHospitalInGrid(grid) {
 }
 
 export const generateCity = asyncHandler(async (req, res) => {
-  const { prompt, saveToHistory = true } = req.body || {}
+  const { prompt, saveToHistory = true, parsed } = req.body || {}
 
   if (!prompt) {
     return res.status(400).json({ error: 'Prompt is required' })
@@ -417,6 +417,25 @@ Example: {"waterStyle":"coastal_left", "primaryZone":"commercial", "density":"hi
 
     // Apply deterministic keyword overrides so prompt-critical intent is preserved.
     const overrides = inferPromptOverrides(prompt)
+
+    // Apply constraint-based overrides from parser if provided (makes input change output)
+    // Examples: eco -> boost parks; low_traffic -> reduce roads; high_density -> increase residential
+    try {
+      const constraints = parsed && parsed.constraints ? parsed.constraints : null
+      if (constraints) {
+        if (constraints.eco) {
+          overrides.eco = true
+        }
+        if (constraints.low_traffic) {
+          overrides.trafficLevel = 'low'
+        }
+        if (constraints.high_density) {
+          overrides.density = 'high'
+        }
+      }
+    } catch (err) {
+      console.warn('Failed to apply parsed constraints:', err.message || err)
+    }
 
     // Build normalized intent (Guide Sections 1-2)
     const normalizedIntent = normalizeIntent(config, overrides, prompt)

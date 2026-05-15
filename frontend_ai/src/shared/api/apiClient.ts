@@ -15,11 +15,14 @@ interface GenerateResponse {
 }
 
 export const apiClient = {
-  async generateCity(prompt: string, saveToHistory: boolean): Promise<GenerateResponse> {
+  async generateCity(prompt: string, saveToHistory: boolean, parsed?: any): Promise<GenerateResponse> {
+    const body: any = { prompt, saveToHistory }
+    if (parsed) body.parsed = parsed
+
     const res = await fetch(apiUrl('/api/generate'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt, saveToHistory }),
+      body: JSON.stringify(body),
     })
     if (!res.ok) {
       const err = await res.json().catch(() => ({}))

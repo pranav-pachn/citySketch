@@ -129,20 +129,20 @@ export function Grid2D({ onCellExplain }: Grid2DProps) {
       {/* Blueprint Legend Floating */}
       <div className="blueprint-legend">
         <div className="legend-item-bp">
-          <span className="zone-pick-swatch" style={{ backgroundColor: CELL_STYLES.park.color }} />
-          <span className="legend-label-bp">Green = Park</span>
+          <span className="legend-emoji">🟦</span>
+          <span className="legend-label-bp">Residential</span>
         </div>
         <div className="legend-item-bp">
-          <span className="zone-pick-swatch" style={{ backgroundColor: CELL_STYLES.residential.color }} />
-          <span className="legend-label-bp">Blue = Residential</span>
+          <span className="legend-emoji">🟩</span>
+          <span className="legend-label-bp">Park</span>
         </div>
         <div className="legend-item-bp">
-          <span className="zone-pick-swatch" style={{ backgroundColor: CELL_STYLES.hospital.color }} />
-          <span className="legend-label-bp">Red = Hospital</span>
+          <span className="legend-emoji">🟥</span>
+          <span className="legend-label-bp">Hospital</span>
         </div>
         <div className="legend-item-bp">
-          <span className="zone-pick-swatch" style={{ backgroundColor: CELL_STYLES.school.color }} />
-          <span className="legend-label-bp">Purple = School</span>
+          <span className="legend-emoji">⬜</span>
+          <span className="legend-label-bp">Road</span>
         </div>
       </div>
     </motion.div>

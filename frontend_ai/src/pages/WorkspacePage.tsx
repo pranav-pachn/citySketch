@@ -10,7 +10,7 @@ import { Minimize2, MapPin } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { getExplanation } from '@/shared/utils/explain.js'
 import type { GridCell } from '@/entities/types'
-import './index.css'
+import '@/app/index.css'
 
 // Lazy-load the map component to avoid loading leaflet until needed
 import type { MapSiteContext } from '@/features/SiteSelector'

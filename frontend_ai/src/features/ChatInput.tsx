@@ -30,6 +30,12 @@ export function ChatInput() {
     }
   }
 
+  const SUGGESTIONS = [
+    'eco-friendly city with low traffic',
+    'high-density downtown with public transit',
+    'coastal town with a large central park',
+  ]
+
   return (
     <div className="chat-input-wrapper">
       <div className="chat-input-container">
@@ -60,6 +66,19 @@ export function ChatInput() {
         >
           <ArrowUp size={18} strokeWidth={2} />
         </button>
+      </div>
+      <div className="chat-suggestions">
+        {SUGGESTIONS.map((s) => (
+          <button
+            key={s}
+            className="suggestion-chip"
+            onClick={() => setPrompt(s)}
+            disabled={isLoading}
+            title={`Use suggestion: ${s}`}
+          >
+            {s}
+          </button>
+        ))}
       </div>
       <p className="chat-hint">
         Press Enter to generate only · Use Save button to generate and save

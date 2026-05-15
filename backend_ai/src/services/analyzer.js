@@ -206,6 +206,28 @@ export function analyzeLayout(grid) {
   // Largest residential cluster
   const largestCluster = findLargestResidentialCluster(grid, residential);
 
+  /**
+   * Get top N features of a type, ordered by proximity to residential
+   * Returns array of { x, y, distToResidential } for location-aware explanations
+   */
+  function getTopFeatures(featureCells, maxCount = 3) {
+    if (featureCells.length === 0) return [];
+    
+    const withDist = featureCells.map(feat => {
+      let minDist = Infinity;
+      for (const res of residential) {
+        const d = manhattanDistance(res.x, res.y, feat.x, feat.y);
+        if (d < minDist) minDist = d;
+      }
+      return { ...feat, distToResidential: minDist };
+    });
+    
+    return withDist
+      .sort((a, b) => a.distToResidential - b.distToResidential)
+      .slice(0, maxCount)
+      .map(f => ({ x: f.x, y: f.y }));
+  }
+
   return {
     // Core distance metrics
     hospitalDistance: Number.isFinite(hospitalDistance) ? Number(hospitalDistance.toFixed(2)) : Infinity,
@@ -236,5 +258,13 @@ export function analyzeLayout(grid) {
 
     // Cluster analysis (used by suggester for placement recommendations)
     largestResidentialCluster: largestCluster,
+
+    // Feature placements for dynamic explanations
+    placements: {
+      parks: getTopFeatures(parks, 4),
+      hospitals: getTopFeatures(hospitals, 3),
+      schools: getTopFeatures(schools, 3),
+      commercial: getTopFeatures(commercial, 3),
+    },
   };
 }

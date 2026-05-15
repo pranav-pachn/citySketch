@@ -2,6 +2,7 @@ import type { StateCreator } from 'zustand'
 import type { GridCell, EvaluationData } from '@/entities/types'
 import type { AppState } from '../useStore'
 import { apiClient } from '@/shared/api/apiClient'
+import { parseText } from '@/shared/utils/cityDescriptionParser'
 
 export interface LayoutSlice {
   prompt: string
@@ -55,8 +56,13 @@ export const createLayoutSlice: StateCreator<AppState, [], [], LayoutSlice> = (s
     if (!prompt.trim()) return
 
     setIsLoading(true)
+    // Small UI-friendly delay so loading state is visible and feels intentional
+    await new Promise((r) => setTimeout(r, 500))
+    // Small UI-friendly delay so loading state is visible and feels intentional
+    await new Promise((r) => setTimeout(r, 500))
     try {
-      const data = await apiClient.generateCity(prompt, saveToHistory)
+      const parsed = parseText(prompt)
+      const data = await apiClient.generateCity(prompt, saveToHistory, parsed)
       set({
         layoutData: data.layoutData || data.layout,
         evaluation: data.evaluation,
@@ -80,6 +86,8 @@ export const createLayoutSlice: StateCreator<AppState, [], [], LayoutSlice> = (s
   submitMapContext: async (bbox, locationName, gridSize = 20) => {
     const { setIsLoading, addToast, addHistory, setActiveHistoryId, generationId } = get()
     setIsLoading(true)
+    // Small UI-friendly delay so loading state is visible and feels intentional
+    await new Promise((r) => setTimeout(r, 500))
     try {
       const data = await apiClient.generateFromMap(bbox, locationName, gridSize)
       set({
@@ -145,7 +153,8 @@ export const createLayoutSlice: StateCreator<AppState, [], [], LayoutSlice> = (s
     // Call generation without saving to history to get an alternative layout
     setIsLoading(true)
     try {
-      const data = await apiClient.generateCity(prompt || '', false)
+      const parsed = parseText(prompt || '')
+      const data = await apiClient.generateCity(prompt || '', false, parsed)
       set({
         layoutData: data.layoutData || data.layout,
         evaluation: data.evaluation,
