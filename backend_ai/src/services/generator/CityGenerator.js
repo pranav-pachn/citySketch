@@ -1,4 +1,4 @@
-import { CONFIG } from '../config/cityConfig.js';
+import { CONFIG } from '../../config/cityConfig.js';
 
 export class CityGenerator {
   constructor(config = {}) {

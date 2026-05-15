@@ -26,6 +26,7 @@ export function WorkspaceHeader() {
   const saveCurrentLayout = useStore((s) => s.saveCurrentLayout)
   const evaluation = useStore((s) => s.evaluation)
   const regeneratePrompt = useStore((s) => s.regeneratePrompt)
+  const isLoading = useStore((s) => s.isLoading)
 
   const [showExportMenu, setShowExportMenu] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -278,6 +279,19 @@ export function WorkspaceHeader() {
           ))}
         </div>
 
+        {/* 🔄 Regenerate — prominent labeled button */}
+        {layoutData && (
+          <button
+            onClick={() => regeneratePrompt?.()}
+            disabled={isLoading}
+            className="regen-btn"
+            title="Regenerate layout with same prompt"
+          >
+            <RefreshCw size={13} strokeWidth={2} className={isLoading ? 'animate-spin' : ''} />
+            <span>Regenerate</span>
+          </button>
+        )}
+
         {/* Utility buttons */}
         {layoutData && (
           <div className="workspace-utils">
@@ -286,9 +300,6 @@ export function WorkspaceHeader() {
             </button>
             <button className="util-btn" onClick={saveCurrentLayout} title="Save to history">
               <Save size={15} strokeWidth={1.5} />
-            </button>
-            <button className="util-btn" onClick={() => regeneratePrompt?.()} title="Regenerate alternative">
-              <RefreshCw size={15} strokeWidth={1.5} />
             </button>
             <div className="relative" ref={menuRef}>
               <button 

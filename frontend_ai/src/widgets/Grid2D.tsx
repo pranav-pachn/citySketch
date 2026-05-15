@@ -6,16 +6,16 @@ import { Building2, Home, Trees, Waves, Factory, Route, Stethoscope, GraduationC
 import type { GridCell } from '@/entities/types'
 import { calculateCellHighlights } from '@/shared/utils/scoring'
 
-const CELL_STYLES: Record<GridCell['type'], { color: string, icon: any, label: string }> = {
-  road: { color: '#52525b', icon: Route, label: 'RD' },
-  residential: { color: '#3b82f6', icon: Home, label: 'RES' },
-  commercial: { color: '#f59e0b', icon: Building2, label: 'COM' },
-  park: { color: '#22c55e', icon: Trees, label: 'PRK' },
-  hospital: { color: '#ef4444', icon: Stethoscope, label: 'HSP' },
-  industrial: { color: '#a855f7', icon: Factory, label: 'IND' },
-  water: { color: '#06b6d4', icon: Waves, label: 'H2O' },
-  school: { color: '#9c27b0', icon: GraduationCap, label: 'SCH' },
-  empty: { color: '#27272a', icon: null, label: '' },
+const CELL_STYLES: Record<GridCell['type'], { color: string, icon: any, label: string, fullName: string }> = {
+  road:        { color: '#52525b', icon: Route,         label: 'RD',  fullName: 'Road / Transit' },
+  residential: { color: '#3b82f6', icon: Home,          label: 'RES', fullName: 'Residential Zone' },
+  commercial:  { color: '#f59e0b', icon: Building2,     label: 'COM', fullName: 'Commercial Zone' },
+  park:        { color: '#22c55e', icon: Trees,         label: 'PRK', fullName: 'Park / Green Space' },
+  hospital:    { color: '#ef4444', icon: Stethoscope,   label: 'HSP', fullName: 'Hospital / Healthcare' },
+  industrial:  { color: '#a855f7', icon: Factory,       label: 'IND', fullName: 'Industrial Zone' },
+  water:       { color: '#06b6d4', icon: Waves,         label: 'H2O', fullName: 'Water / River' },
+  school:      { color: '#9c27b0', icon: GraduationCap, label: 'SCH', fullName: 'School / Education' },
+  empty:       { color: '#27272a', icon: null,          label: '',    fullName: 'Empty Lot' },
 }
 
 interface Grid2DProps {
@@ -117,11 +117,14 @@ export function Grid2D({ onCellExplain }: Grid2DProps) {
                   className={`blueprint-cell ${isSelected ? 'selected' : ''}`}
                   style={{
                     borderColor: isSelected ? style.color : 'var(--color-border)',
-                    backgroundColor: highlights[`${cell.x},${cell.y}`] 
-                                       ? highlights[`${cell.x},${cell.y}`].color 
-                                       : (isSelected ? `${style.color}15` : 'transparent'),
-                    boxShadow: isSelected ? `0 0 15px ${style.color}30` : 'none',
+                    backgroundColor: highlights[`${cell.x},${cell.y}`]
+                                       ? highlights[`${cell.x},${cell.y}`].color
+                                       : (isSelected ? `${style.color}20` : 'transparent'),
+                    boxShadow: isSelected
+                      ? `0 0 0 2px ${style.color}60, 0 0 20px ${style.color}30`
+                      : isHovered ? `0 0 0 1px ${style.color}30` : 'none',
                   }}
+                  title={cell.type !== 'empty' ? style.fullName : undefined}
                 >
                   {/* Subtle top indicator bar */}
                   {cell.type !== 'empty' && (
@@ -155,45 +158,34 @@ export function Grid2D({ onCellExplain }: Grid2DProps) {
         )}
       </TransformWrapper>
 
-        {/* Building progress overlay */}
-        {revealedIndex >= 0 && layoutData && (() => {
-          const total = layoutData.flat().length
-          const percent = Math.round(((revealedIndex + 1) / Math.max(1, total)) * 100)
-          const finished = revealedIndex >= total - 1
-          return (
-            <div className="building-overlay" aria-hidden>
-              <div className="building-box">
-                {!finished ? (
-                  <>
-                    <div className="building-text">Building city… {percent}%</div>
-                    <div className="building-progress"><div className="building-progress-fill" style={{ width: `${percent}%` }} /></div>
-                  </>
-                ) : (
-                  <div className="building-text">Done</div>
-                )}
+      {/* Generating state overlay */}
+      {revealedIndex >= 0 && layoutData && (() => {
+        const total = layoutData.flat().length
+        const percent = Math.round(((revealedIndex + 1) / Math.max(1, total)) * 100)
+        const finished = revealedIndex >= total - 1
+        if (finished) return null
+        return (
+          <div className="generating-overlay" aria-live="polite">
+            <div className="generating-card">
+              <div className="generating-orb" />
+              <div className="generating-text">Generating optimized layout…</div>
+              <div className="generating-progress-track">
+                <div className="generating-progress-fill" style={{ width: `${percent}%` }} />
               </div>
+              <div className="generating-pct">{percent}%</div>
             </div>
-          )
-        })()}
+          </div>
+        )
+      })()}
 
-      {/* Blueprint Legend Floating */}
-      <div className="blueprint-legend">
-        <div className="legend-item-bp">
-          <span className="legend-emoji">🟦</span>
-          <span className="legend-label-bp">Residential</span>
-        </div>
-        <div className="legend-item-bp">
-          <span className="legend-emoji">🟩</span>
-          <span className="legend-label-bp">Park</span>
-        </div>
-        <div className="legend-item-bp">
-          <span className="legend-emoji">🟥</span>
-          <span className="legend-label-bp">Hospital</span>
-        </div>
-        <div className="legend-item-bp">
-          <span className="legend-emoji">⬜</span>
-          <span className="legend-label-bp">Road</span>
-        </div>
+      {/* Zone Legend — top-left, always visible */}
+      <div className="grid-legend-topbar">
+        {(Object.entries(CELL_STYLES) as [GridCell['type'], typeof CELL_STYLES[GridCell['type']]][]).filter(([k]) => k !== 'empty').map(([type, s]) => (
+          <div key={type} className="grid-legend-item" title={s.fullName}>
+            <span className="grid-legend-dot" style={{ background: s.color, boxShadow: `0 0 6px ${s.color}60` }} />
+            <span className="grid-legend-label">{s.label}</span>
+          </div>
+        ))}
       </div>
     </motion.div>
   )

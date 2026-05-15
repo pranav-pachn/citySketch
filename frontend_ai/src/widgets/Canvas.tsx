@@ -7,6 +7,7 @@ import { CodeView } from '@/features/CodeView'
 import { CompareView } from './CompareView'
 import { Sparkles } from 'lucide-react'
 import { InsightsPanel } from './InsightsPanel'
+import { ScorePanel } from './ScorePanel'
 import type { GridCell } from '@/entities/types'
 
 interface CanvasProps {
@@ -78,9 +79,12 @@ export function Canvas({ onCellExplain }: CanvasProps) {
             {viewMode === 'CODE' && <CodeView />}
             {viewMode === 'BLUEPRINT' && <BlueprintView />}
             {viewMode === 'COMPARE' && <CompareView />}
-            
+
             {/* Explainable AI Insights Panel */}
             {viewMode !== 'COMPARE' && <InsightsPanel />}
+
+            {/* 📊 Live Score Panel — top-right analytics overlay */}
+            {viewMode !== 'CODE' && viewMode !== 'COMPARE' && <ScorePanel />}
           </motion.div>
         </AnimatePresence>
       )}
