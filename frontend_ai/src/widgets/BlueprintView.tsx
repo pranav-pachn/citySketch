@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback, useState } from 'react'
+import { useRef, useEffect, useCallback } from 'react'
 import { useStore } from '@/entities/store/useStore'
 import { Download } from 'lucide-react'
 import rough from 'roughjs'
@@ -13,7 +13,6 @@ interface Room {
 }
 
 const DEFAULT_BLUEPRINT_EXPORT_SCALE = 4
-const BLUEPRINT_EXPORT_SCALE_KEY = 'citysketch.blueprintExportScale'
 const BLUEPRINT_EXPORT_VIEWPORT_MULTIPLIER = 1.2
 const MAX_BLUEPRINT_EXPORT_DIMENSION = 8192
 
@@ -678,10 +677,6 @@ export function BlueprintView() {
   const selectedCell = useStore((s) => s.selectedCell)
   const layoutData = useStore((s) => s.layoutData)
   const addToast = useStore((s) => s.addToast)
-  const [exportScale, setExportScale] = useState<number>(() => {
-    const saved = Number(window.localStorage.getItem(BLUEPRINT_EXPORT_SCALE_KEY))
-    return saved === 2 || saved === 3 || saved === 4 || saved === 5 ? saved : DEFAULT_BLUEPRINT_EXPORT_SCALE
-  })
 
   useEffect(() => {
     if (!canvasRef.current) return
@@ -735,80 +730,40 @@ export function BlueprintView() {
     addToast(`Blueprint exported (${scale}x)`)
   }, [addToast, layoutData, selectedCell])
 
-  const handleScaleChange = (scale: number) => {
-    if (scale !== 2 && scale !== 3 && scale !== 4 && scale !== 5) return
-    setExportScale(scale)
-    window.localStorage.setItem(BLUEPRINT_EXPORT_SCALE_KEY, String(scale))
-    addToast(`Blueprint export scale set to ${scale}x`, 'info')
-  }
-
   const handleDownload = () => {
-    exportBlueprint(exportScale)
+    exportBlueprint(DEFAULT_BLUEPRINT_EXPORT_SCALE)
   }
 
   useEffect(() => {
-    const handleExternalExport = (event: Event) => {
-      const detail = (event as CustomEvent<{ scale?: number }>).detail
-      const requestedScale = detail?.scale
-      exportBlueprint(requestedScale ?? exportScale)
+    const handleExternalExport = () => {
+      exportBlueprint(DEFAULT_BLUEPRINT_EXPORT_SCALE)
     }
 
     window.addEventListener('citysketch:export-blueprint', handleExternalExport)
     return () => window.removeEventListener('citysketch:export-blueprint', handleExternalExport)
-  }, [exportBlueprint, exportScale])
+  }, [exportBlueprint])
 
   return (
     <div className="blueprint-view relative">
       <canvas ref={canvasRef} style={{ width: '100%', height: '100%', display: 'block' }} />
-      <div className="absolute top-3 right-3 z-20 flex items-center gap-2 rounded-xl border border-zinc-700/70 bg-zinc-950/85 px-2 py-2 backdrop-blur">
-        <div className="flex items-center gap-1 rounded-lg bg-zinc-900/90 p-1" role="group" aria-label="Blueprint export scale">
-          {[2, 3, 4].map((scale) => (
-            <button
-              key={scale}
-              type="button"
-              onClick={() => handleScaleChange(scale)}
-              className={`h-7 min-w-8 rounded-md px-2 text-[11px] font-semibold transition ${
-                exportScale === scale
-                  ? 'bg-blue-600 text-white'
-                  : 'text-zinc-300 hover:bg-zinc-800 hover:text-white'
-              }`}
-              aria-pressed={exportScale === scale}
-              title={`Export at ${scale}x scale`}
-            >
-              {scale}x
-            </button>
-          ))}
-          <button
-            type="button"
-            onClick={() => handleScaleChange(5)}
-            className={`h-7 rounded-md px-2 text-[11px] font-semibold transition ${
-              exportScale === 5
-                ? 'bg-emerald-600 text-white'
-                : 'text-zinc-300 hover:bg-zinc-800 hover:text-white'
-            }`}
-            aria-pressed={exportScale === 5}
-            title="Export at 5x scale (Large Print)"
-          >
-            5x Large Print
-          </button>
-        </div>
+      <div className="absolute top-3 right-3 z-20">
         <button
           type="button"
           className="blueprint-download-btn flex items-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-blue-500"
           onClick={handleDownload}
-          title={`Download Blueprint as PNG (${exportScale}x)`}
+          title="Download Blueprint as PNG"
         >
           <Download size={15} strokeWidth={1.5} />
           <span>Export PNG</span>
         </button>
       </div>
       {selectedCell && selectedCell.type !== 'road' && selectedCell.type !== 'water' && selectedCell.type !== 'empty' && (
-        <div className="blueprint-hint">
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 rounded-lg bg-zinc-900/80 px-3 py-1.5 text-xs text-zinc-300 backdrop-blur-sm">
           Click a different zone in 2D/3D to see its floor plan
         </div>
       )}
       {(!selectedCell || selectedCell.type === 'road' || selectedCell.type === 'water' || selectedCell.type === 'empty') && (
-        <div className="blueprint-hint">
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 rounded-lg bg-zinc-900/80 px-3 py-1.5 text-xs text-zinc-300 backdrop-blur-sm">
           Select a building zone to view its detailed floor plan
         </div>
       )}

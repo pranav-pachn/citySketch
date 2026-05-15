@@ -297,6 +297,8 @@ function CityCell({ cell, offsetX, offsetZ, revealOrder, generationId, highlight
   const setSelectedCell = useStore((s) => s.setSelectedCell)
   const hoveredCell = useStore((s) => s.hoveredCell)
   const setHoveredCell = useStore((s) => s.setHoveredCell)
+  const isNightMode = useStore((s) => s.isNightMode)
+  const pal = isNightMode ? NIGHT_PALETTE : ZONE_PALETTE
 
   const isSelected = selectedCell?.x === cell.x && selectedCell?.y === cell.y
   const isHovered = hoveredCell?.x === cell.x && hoveredCell?.y === cell.y
@@ -369,10 +371,10 @@ function CityCell({ cell, offsetX, offsetZ, revealOrder, generationId, highlight
 
   const getBaseColor = () => {
     if (isSelected) return '#ffffff'
-    if (cell.type === 'park' || cell.type === 'road' || cell.type === 'water') return ZONE_PALETTE.empty.base
-    if (cell.type === 'residential') return ZONE_PALETTE.residential.base
-    if (cell.type === 'commercial') return ZONE_PALETTE.commercial.base
-    if (cell.type === 'hospital') return ZONE_PALETTE.hospital.base
+    if (cell.type === 'park' || cell.type === 'road' || cell.type === 'water') return pal.empty.base
+    if (cell.type === 'residential') return pal.residential.base
+    if (cell.type === 'commercial') return pal.commercial.base
+    if (cell.type === 'hospital') return pal.hospital.base
     return '#2d3748'
   }
 
@@ -416,7 +418,7 @@ function CityCell({ cell, offsetX, offsetZ, revealOrder, generationId, highlight
         ) : cell.type === 'park' ? (
           <mesh position={[0, -elevation / 2 + 0.02, 0]} receiveShadow castShadow>
             <boxGeometry args={[CELL_SIZE - 0.05, 0.04 + elevation, CELL_SIZE - 0.05]} />
-            <meshStandardMaterial color={ZONE_PALETTE.park.base} roughness={1} />
+            <meshStandardMaterial color={pal.park.base} roughness={1} />
           </mesh>
         ) : null}
 
@@ -431,14 +433,18 @@ function CityCell({ cell, offsetX, offsetZ, revealOrder, generationId, highlight
         {/* 3D Tooltip when Hovered */}
         {isHovered && cell.type !== 'empty' && (
           <Html position={[0, cell.type === 'commercial' || cell.type === 'hospital' ? 2.5 : 1, 0]} center style={{ pointerEvents: 'none' }}>
-            <div className={`bg-zinc-900/95 backdrop-blur-md text-white px-3 py-2 rounded-lg shadow-2xl border ${highlightInfo ? (highlightInfo.type === 'bad' ? 'border-red-500/50 shadow-red-500/20' : 'border-green-500/50 shadow-green-500/20') : 'border-zinc-700/50'} text-xs min-w-[130px] transform transition-all duration-200 pointer-events-none`}>
-              <div className="font-bold mb-1 uppercase tracking-widest text-[10px] text-zinc-400">Sector {cell.x}-{cell.y}</div>
+            <div className={`backdrop-blur-md px-3 py-2 rounded-lg shadow-2xl border text-xs min-w-[130px] transform transition-all duration-200 pointer-events-none ${
+              isNightMode
+                ? 'bg-zinc-900/95 border-zinc-700/50'
+                : 'bg-white/95 border-zinc-300/60'
+            } ${highlightInfo ? (highlightInfo.type === 'bad' ? 'border-red-500/50 shadow-red-500/20' : 'border-green-500/50 shadow-green-500/20') : ''}`}>
+              <div className={`font-bold mb-1 uppercase tracking-widest text-[10px] ${isNightMode ? 'text-zinc-300' : 'text-zinc-600'}`}>Sector {cell.x}-{cell.y}</div>
               <div className="flex items-center gap-2">
                 <div className={`w-2.5 h-2.5 rounded-full ${tailwindColorMap[cell.type] || 'bg-zinc-500'}`} />
-                <span className="capitalize font-semibold text-sm">{displayZoneName} Zone</span>
+                <span className={`capitalize font-semibold text-sm ${isNightMode ? 'text-blue-300' : 'text-blue-700'}`}>{displayZoneName} Zone</span>
               </div>
               {highlightInfo && highlightInfo.reason && (
-                <div className={`mt-2 pt-1.5 border-t ${highlightInfo.type === 'bad' ? 'border-red-900/50 text-red-300' : 'border-green-900/50 text-green-300'} text-[10px] leading-tight font-medium`}>
+                <div className={`mt-2 pt-1.5 border-t ${highlightInfo.type === 'bad' ? 'border-red-500/30 text-red-500' : 'border-green-500/30 text-green-600'} text-[10px] leading-tight font-medium`}>
                   {highlightInfo.reason}
                 </div>
               )}

@@ -30,6 +30,7 @@ export function Grid2D({ onCellExplain }: Grid2DProps) {
   const hoveredCell = useStore((s) => s.hoveredCell)
   const setHoveredCell = useStore((s) => s.setHoveredCell)
   const highlightMode = useStore((s) => s.highlightMode)
+  const isNightMode = useStore((s) => s.isNightMode)
 
   const highlights = useMemo(() => {
     if (!layoutData || !highlightMode) return {}
@@ -135,7 +136,7 @@ export function Grid2D({ onCellExplain }: Grid2DProps) {
                   )}
                   
                   {/* Icon & Label */}
-                  <div className="cell-content" style={{ color: isHovered || isSelected ? style.color : '#52525b' }}>
+                  <div className="cell-content" style={{ color: isHovered || isSelected ? style.color : (isNightMode ? '#a1a1aa' : '#52525b') }}>
                     {isRevealed ? (
                       <>
                         {Icon && <Icon size={18} strokeWidth={1.5} />}

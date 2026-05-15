@@ -130,40 +130,54 @@ export const createLayoutSlice: StateCreator<AppState, [], [], LayoutSlice> = (s
   },
 
   regeneratePrompt: async () => {
-    const { layoutData, prompt, evaluation, addHistory, setCompareHistoryId, setViewMode, setIsLoading, addToast, generationId } = get()
+    const { layoutData, prompt, evaluation, activeHistoryId, addHistory, setActiveHistoryId, setCompareHistoryId, setIsLoading, addToast, generationId, fetchHistory } = get()
     if (!layoutData) {
       addToast('Nothing to regenerate from', 'info')
       return
     }
-
-    // Create a temp history entry to compare against
-    const tempId = `temp-${Date.now()}`
-    const tempItem = {
-      id: tempId,
-      prompt: prompt || 'Before regenerate',
-      layoutData,
-      evaluation: evaluation || null,
-      timestamp: Date.now(),
-      saved: false,
+    if (!prompt || !prompt.trim()) {
+      addToast('No prompt to regenerate from', 'info')
+      return
     }
-    addHistory(tempItem)
-    setCompareHistoryId(tempId)
-    setViewMode('COMPARE')
 
-    // Call generation without saving to history to get an alternative layout
+    const oldId = activeHistoryId || `prev-${Date.now()}`
+
+    if (!activeHistoryId) {
+      const prevItem = {
+        id: oldId,
+        prompt: prompt || 'Previous layout',
+        layoutData,
+        evaluation: evaluation || undefined,
+        timestamp: Date.now(),
+      }
+      addHistory(prevItem)
+    }
+
+    setCompareHistoryId(oldId)
+
     setIsLoading(true)
     try {
-      const parsed = parseText(prompt || '')
-      const data = await apiClient.generateCity(prompt || '', false, parsed)
+      const parsed = parseText(prompt)
+      const data = await apiClient.generateCity(prompt, true, parsed)
+      const newId = data.id || `regen-${Date.now()}`
+
       set({
         layoutData: data.layoutData || data.layout,
         evaluation: data.evaluation,
+        activeHistoryId: newId,
         selectedCell: null,
         detailOpen: false,
         generationId: generationId + 1,
         hasUnsavedLayoutChanges: false,
       })
-      addToast('Regenerated alternative layout')
+
+      if (data.saved) {
+        addHistory(data)
+        setActiveHistoryId(newId)
+      }
+
+      await fetchHistory()
+      addToast('Layout regenerated successfully')
     } catch (err: any) {
       addToast(err?.message || 'Regenerate failed', 'info')
     } finally {

@@ -17,6 +17,8 @@ export function WorkspaceHeader() {
   const setViewMode = useStore((s) => s.setViewMode)
   const layoutData = useStore((s) => s.layoutData)
   const activeHistoryId = useStore((s) => s.activeHistoryId)
+  const compareHistoryId = useStore((s) => s.compareHistoryId)
+  const setCompareHistoryId = useStore((s) => s.setCompareHistoryId)
   const history = useStore((s) => s.history)
   const addToast = useStore((s) => s.addToast)
   const isNightMode = useStore((s) => s.isNightMode)
@@ -270,7 +272,17 @@ export function WorkspaceHeader() {
           {viewOptions.map((opt) => (
             <button
               key={opt.id}
-              onClick={() => setViewMode(opt.id)}
+              onClick={() => {
+                if (opt.id === 'COMPARE') {
+                  if (!compareHistoryId && history.length > 0) {
+                    const previous = history.find(h => h.id !== activeHistoryId)
+                    if (previous) {
+                      setCompareHistoryId(previous.id)
+                    }
+                  }
+                }
+                setViewMode(opt.id)
+              }}
               className={`view-toggle ${viewMode === opt.id ? 'active' : ''}`}
             >
               {opt.icon}

@@ -1,6 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import { env } from './src/config/env.js'
+import { supabase } from './src/config/supabase.js'
 import { generateRouter } from './src/routes/generateRoutes.js'
 import { historyRouter } from './src/routes/historyRoutes.js'
 import { mapRouter } from './src/routes/mapContextRoutes.js'
@@ -97,11 +98,22 @@ app.get('/api/health', (_req, res) => {
 // Global Error Handler
 app.use(errorHandler)
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`⚡ CitySketch backend running on http://localhost:${PORT}`)
   if (!env.GOOGLE_CLIENT_ID || env.GOOGLE_CLIENT_ID === '<YOUR_GOOGLE_CLIENT_ID>') {
     console.warn('⚠️  WARNING: GOOGLE_CLIENT_ID is not set in root .env — Google Auth will fail')
   } else {
     console.log('✅ Google Auth credentials loaded')
+  }
+
+  try {
+    const { error } = await supabase.from('city_layouts').select('id').limit(1)
+    if (error) {
+      console.warn('⚠️  Supabase connection check failed:', error.message)
+    } else {
+      console.log('✅ Supabase connected — city_layouts table accessible')
+    }
+  } catch (err) {
+    console.warn('⚠️  Supabase connection check failed:', err.message)
   }
 })
