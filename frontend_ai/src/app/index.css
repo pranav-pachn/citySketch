@@ -601,6 +601,49 @@ body {
   color: var(--color-text-primary);
 }
 
+/* Building overlay */
+.building-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 40;
+}
+
+.building-box {
+  margin-bottom: 28px;
+  background: rgba(17,24,39,0.9);
+  border: 1px solid var(--color-border);
+  padding: 10px 14px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(2,6,23,0.6);
+  backdrop-filter: blur(6px);
+  pointer-events: none;
+  width: 320px;
+  text-align: center;
+}
+
+.building-text {
+  font-size: 13px;
+  color: var(--color-text-primary);
+  margin-bottom: 8px;
+}
+
+.building-progress {
+  height: 6px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.building-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #22c55e, #06b6d4);
+  transition: width 160ms linear;
+}
+
 /* ═══════════ CELL DETAIL PANEL ═══════════ */
 .cell-detail {
   border-left: 1px solid var(--color-border);
