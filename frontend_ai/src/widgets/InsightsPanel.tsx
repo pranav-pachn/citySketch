@@ -19,7 +19,21 @@ export function InsightsPanel() {
 
   // Merge server evaluation with local fallback
   const displayEval = useMemo(() => {
-    if (evaluation) return evaluation
+    if (evaluation) {
+      // Backend returns an `evaluation` object with `.scores` and `.metrics`.
+      // Normalize to the frontend's expected shape `{ score, breakdown, explanations, suggestions, summary, metrics }`.
+      if ((evaluation as any).scores) {
+        return {
+          score: (evaluation as any).scores.overall,
+          breakdown: (evaluation as any).scores,
+          explanations: (evaluation as any).explanations || [],
+          suggestions: (evaluation as any).suggestions || [],
+          summary: (evaluation as any).summary || '',
+          metrics: (evaluation as any).metrics || null,
+        }
+      }
+      return evaluation
+    }
     if (layoutData) {
       const localScores = calculateScores(layoutData)
       if (localScores.totalCells === 0) return null
@@ -131,7 +145,7 @@ export function InsightsPanel() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.95 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="w-[340px] max-h-[calc(100vh-180px)] bg-zinc-950/95 backdrop-blur-xl border border-zinc-800/60 rounded-2xl shadow-2xl flex flex-col origin-top-right pointer-events-auto overflow-hidden p-4"
+            className="insights-panel w-[340px] max-h-[calc(100vh-180px)] bg-zinc-950/95 backdrop-blur-xl border border-zinc-800/60 rounded-2xl shadow-2xl flex flex-col origin-top-right pointer-events-auto overflow-hidden"
           >
             {/* Header with Score */}
             <div className={`insights-panel-header bg-gradient-to-br ${getScoreGradient(score)}`}>

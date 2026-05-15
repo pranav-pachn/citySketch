@@ -6,6 +6,7 @@ import { Canvas } from '@/widgets/Canvas'
 import { ChatInput } from '@/features/ChatInput'
 import { CellDetail } from '@/features/CellDetail'
 import { Toasts } from '@/shared/ui/Toast'
+import SettingsModal from '@/widgets/SettingsModal'
 import { Minimize2, MapPin } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { getExplanation } from '@/shared/utils/explain.js'
@@ -113,9 +114,9 @@ export default function App() {
                   animate={{ x: 0, opacity: 1 }}
                   exit={{ x: 420, opacity: 0 }}
                   transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                  className="absolute right-3 top-3 z-[120] flex h-[calc(100%-24px)] w-[420px] max-w-[92vw] flex-col rounded-[28px] border border-zinc-800/80 bg-zinc-950/95 px-5 pb-5 pt-7 text-white shadow-2xl backdrop-blur-xl sm:px-6 sm:pb-6 sm:pt-8"
+                  className="absolute right-4 top-4 z-[120] flex h-[calc(100%-32px)] w-[440px] max-w-[92vw] flex-col rounded-[32px] border border-zinc-800/80 bg-zinc-950/95 p-6 text-white shadow-2xl backdrop-blur-xl sm:p-8"
                 >
-                  <div className="mb-5 flex items-start justify-between gap-4 border-b border-zinc-800/70 px-1 pb-4">
+                  <div className="mb-6 flex items-start justify-between gap-4 border-b border-zinc-800/70 pb-6">
                     <div className="space-y-2 pr-2">
                       <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.22em] text-blue-400">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
@@ -136,8 +137,8 @@ export default function App() {
                     </button>
                   </div>
 
-                  <div className="styled-scrollbar flex flex-1 flex-col gap-4 overflow-y-auto px-1 pb-2 pt-1">
-                    <div className="group relative rounded-3xl border border-blue-500/20 bg-gradient-to-br from-blue-500/10 to-blue-900/5 px-5 py-4 shadow-lg transition-all hover:bg-blue-500/15">
+                  <div className="styled-scrollbar flex flex-1 flex-col gap-5 overflow-y-auto pb-4 pr-1">
+                    <div className="group relative rounded-[24px] border border-blue-500/20 bg-gradient-to-br from-blue-500/10 to-blue-900/5 p-6 shadow-lg transition-all hover:bg-blue-500/15">
                       <div className="absolute bottom-4 left-0 top-4 w-1 rounded-r-2xl bg-blue-500/50"></div>
                       <div className="pl-5">
                         <div className="mb-2.5 flex items-center gap-2.5">
@@ -152,7 +153,7 @@ export default function App() {
                       </div>
                     </div>
 
-                    <div className="rounded-3xl border border-zinc-800/60 bg-zinc-900/30 px-5 py-4 transition-colors hover:bg-zinc-900/50">
+                    <div className="rounded-[24px] border border-zinc-800/60 bg-zinc-900/30 p-6 transition-colors hover:bg-zinc-900/50">
                       <div className="mb-2.5 flex items-center gap-2.5">
                         <div className="mt-0.5 text-zinc-500">
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
@@ -166,7 +167,7 @@ export default function App() {
                       </div>
                     </div>
 
-                    <div className="rounded-3xl border border-zinc-800/60 bg-zinc-900/30 px-5 py-4 transition-colors hover:bg-zinc-900/50">
+                    <div className="rounded-[24px] border border-zinc-800/60 bg-zinc-900/30 p-6 transition-colors hover:bg-zinc-900/50">
                       <div className="mb-2.5 flex items-center gap-2.5">
                         <div className="mt-0.5 text-zinc-500">
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 Z"></path></svg>
@@ -201,6 +202,7 @@ export default function App() {
         </div>
       </main>
       <Toasts />
+      <SettingsModal />
 
       {/* Map Site Selector Modal */}
       {showMapSelector && (

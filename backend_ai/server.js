@@ -12,7 +12,8 @@ const app = express()
 const PORT = env.PORT
 
 // Middleware
-app.use(cors({ origin: ['http://localhost:5173', 'http://localhost:4173', 'http://127.0.0.1:5173'] }))
+// Allow common local dev origins used by Vite previews (5173, 5175, 5176)
+app.use(cors({ origin: ['http://localhost:5173', 'http://localhost:5175', 'http://localhost:5176', 'http://localhost:4173', 'http://127.0.0.1:5173'] }))
 app.use((_req, res, next) => {
   // Google Identity popup flows rely on postMessage across windows.
   res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups')

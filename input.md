@@ -91,7 +91,7 @@ Show you can **tune traffic levels and density** explicitly.
 ## 8. Complex Multi‑Constraint Inputs
 
 Use these to **amaze the judges** — show the system handles everything at once.
-
+`
 1. `Design a 13-acre eco‑friendly smart city with hospital, green spaces, high‑density housing, and low traffic.`  
 2. `Build a 16-acre compact urban district with healthcare, green spaces, schools, low traffic inner blocks, and balanced perimeter traffic.`  
 3. `Create a 22-acre smart eco‑township with parks, hospital, green roofs concept, high‑density housing, and balanced traffic.`  

@@ -54,4 +54,6 @@ export const createUISlice: StateCreator<AppState, [], [], UISlice> = (set, get)
   setNightMode: (night) => set({ isNightMode: night }),
   isCanvasMaximized: false,
   setCanvasMaximized: (max) => set({ isCanvasMaximized: max }),
+  settingsOpen: false,
+  setSettingsOpen: (open: boolean) => set({ settingsOpen: open }),
 })

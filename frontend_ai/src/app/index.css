@@ -730,6 +730,15 @@ body {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
 }
 
+/* Insights panel header padding (CitySketch analysis box) */
+.insights-panel {
+  padding: 16px;
+}
+
+.insights-panel-header {
+  padding: 18px 18px 16px 18px;
+}
+
 .detail-row {
   display: flex;
   align-items: center;
@@ -797,6 +806,34 @@ body {
   border-radius: 3px;
   flex-shrink: 0;
 }
+
+/* Simple switch control used in SettingsModal */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+.switch input { display: none; }
+.switch .slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(255,255,255,0.06);
+  border-radius: 999px;
+  transition: background-color .2s;
+}
+.switch .slider:after {
+  content: '';
+  position: absolute;
+  height: 18px; width: 18px;
+  left: 3px; top: 3px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform .18s;
+}
+.switch input:checked + .slider { background-color: rgba(34,197,94,0.18); }
+.switch input:checked + .slider:after { transform: translateX(20px); }
 
 .save-layout-btn {
   margin-top: 10px;

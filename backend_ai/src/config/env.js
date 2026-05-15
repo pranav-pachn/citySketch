@@ -13,6 +13,11 @@ export const env = {
   SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY,
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
   GROQ_API_KEY: process.env.GROQ_API_KEY,
+  GROQ_API_KEYS: process.env.GROQ_API_KEYS,
   OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+  OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY,
+  OPENROUTER_API_KEYS: process.env.OPENROUTER_API_KEYS,
+  GEMINI_API_KEY: process.env.GEMINI_API_KEY,
+  GEMINI_API_KEYS: process.env.GEMINI_API_KEYS,
   LLM_PROVIDER: process.env.LLM_PROVIDER || 'groq',
 }

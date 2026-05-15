@@ -3,7 +3,7 @@ import { addLocalHistoryItem, deleteLocalHistoryItem, loadLocalHistory } from '.
 import { asyncHandler } from '../middlewares/errorHandler.js'
 
 export const createHistoryItem = asyncHandler(async (req, res) => {
-  const { prompt, layoutData, ai_model } = req.body || {}
+  const { id, prompt, layoutData, ai_model } = req.body || {}
 
   if (!Array.isArray(layoutData) || layoutData.length === 0) {
     const error = new Error('layoutData is required to save history')
@@ -15,15 +15,48 @@ export const createHistoryItem = asyncHandler(async (req, res) => {
   const safeModel = typeof ai_model === 'string' && ai_model.trim() ? ai_model.trim() : 'manual'
 
   try {
-    const { data, error } = await supabase
-      .from('city_layouts')
-      .insert({
-        prompt: safePrompt,
-        grid: layoutData,
-        ai_model: safeModel,
-      })
-      .select()
-      .single()
+    let data;
+    let error;
+
+    if (id) {
+      // Update existing record
+      ({ data, error } = await supabase
+        .from('city_layouts')
+        .update({
+          prompt: safePrompt,
+          grid: layoutData,
+          ai_model: safeModel,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', id)
+        .select()
+        .single());
+        
+      // If error or not found, try inserting instead of failing
+      if (error || !data) {
+        ({ data, error } = await supabase
+          .from('city_layouts')
+          .insert({
+            id,
+            prompt: safePrompt,
+            grid: layoutData,
+            ai_model: safeModel,
+          })
+          .select()
+          .single());
+      }
+    } else {
+      // Insert new record
+      ({ data, error } = await supabase
+        .from('city_layouts')
+        .insert({
+          prompt: safePrompt,
+          grid: layoutData,
+          ai_model: safeModel,
+        })
+        .select()
+        .single());
+    }
 
     if (error) throw error
 
@@ -36,13 +69,19 @@ export const createHistoryItem = asyncHandler(async (req, res) => {
   } catch (dbError) {
     console.warn('Supabase history save failed, using local fallback:', dbError.message || dbError)
     const fallbackItem = {
-      id: crypto.randomUUID(),
+      id: id || crypto.randomUUID(),
       prompt: safePrompt,
       layoutData,
       timestamp: Date.now(),
       ai_model: safeModel,
     }
+    
+    // Check if item exists in local store and delete it before adding if we are doing an "update"
+    if (id) {
+      await deleteLocalHistoryItem(id);
+    }
     await addLocalHistoryItem(fallbackItem)
+    
     return res.json({
       id: fallbackItem.id,
       prompt: fallbackItem.prompt,
