@@ -5,17 +5,18 @@ import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch'
 import { Building2, Home, Trees, Waves, Factory, Route, Stethoscope, GraduationCap } from 'lucide-react'
 import type { GridCell } from '@/entities/types'
 import { calculateCellHighlights } from '@/shared/utils/scoring'
+import { ZONE_COLORS } from '@/shared/utils/colors'
 
 const CELL_STYLES: Record<GridCell['type'], { color: string, icon: any, label: string, fullName: string }> = {
-  road:        { color: '#52525b', icon: Route,         label: 'RD',  fullName: 'Road / Transit' },
-  residential: { color: '#3b82f6', icon: Home,          label: 'RES', fullName: 'Residential Zone' },
-  commercial:  { color: '#f59e0b', icon: Building2,     label: 'COM', fullName: 'Commercial Zone' },
-  park:        { color: '#22c55e', icon: Trees,         label: 'PRK', fullName: 'Park / Green Space' },
-  hospital:    { color: '#ef4444', icon: Stethoscope,   label: 'HSP', fullName: 'Hospital / Healthcare' },
-  industrial:  { color: '#a855f7', icon: Factory,       label: 'IND', fullName: 'Industrial Zone' },
-  water:       { color: '#06b6d4', icon: Waves,         label: 'H2O', fullName: 'Water / River' },
-  school:      { color: '#9c27b0', icon: GraduationCap, label: 'SCH', fullName: 'School / Education' },
-  empty:       { color: '#27272a', icon: null,          label: '',    fullName: 'Empty Lot' },
+  road:        { color: ZONE_COLORS.road.hex,         icon: Route,         label: 'RD',  fullName: 'Road / Transit' },
+  residential: { color: ZONE_COLORS.residential.hex,  icon: Home,          label: 'RES', fullName: 'Residential Zone' },
+  commercial:  { color: ZONE_COLORS.commercial.hex,   icon: Building2,     label: 'COM', fullName: 'Commercial Zone' },
+  park:        { color: ZONE_COLORS.park.hex,         icon: Trees,         label: 'PRK', fullName: 'Park / Green Space' },
+  hospital:    { color: ZONE_COLORS.hospital.hex,     icon: Stethoscope,   label: 'HSP', fullName: 'Hospital / Healthcare' },
+  industrial:  { color: ZONE_COLORS.industrial.hex,   icon: Factory,       label: 'IND', fullName: 'Industrial Zone' },
+  water:       { color: ZONE_COLORS.water.hex,        icon: Waves,         label: 'H2O', fullName: 'Water / River' },
+  school:      { color: ZONE_COLORS.school.hex,       icon: GraduationCap, label: 'SCH', fullName: 'School / Education' },
+  empty:       { color: ZONE_COLORS.empty.hex,        icon: null,          label: '',    fullName: 'Empty Lot' },
 }
 
 interface Grid2DProps {
@@ -37,7 +38,7 @@ export function Grid2D({ onCellExplain }: Grid2DProps) {
     return calculateCellHighlights(layoutData)
   }, [layoutData, highlightMode])
 
-  // Animated generation: reveal cells progressively when generationId changes
+  // Animated generation: reveal cells progressively when generationId changes using requestAnimationFrame
   const [revealedIndex, setRevealedIndex] = useState(-1)
   useEffect(() => {
     if (!layoutData) {
@@ -46,16 +47,27 @@ export function Grid2D({ onCellExplain }: Grid2DProps) {
     }
     const total = layoutData.flat().length
     const maxDuration = 1400 // ms total target
-    const cellDelay = Math.max(6, Math.min(24, Math.floor(maxDuration / Math.max(1, total))))
     setRevealedIndex(-1)
-    const timers: number[] = []
-    for (let i = 0; i < total; i++) {
-      const t = window.setTimeout(() => setRevealedIndex(i), i * cellDelay)
-      timers.push(t)
+
+    let animationFrameId: number
+    const startTime = performance.now()
+
+    const animate = (time: number) => {
+      const elapsed = time - startTime
+      const progress = Math.min(1, elapsed / maxDuration)
+      const currentRevealCount = Math.floor(progress * total)
+      
+      setRevealedIndex(currentRevealCount - 1)
+      
+      if (progress < 1) {
+        animationFrameId = requestAnimationFrame(animate)
+      } else {
+        setRevealedIndex(total - 1)
+      }
     }
-    // Ensure final reveal
-    timers.push(window.setTimeout(() => setRevealedIndex(total - 1), total * cellDelay + 50))
-    return () => timers.forEach((t) => clearTimeout(t))
+
+    animationFrameId = requestAnimationFrame(animate)
+    return () => cancelAnimationFrame(animationFrameId)
   }, [generationId, layoutData])
 
   if (!layoutData) return null

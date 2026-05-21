@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect, useMemo } from 'react'
+import { useRef, useState, useEffect, useMemo, memo } from 'react'
 import { Canvas as R3FCanvas, useFrame } from '@react-three/fiber'
 import { OrbitControls, Environment, Grid, ContactShadows, Html } from '@react-three/drei'
 import { useStore } from '@/entities/store/useStore'
@@ -6,19 +6,21 @@ import type { GridCell } from '@/entities/types'
 import { calculateCellHighlights } from '@/shared/utils/scoring'
 import * as THREE from 'three'
 import { easing } from 'maath'
+import { ZONE_COLORS } from '@/shared/utils/colors'
+
 const CELL_SIZE = 1.2
 
 /* ═══════ Palette ═══════ */
 const ZONE_PALETTE = {
-  road:        { base: '#9ca3af', highlight: '#6b7280' },
-  residential: { base: '#3b82f6', roof: '#1d4ed8' },
-  commercial:  { base: '#ef4444', trim: '#b91c1c' },
-  hospital:    { base: '#dc2626', cross: '#ffffff' },
-  park:        { base: '#22c55e', trunk: '#7b341e', foliage: '#15803d' },
-  industrial:  { base: '#a0aec0', smokestack: '#718096' },
-  water:       { base: '#4299e1', wave: '#63b3ed' },
-  school:      { base: '#9c27b0', roof: '#7b1fa2', flag: '#f44336' },
-  empty:       { base: '#1a202c' }
+  road:        { base: ZONE_COLORS.road.base, highlight: '#6b7280' },
+  residential: { base: ZONE_COLORS.residential.base, roof: ZONE_COLORS.residential.darkHex },
+  commercial:  { base: ZONE_COLORS.commercial.base, trim: ZONE_COLORS.commercial.darkHex },
+  hospital:    { base: ZONE_COLORS.hospital.base, cross: '#ffffff' },
+  park:        { base: ZONE_COLORS.park.base, trunk: '#7b341e', foliage: ZONE_COLORS.park.darkHex },
+  industrial:  { base: ZONE_COLORS.industrial.base, smokestack: '#718096' },
+  water:       { base: ZONE_COLORS.water.base, wave: '#63b3ed' },
+  school:      { base: ZONE_COLORS.school.base, roof: ZONE_COLORS.school.darkHex, flag: '#f44336' },
+  empty:       { base: ZONE_COLORS.empty.base }
 }
 
 /* ═══════ Night / Dark-mode Palette (icy, whitish, high contrast) ═══════ */
@@ -105,13 +107,19 @@ const CommercialSkyscraper = ({ x, z, seed }: { x: number, z: number, seed: numb
   const isNightMode = useStore(s => s.isNightMode)
   const pal = isNightMode ? NIGHT_PALETTE : ZONE_PALETTE
 
-  const material = new THREE.MeshStandardMaterial({
+  const material = useMemo(() => new THREE.MeshStandardMaterial({
     color: pal.commercial.base,
     roughness: 0.1,
     metalness: 0.8,
     emissive: isNightMode ? '#fef08a' : '#000000',
     emissiveIntensity: isNightMode ? 0.15 : 0
-  })
+  }), [pal.commercial.base, isNightMode])
+
+  useEffect(() => {
+    return () => {
+      material.dispose()
+    }
+  }, [material])
 
   return (
     <group position={[x, 0, z]}>
@@ -283,8 +291,8 @@ const RoadTile = ({ seed, elevation = 0 }: { seed: number, elevation?: number })
 )
 
 const WaterTile = ({ elevation = 0 }: { elevation?: number }) => (
-  <mesh position={[0, -elevation / 2 + 0.02, 0]} receiveShadow castShadow>
-    <boxGeometry args={[CELL_SIZE - 0.05, 0.04 + elevation, CELL_SIZE - 0.05]} />
+  <mesh position={[0, -elevation / 2 + 0.015, 0]} receiveShadow castShadow>
+    <boxGeometry args={[CELL_SIZE - 0.05, 0.03 + elevation, CELL_SIZE - 0.05]} />
     <meshStandardMaterial color={ZONE_PALETTE.water.base} roughness={0.1} metalness={0.8} />
   </mesh>
 )
@@ -292,16 +300,13 @@ const WaterTile = ({ elevation = 0 }: { elevation?: number }) => (
 
 /* ═══════ Single Cell Group ═══════ */
 
-function CityCell({ cell, offsetX, offsetZ, revealOrder, generationId, highlightInfo }: { cell: GridCell, offsetX: number, offsetZ: number, revealOrder: number, generationId: number, highlightInfo?: { color: string, type: string, reason?: string } }) {
-  const selectedCell = useStore((s) => s.selectedCell)
+const CityCell = memo(function CityCell({ cell, offsetX, offsetZ, revealOrder, generationId, highlightInfo }: { cell: GridCell, offsetX: number, offsetZ: number, revealOrder: number, generationId: number, highlightInfo?: { color: string, type: string, reason?: string } }) {
+  const isSelected = useStore((s) => s.selectedCell?.x === cell.x && s.selectedCell?.y === cell.y)
   const setSelectedCell = useStore((s) => s.setSelectedCell)
-  const hoveredCell = useStore((s) => s.hoveredCell)
+  const isHovered = useStore((s) => s.hoveredCell?.x === cell.x && s.hoveredCell?.y === cell.y)
   const setHoveredCell = useStore((s) => s.setHoveredCell)
   const isNightMode = useStore((s) => s.isNightMode)
   const pal = isNightMode ? NIGHT_PALETTE : ZONE_PALETTE
-
-  const isSelected = selectedCell?.x === cell.x && selectedCell?.y === cell.y
-  const isHovered = hoveredCell?.x === cell.x && hoveredCell?.y === cell.y
   const seed = cell.x * 100 + cell.y * 10
   const elevation = cell.elevation || 0
 
@@ -416,8 +421,8 @@ function CityCell({ cell, offsetX, offsetZ, revealOrder, generationId, highlight
             <meshStandardMaterial color={getBaseColor()} roughness={0.9} />
           </mesh>
         ) : cell.type === 'park' ? (
-          <mesh position={[0, -elevation / 2 + 0.02, 0]} receiveShadow castShadow>
-            <boxGeometry args={[CELL_SIZE - 0.05, 0.04 + elevation, CELL_SIZE - 0.05]} />
+          <mesh position={[0, -elevation / 2 + 0.03, 0]} receiveShadow castShadow>
+            <boxGeometry args={[CELL_SIZE - 0.05, 0.06 + elevation, CELL_SIZE - 0.05]} />
             <meshStandardMaterial color={pal.park.base} roughness={1} />
           </mesh>
         ) : null}
@@ -454,7 +459,7 @@ function CityCell({ cell, offsetX, offsetZ, revealOrder, generationId, highlight
       </group>
     </group>
   )
-}
+})
 
 /* ═══════ Auto-rotate ═══════ */
 function AutoRotate() {
@@ -569,7 +574,7 @@ export function Scene3D() {
       <R3FCanvas
         camera={{ position: [camDist * 0.7, camDist * 0.6, camDist * 0.7], fov: 35 }}
         shadows
-        gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping, preserveDrawingBuffer: true }}
+        gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping }}
       >
         <color attach="background" args={[isNightMode ? '#040814' : '#09090b']} />
         <fog attach="fog" args={[isNightMode ? '#040814' : '#09090b', maxDim * 2, maxDim * 4]} />

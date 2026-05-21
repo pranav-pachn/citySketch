@@ -1,5 +1,6 @@
 import express from 'express'
 import cors from 'cors'
+import rateLimit from 'express-rate-limit'
 import { env } from './src/config/env.js'
 import { supabase } from './src/config/supabase.js'
 import { generateRouter } from './src/routes/generateRoutes.js'
@@ -13,14 +14,22 @@ const app = express()
 const PORT = env.PORT
 
 // Middleware
-// Allow common local dev origins used by Vite previews (5173, 5175, 5176)
-app.use(cors({ origin: ['http://localhost:5173', 'http://localhost:5175', 'http://localhost:5176', 'http://localhost:4173', 'http://127.0.0.1:5173'] }))
+// Allow all origins for production readiness
+app.use(cors())
 app.use((_req, res, next) => {
   // Google Identity popup flows rely on postMessage across windows.
   res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups')
   next()
 })
 app.use(express.json())
+
+const generateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: { error: 'Too many generation requests from this IP, please try again later.' }
+})
+
+app.use('/api/generate', generateLimiter)
 
 // API index for browser/manual checks
 app.get('/', (_req, res) => {

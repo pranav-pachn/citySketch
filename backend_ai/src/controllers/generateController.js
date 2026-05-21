@@ -73,125 +73,8 @@ function selectFallbackTemplate(prompt) {
   return FALLBACK_TEMPLATES.default
 }
 
-// ─── Guide-Aligned Keyword Parser (Sections 1 + 10) ───────────────────────
-function inferPromptOverrides(prompt) {
-  const text = prompt.toLowerCase()
-  const overrides = {}
-
-  // ── Water style ──
-  const hasVerticalRiver =
-    /(vertical|north[-\s]?south).{0,30}river/.test(text) ||
-    /river.{0,30}(vertical|north[-\s]?south)/.test(text)
-  const hasHorizontalRiver =
-    /(horizontal|east[-\s]?west).{0,30}river/.test(text) ||
-    /river.{0,30}(horizontal|east[-\s]?west)/.test(text)
-
-  if (hasVerticalRiver) {
-    overrides.waterStyle = 'river_vertical'
-  } else if (hasHorizontalRiver) {
-    overrides.waterStyle = 'river_horizontal'
-  } else if (/coastal.*left|left.*coastal|west coast|left shore/.test(text)) {
-    overrides.waterStyle = 'coastal_left'
-  } else if (/coastal.*right|right.*coastal|east coast|right shore/.test(text)) {
-    overrides.waterStyle = 'coastal_right'
-  } else if (/lake|reservoir|pond/.test(text)) {
-    overrides.waterStyle = 'lake_center'
-  }
-
-  // ── Road style ──
-  if (/winding|organic|curvy|curved|meandering|snaking/.test(text)) {
-    overrides.roadStyle = 'organic'
-  } else if (/grid|orthogonal|block pattern|straight roads/.test(text)) {
-    overrides.roadStyle = 'grid'
-  }
-
-  // ── Density ──
-  if (/low[-\s]?density|sparse|quiet town|small town|village|hamlet/.test(text)) {
-    overrides.density = 'low'
-  } else if (/high[-\s]?density|dense urban|metropolitan|downtown|packed|compact/.test(text)) {
-    overrides.density = 'high'
-  }
-
-  // ── Primary zone ──
-  const industrialHint = /logging|sawmill|lumber|mill town|industrial|factory|warehouse/.test(text)
-  const residentialHint = /residential|housing|homes|suburb/.test(text)
-  const commercialHint = /commercial|business district|offices|retail|mall/.test(text)
-
-  if (industrialHint) {
-    overrides.primaryZone = 'industrial'
-  } else if (residentialHint) {
-    overrides.primaryZone = 'residential'
-  } else if (commercialHint) {
-    overrides.primaryZone = 'commercial'
-  }
-
-  // ── Hospital zone ──
-  const hospitalHint = /hospital|hospitals|clinic|clinics|medical|healthcare|health center|medical center/.test(text)
-  if (hospitalHint) {
-    overrides.hospitalZone = true
-  }
-
-  // ── School zone (Guide Section 1) ──
-  const schoolHint = /school|education|campus|college/.test(text)
-  if (schoolHint) {
-    overrides.schoolZone = true
-  }
-
-  // ── Park style ──
-  const noParkHint = /without parks|no parks|no green space/.test(text)
-  const centralParkHint = /central park|single central park/.test(text)
-  const borderingParkHint = /green belt|bordering forest|edge forest|forest border/.test(text)
-  const forestHint = /forest|forests|woods|woodland|tree[-\s]?dense|pine/.test(text)
-
-  if (noParkHint) {
-    overrides.parkStyle = 'none'
-  } else if (centralParkHint) {
-    overrides.parkStyle = 'central'
-  } else if (borderingParkHint) {
-    overrides.parkStyle = 'bordering'
-  } else if (forestHint) {
-    overrides.parkStyle = 'scattered'
-  }
-
-  if (forestHint) {
-    overrides.forestDensity = 'high'
-  }
-
-  // ── River scale ──
-  if (
-    /(massive|wide|huge|major|broad).{0,20}(river|waterway)/.test(text) ||
-    /(river|waterway).{0,20}(massive|wide|huge|major|broad)/.test(text)
-  ) {
-    overrides.riverScale = 'wide'
-  }
-
-  // ── Guide Section 1 — Traffic Level ──
-  if (/low traffic|less traffic|minimal traffic|low[-\s]?traffic/.test(text)) {
-    overrides.trafficLevel = 'low'
-  } else if (/high traffic|busy|heavy traffic/.test(text)) {
-    overrides.trafficLevel = 'high'
-  } else if (/balanced traffic|medium traffic/.test(text)) {
-    overrides.trafficLevel = 'balanced'
-  }
-
-  // ── Guide Section 1 — Area in acres ──
-  const areaMatch = text.match(/(\d+)\s*acres?/i)
-  if (areaMatch) {
-    overrides.areaInAcres = parseInt(areaMatch[1], 10)
-  }
-
-  // ── Guide Section 1 — Eco flag ──
-  if (/eco|sustainable|green|environment/.test(text)) {
-    overrides.eco = true
-  }
-
-  // ── Guide Section 1 — Smart flag ──
-  if (/smart|intelligent|modern/.test(text)) {
-    overrides.smart = true
-  }
-
-  return overrides
-}
+// ─── Regex Parser Removed for True LLM Structured Output ───────────────────
+// The LLM is now fully responsible for extracting the following configuration.
 
 // ─── Normalize Intent — Merge LLM + Overrides + Guide Rules ───────────────
 function normalizeIntent(llmConfig, overrides, prompt) {
@@ -201,14 +84,14 @@ function normalizeIntent(llmConfig, overrides, prompt) {
     density: overrides.density || llmConfig.density || 'medium',
     parkStyle: overrides.parkStyle || llmConfig.parkStyle || 'scattered',
     roadStyle: overrides.roadStyle || llmConfig.roadStyle || 'grid',
-    forestDensity: overrides.forestDensity || 'normal',
-    riverScale: overrides.riverScale || 'normal',
+    forestDensity: overrides.forestDensity || llmConfig.forestDensity || 'normal',
+    riverScale: overrides.riverScale || llmConfig.riverScale || 'normal',
     hospitalZone: overrides.hospitalZone || llmConfig.hospitalZone || false,
     schoolZone: overrides.schoolZone || llmConfig.schoolZone || false,
-    trafficLevel: overrides.trafficLevel || 'balanced',
-    areaInAcres: overrides.areaInAcres || null,
-    eco: overrides.eco || false,
-    smart: overrides.smart || false,
+    trafficLevel: overrides.trafficLevel || llmConfig.trafficLevel || 'balanced',
+    areaInAcres: overrides.areaInAcres || llmConfig.areaInAcres || null,
+    eco: overrides.eco || llmConfig.eco || false,
+    smart: overrides.smart || llmConfig.smart || false,
   }
 
   // Guide Section 10 — If eco=true and no park mentioned, ensure parks
@@ -299,11 +182,17 @@ The user will provide a descriptive prompt for a city. You must read it and outp
   "parkStyle": "central" | "scattered" | "bordering" | "none",
   "roadStyle": "grid" | "organic",
   "hospitalZone": boolean,
-  "schoolZone": boolean
+  "schoolZone": boolean,
+  "trafficLevel": "high" | "balanced" | "low",
+  "eco": boolean,
+  "smart": boolean,
+  "areaInAcres": number | null,
+  "forestDensity": "high" | "normal",
+  "riverScale": "wide" | "normal"
 }
 
 Do NOT output an array. Just output the JSON configuration object.
-Example: {"waterStyle":"coastal_left", "primaryZone":"commercial", "density":"high", "parkStyle":"bordering", "roadStyle":"organic", "hospitalZone":false, "schoolZone":false}
+Example: {"waterStyle":"coastal_left", "primaryZone":"commercial", "density":"high", "parkStyle":"bordering", "roadStyle":"organic", "hospitalZone":false, "schoolZone":false, "trafficLevel":"balanced", "eco":true, "smart":false, "areaInAcres": 10, "forestDensity": "normal", "riverScale": "normal"}
 `
 
     let rawContent = null
@@ -415,8 +304,8 @@ Example: {"waterStyle":"coastal_left", "primaryZone":"commercial", "density":"hi
       }
     }
 
-    // Apply deterministic keyword overrides so prompt-critical intent is preserved.
-    const overrides = inferPromptOverrides(prompt)
+    // We now rely on the LLM's structured output instead of regex.
+    const overrides = {}
 
     // Apply constraint-based overrides from parser if provided (makes input change output)
     // Examples: eco -> boost parks; low_traffic -> reduce roads; high_density -> increase residential

@@ -4,17 +4,18 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { X, MapPin, Pencil, Save, AlertTriangle, CheckCircle2, Info } from 'lucide-react'
 import type { GridCell } from '@/entities/types'
 import { calculateCellHighlights } from '@/shared/utils/scoring'
+import { ZONE_COLORS } from '@/shared/utils/colors'
 
 const ZONE_INFO: Record<GridCell['type'], { color: string; description: string }> = {
-  road: { color: '#374151', description: 'Transportation infrastructure — streets, highways, and pathways.' },
-  residential: { color: '#1d4ed8', description: 'Housing zones — apartments, houses, and residential complexes.' },
-  commercial: { color: '#b45309', description: 'Business areas — shops, offices, and commercial centers.' },
-  park: { color: '#15803d', description: 'Green spaces — parks, gardens, and recreational areas.' },
-  hospital: { color: '#dc2626', description: 'Medical services — hospitals, clinics, and healthcare support.' },
-  industrial: { color: '#6b21a8', description: 'Industrial zones — factories, warehouses, and manufacturing.' },
-  water: { color: '#0e7490', description: 'Water bodies — rivers, lakes, and reservoirs.' },
-  school: { color: '#7a39bb', description: 'Education facilities — schools, campuses, and learning centers.' },
-  empty: { color: '#1f2937', description: 'Unassigned land — available for development.' },
+  road: { color: ZONE_COLORS.road.hex, description: 'Transportation infrastructure — streets, highways, and pathways.' },
+  residential: { color: ZONE_COLORS.residential.hex, description: 'Housing zones — apartments, houses, and residential complexes.' },
+  commercial: { color: ZONE_COLORS.commercial.hex, description: 'Business areas — shops, offices, and commercial centers.' },
+  park: { color: ZONE_COLORS.park.hex, description: 'Green spaces — parks, gardens, and recreational areas.' },
+  hospital: { color: ZONE_COLORS.hospital.hex, description: 'Medical services — hospitals, clinics, and healthcare support.' },
+  industrial: { color: ZONE_COLORS.industrial.hex, description: 'Industrial zones — factories, warehouses, and manufacturing.' },
+  water: { color: ZONE_COLORS.water.hex, description: 'Water bodies — rivers, lakes, and reservoirs.' },
+  school: { color: ZONE_COLORS.school.hex, description: 'Education facilities — schools, campuses, and learning centers.' },
+  empty: { color: ZONE_COLORS.empty.hex, description: 'Unassigned land — available for development.' },
 }
 
 const ALL_TYPES: GridCell['type'][] = ['road', 'residential', 'commercial', 'park', 'hospital', 'industrial', 'water', 'school', 'empty']

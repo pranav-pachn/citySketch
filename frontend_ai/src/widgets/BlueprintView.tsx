@@ -3,6 +3,7 @@ import { useStore } from '@/entities/store/useStore'
 import { Download } from 'lucide-react'
 import rough from 'roughjs'
 import type { GridCell } from '@/entities/types'
+import { ZONE_COLORS } from '@/shared/utils/colors'
 
 /* ═══════ Room Templates by SUBTYPE ═══════ */
 interface Room {
@@ -17,15 +18,15 @@ const BLUEPRINT_EXPORT_VIEWPORT_MULTIPLIER = 1.2
 const MAX_BLUEPRINT_EXPORT_DIMENSION = 8192
 
 const BLUEPRINT_ZONE_COLORS: Record<GridCell['type'], string> = {
-  road: '#52525b',
-  residential: '#3b82f6',
-  commercial: '#f59e0b',
-  park: '#22c55e',
-  hospital: '#ef4444',
-  industrial: '#a855f7',
-  water: '#06b6d4',
-  school: '#9c27b0',
-  empty: '#f3efe8',
+  road: ZONE_COLORS.road.hex,
+  residential: ZONE_COLORS.residential.hex,
+  commercial: ZONE_COLORS.commercial.hex,
+  park: ZONE_COLORS.park.hex,
+  hospital: ZONE_COLORS.hospital.hex,
+  industrial: ZONE_COLORS.industrial.hex,
+  water: ZONE_COLORS.water.hex,
+  school: ZONE_COLORS.school.hex,
+  empty: ZONE_COLORS.empty.hex,
 }
 
 interface BlueprintRenderOptions {
