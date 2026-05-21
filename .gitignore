@@ -6,6 +6,8 @@ node_modules/
 .env
 .env.*
 !.env.example
+!frontend_ai/.env.vercel.example
+!backend_ai/.env.render.example
 
 # Logs
 logs/
