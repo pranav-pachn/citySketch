@@ -73,6 +73,44 @@ function selectFallbackTemplate(prompt) {
   return FALLBACK_TEMPLATES.default
 }
 
+// Simple schema validator for the expected LLM output. Returns { valid, confidence }
+function validateLLMConfig(obj) {
+  if (!obj || typeof obj !== 'object') return { valid: false, confidence: 0 }
+  const schema = {
+    waterStyle: ['river_vertical','river_horizontal','coastal_left','coastal_right','lake_center','none'],
+    primaryZone: ['commercial','industrial','residential'],
+    density: ['high','medium','low'],
+    parkStyle: ['central','scattered','bordering','none'],
+    roadStyle: ['grid','organic'],
+    hospitalZone: 'boolean',
+    schoolZone: 'boolean',
+    trafficLevel: ['high','balanced','low'],
+    eco: 'boolean',
+    smart: 'boolean',
+    areaInAcres: 'number|null',
+    forestDensity: ['high','normal'],
+    riverScale: ['wide','normal'],
+  }
+
+  let matches = 0
+  let total = Object.keys(schema).length
+
+  for (const key of Object.keys(schema)) {
+    const rule = schema[key]
+    const val = obj[key]
+    if (Array.isArray(rule)) {
+      if (typeof val === 'string' && rule.includes(val)) matches++
+    } else if (rule === 'boolean') {
+      if (typeof val === 'boolean') matches++
+    } else if (rule === 'number|null') {
+      if (val === null || typeof val === 'number') matches++
+    }
+  }
+
+  const confidence = Math.round((matches / total) * 100)
+  return { valid: matches === total, confidence }
+}
+
 // ─── Regex Parser Removed for True LLM Structured Output ───────────────────
 // The LLM is now fully responsible for extracting the following configuration.
 
@@ -295,6 +333,18 @@ Example: {"waterStyle":"coastal_left", "primaryZone":"commercial", "density":"hi
         }
 
         config = JSON.parse(cleanedContent)
+        // Validate LLM produced config
+        const { valid, confidence } = validateLLMConfig(config)
+        if (!valid || confidence < 60) {
+          console.warn('LLM produced low-confidence or invalid config. confidence=', confidence)
+          config = selectFallbackTemplate(prompt)
+          usedFallback = true
+          // Attach confidence to a safe place so frontend can display it
+          config._llm_confidence = confidence
+        } else {
+          // keep confidence for telemetry
+          config._llm_confidence = confidence
+        }
       } catch (e) {
         console.error('JSON Parse error, falling back to keyword parser:', e)
         console.log('Raw output was:', rawContent)
@@ -329,31 +379,40 @@ Example: {"waterStyle":"coastal_left", "primaryZone":"commercial", "density":"hi
     // Build normalized intent (Guide Sections 1-2)
     const normalizedIntent = normalizeIntent(config, overrides, prompt)
 
-    // Intercept LLM intent and generate perfect mathematical grid
-    const engine = new CityGenerator({
-      waterStyle: normalizedIntent.waterStyle,
-      primaryZone: normalizedIntent.primaryZone,
-      density: normalizedIntent.density,
-      parkStyle: normalizedIntent.parkStyle,
-      roadStyle: normalizedIntent.roadStyle,
-      forestDensity: normalizedIntent.forestDensity,
-      riverScale: normalizedIntent.riverScale,
-      hospitalZone: normalizedIntent.hospitalZone,
-      schoolZone: normalizedIntent.schoolZone,
-      trafficLevel: normalizedIntent.trafficLevel,
-      gridSize: normalizedIntent.gridSize,
-      eco: normalizedIntent.eco,
-    })
+    // Support multiple candidate generations for compare/choose flows
+    const candidatesCount = Math.max(1, Math.min(5, Number(req.body.candidates) || 1))
+    const candidates = []
 
-    const grid = engine.generate()
+    for (let i = 0; i < candidatesCount; i++) {
+      const engine = new CityGenerator({
+        waterStyle: normalizedIntent.waterStyle,
+        primaryZone: normalizedIntent.primaryZone,
+        density: normalizedIntent.density,
+        parkStyle: normalizedIntent.parkStyle,
+        roadStyle: normalizedIntent.roadStyle,
+        forestDensity: normalizedIntent.forestDensity,
+        riverScale: normalizedIntent.riverScale,
+        hospitalZone: normalizedIntent.hospitalZone,
+        schoolZone: normalizedIntent.schoolZone,
+        trafficLevel: normalizedIntent.trafficLevel,
+        gridSize: normalizedIntent.gridSize,
+        eco: normalizedIntent.eco,
+      })
 
-    if (promptRequestsHospital(prompt)) {
-      ensureHospitalInGrid(grid)
+      const grid_i = engine.generate()
+
+      if (promptRequestsHospital(prompt)) {
+        ensureHospitalInGrid(grid_i)
+      }
+
+      const evaluation_i = generateInsights(grid_i)
+      candidates.push({ layoutData: grid_i, evaluation: evaluation_i })
     }
 
-    // ─── Explainable AI Pipeline ───────────────────────────────────────────
-    // Runs: analyze → score → explain → suggest → summarize
-    const evaluation = generateInsights(grid)
+    // Choose first candidate as default (frontend can request others)
+    const chosen = candidates[0]
+    const grid = chosen.layoutData
+    const evaluation = chosen.evaluation
 
     // Build response with full explainable AI payload
     const buildPayload = (id, saved) => ({
@@ -379,6 +438,12 @@ Example: {"waterStyle":"coastal_left", "primaryZone":"commercial", "density":"hi
       timestamp: Date.now(),
       ai_model: modelUsed,
       saved,
+      candidates: candidatesCount > 1 ? candidates.map((c, idx) => ({
+        id: idx,
+        score: c.evaluation.scores.overall,
+        metrics: c.evaluation.metrics,
+        layoutData: c.layoutData,
+      })) : undefined,
       normalizedIntent: {
         areaInAcres: normalizedIntent.areaInAcres || 5,
         gridSize: normalizedIntent.gridSize,
@@ -387,6 +452,7 @@ Example: {"waterStyle":"coastal_left", "primaryZone":"commercial", "density":"hi
         eco: normalizedIntent.eco,
         smart: normalizedIntent.smart,
         usedFallback,
+        confidence: config && config._llm_confidence ? config._llm_confidence : null,
       },
     })
 

@@ -7,34 +7,16 @@ import { calculateCellHighlights } from '@/shared/utils/scoring'
 import * as THREE from 'three'
 import { easing } from 'maath'
 import { ZONE_COLORS } from '@/shared/utils/colors'
+import { getZonePalette } from '@/shared/theme/zonePalette'
+import { getStandardMaterial } from '@/shared/three/materials'
+import TreesInstancer, { HousesInstancer, CarsInstancer } from '@/shared/three/instancers'
+import AnimationManager, { registerAnimatedGroup, updateAnimatedGroup, unregisterAnimatedGroup } from '@/shared/three/animationManager'
+import TelemetryOverlay from '@/shared/ui/TelemetryOverlay'
+import ExportControls from '@/shared/ui/ExportControls'
 
 const CELL_SIZE = 1.2
 
-/* ═══════ Palette ═══════ */
-const ZONE_PALETTE = {
-  road:        { base: ZONE_COLORS.road.base, highlight: '#6b7280' },
-  residential: { base: ZONE_COLORS.residential.base, roof: ZONE_COLORS.residential.darkHex },
-  commercial:  { base: ZONE_COLORS.commercial.base, trim: ZONE_COLORS.commercial.darkHex },
-  hospital:    { base: ZONE_COLORS.hospital.base, cross: '#ffffff' },
-  park:        { base: ZONE_COLORS.park.base, trunk: '#7b341e', foliage: ZONE_COLORS.park.darkHex },
-  industrial:  { base: ZONE_COLORS.industrial.base, smokestack: '#718096' },
-  water:       { base: ZONE_COLORS.water.base, wave: '#63b3ed' },
-  school:      { base: ZONE_COLORS.school.base, roof: ZONE_COLORS.school.darkHex, flag: '#f44336' },
-  empty:       { base: ZONE_COLORS.empty.base }
-}
-
-/* ═══════ Night / Dark-mode Palette (icy, whitish, high contrast) ═══════ */
-const NIGHT_PALETTE = {
-  road:        { base: '#cbd5e1', highlight: '#94a3b8' },
-  residential: { base: '#bfdbfe', roof: '#93c5fd' },
-  commercial:  { base: '#fca5a5', trim: '#f87171' },
-  hospital:    { base: '#fecaca', cross: '#ffffff' },
-  park:        { base: '#bbf7d0', trunk: '#a3e635', foliage: '#86efac' },
-  industrial:  { base: '#e2e8f0', smokestack: '#cbd5e1' },
-  water:       { base: '#7dd3fc', wave: '#bae6fd' },
-  school:      { base: '#e9d5ff', roof: '#d8b4fe', flag: '#fca5a5' },
-  empty:       { base: '#1e293b' }
-}
+/* Palette is now centralized in shared/theme/zonePalette.ts */
 
 function seededRandom(seed: number): number {
   const x = Math.sin(seed) * 10000
@@ -46,25 +28,22 @@ function seededRandom(seed: number): number {
 const ParkTree = ({ x, z, scale, seed }: { x: number, z: number, scale: number, seed: number }) => {
   const isPond = seededRandom(seed * 4) > 0.8
   const isNightMode = useStore(s => s.isNightMode)
-  const pal = isNightMode ? NIGHT_PALETTE : ZONE_PALETTE
+  const pal = getZonePalette(isNightMode)
   if (isPond) {
     return (
-      <mesh position={[x, 0.03, z]} receiveShadow rotation={[-Math.PI/2, 0, 0]}>
+      <mesh position={[x, 0.03, z]} receiveShadow rotation={[-Math.PI/2, 0, 0]} material={getStandardMaterial('water', isNightMode, { roughness: 0.1, metalness: 0.9 })}>
         <circleGeometry args={[0.2 * scale, 12]} />
-        <meshStandardMaterial color={pal.water.base} roughness={0.1} metalness={0.9} />
       </mesh>
     )
   }
 
   return (
     <group position={[x, 0, z]} scale={scale}>
-      <mesh position={[0, 0.1, 0]}>
+      <mesh position={[0, 0.1, 0]} material={getStandardMaterial('park', isNightMode, { color: pal.park.trunk, roughness: 0.9 })}>
         <cylinderGeometry args={[0.03, 0.04, 0.2, 5]} />
-        <meshStandardMaterial color={pal.park.trunk} roughness={0.9} />
       </mesh>
-      <mesh position={[0, 0.3, 0]}>
+      <mesh position={[0, 0.3, 0]} material={getStandardMaterial('park', isNightMode, { color: pal.park.foliage, roughness: 0.8 })}>
         <dodecahedronGeometry args={[0.15, 0]} />
-        <meshStandardMaterial color={pal.park.foliage} roughness={0.8} />
       </mesh>
     </group>
   )
@@ -74,13 +53,12 @@ const ResidentialHouse = ({ x, z, scale, seed }: { x: number, z: number, scale: 
   const height = 0.2 + seededRandom(seed) * 0.15
   const isNightMode = useStore(s => s.isNightMode)
   const isLightOn = seededRandom(seed * 5) > 0.5
-  const pal = isNightMode ? NIGHT_PALETTE : ZONE_PALETTE
+  const pal = getZonePalette(isNightMode)
 
   return (
     <group position={[x, 0, z]} scale={scale}>
-      <mesh position={[0, height / 2, 0]} castShadow receiveShadow>
+      <mesh position={[0, height / 2, 0]} castShadow receiveShadow material={getStandardMaterial('residential', isNightMode, { roughness: 0.8 })}>
         <boxGeometry args={[0.4, height, 0.4]} />
-        <meshStandardMaterial color={pal.residential.base} roughness={0.8} />
       </mesh>
       {/* Night window glow */}
       {isNightMode && isLightOn && (
@@ -89,9 +67,8 @@ const ResidentialHouse = ({ x, z, scale, seed }: { x: number, z: number, scale: 
           <meshBasicMaterial color="#fef08a" />
         </mesh>
       )}
-      <mesh position={[0, height + 0.1, 0]} rotation={[0, Math.PI / 4, 0]} castShadow>
+      <mesh position={[0, height + 0.1, 0]} rotation={[0, Math.PI / 4, 0]} castShadow material={getStandardMaterial('residential', isNightMode, { color: pal.residential.roof, roughness: 0.9 })}>
         <coneGeometry args={[0.35, 0.2, 4]} />
-        <meshStandardMaterial color={pal.residential.roof} roughness={0.9} />
       </mesh>
     </group>
   )
@@ -105,21 +82,10 @@ const CommercialSkyscraper = ({ x, z, seed }: { x: number, z: number, seed: numb
   const hasAntenna = seededRandom(seed * 5) > 0.3
 
   const isNightMode = useStore(s => s.isNightMode)
-  const pal = isNightMode ? NIGHT_PALETTE : ZONE_PALETTE
+  const pal = getZonePalette(isNightMode)
 
-  const material = useMemo(() => new THREE.MeshStandardMaterial({
-    color: pal.commercial.base,
-    roughness: 0.1,
-    metalness: 0.8,
-    emissive: isNightMode ? '#fef08a' : '#000000',
-    emissiveIntensity: isNightMode ? 0.15 : 0
-  }), [pal.commercial.base, isNightMode])
-
-  useEffect(() => {
-    return () => {
-      material.dispose()
-    }
-  }, [material])
+  // Use shared material pool instead of allocating per-instance
+  const material = getStandardMaterial('commercial', isNightMode, { roughness: 0.1, metalness: 0.8, emissive: isNightMode ? '#fef08a' : undefined, emissiveIntensity: isNightMode ? 0.15 : 0 })
 
   return (
     <group position={[x, 0, z]}>
@@ -137,7 +103,7 @@ const CommercialSkyscraper = ({ x, z, seed }: { x: number, z: number, seed: numb
       {hasAntenna && (
          <mesh position={[0, tier1Height + tier2Height + (hasTier3 ? tier3Height : 0) + 0.25, 0]}>
            <cylinderGeometry args={[0.01, 0.01, 0.5, 4]} />
-           <meshStandardMaterial color="#ffffff" emissive={isNightMode ? "#ef4444" : "#000"} emissiveIntensity={isNightMode ? 0.5 : 0} />
+           <primitive object={getStandardMaterial('commercial', isNightMode, { color: '#ffffff', emissive: isNightMode ? '#ef4444' : undefined, emissiveIntensity: isNightMode ? 0.5 : 0 })} attach="material" />
          </mesh>
       )}
     </group>
@@ -146,20 +112,17 @@ const CommercialSkyscraper = ({ x, z, seed }: { x: number, z: number, seed: numb
 
 const IndustrialFactory = ({ x, z }: { x: number, z: number }) => {
   const isNightMode = useStore(s => s.isNightMode)
-  const pal = isNightMode ? NIGHT_PALETTE : ZONE_PALETTE
+  const pal = getZonePalette(isNightMode)
   return (
     <group position={[x, 0, z]}>
-      <mesh position={[-0.1, 0.2, 0]} castShadow receiveShadow>
+      <mesh position={[-0.1, 0.2, 0]} castShadow receiveShadow material={getStandardMaterial('industrial', isNightMode, { roughness: 0.7 })}>
         <boxGeometry args={[0.5, 0.4, 0.7]} />
-        <meshStandardMaterial color={pal.industrial.base} roughness={0.7} />
       </mesh>
-      <mesh position={[0.3, 0.5, -0.15]} castShadow>
+      <mesh position={[0.3, 0.5, -0.15]} castShadow material={getStandardMaterial('industrial', isNightMode, { color: pal.industrial.smokestack, roughness: 0.6 })}>
         <cylinderGeometry args={[0.12, 0.12, 1.0, 12]} />
-        <meshStandardMaterial color={pal.industrial.smokestack} roughness={0.6} />
       </mesh>
-      <mesh position={[0.3, 0.4, 0.2]} castShadow>
+      <mesh position={[0.3, 0.4, 0.2]} castShadow material={getStandardMaterial('industrial', isNightMode, { color: pal.industrial.smokestack, roughness: 0.6 })}>
         <cylinderGeometry args={[0.1, 0.1, 0.8, 12]} />
-        <meshStandardMaterial color={pal.industrial.smokestack} roughness={0.6} />
       </mesh>
       {isNightMode && (
          <pointLight position={[0, 0.8, 0]} intensity={2} distance={2} color="#f97316" />
@@ -171,21 +134,18 @@ const IndustrialFactory = ({ x, z }: { x: number, z: number }) => {
 const HospitalClinic = ({ x, z, seed }: { x: number, z: number, seed: number }) => {
   const roofHeight = 0.5 + seededRandom(seed) * 0.2
   const isNightMode = useStore(s => s.isNightMode)
-  const pal = isNightMode ? NIGHT_PALETTE : ZONE_PALETTE
+  const pal = getZonePalette(isNightMode)
 
   return (
     <group position={[x, 0, z]}>
-      <mesh position={[0, roofHeight / 2, 0]} castShadow receiveShadow>
+      <mesh position={[0, roofHeight / 2, 0]} castShadow receiveShadow material={getStandardMaterial('hospital', isNightMode, { roughness: 0.5 })}>
         <boxGeometry args={[0.72, roofHeight, 0.72]} />
-        <meshStandardMaterial color={pal.hospital.base} roughness={0.5} />
       </mesh>
-      <mesh position={[0, roofHeight + 0.08, 0]} castShadow>
+      <mesh position={[0, roofHeight + 0.08, 0]} castShadow material={getStandardMaterial('hospital', isNightMode, { color: pal.hospital.cross })}>
         <boxGeometry args={[0.18, 0.42, 0.08]} />
-        <meshStandardMaterial color={pal.hospital.cross} />
       </mesh>
-      <mesh position={[0, roofHeight + 0.08, 0]} castShadow>
+      <mesh position={[0, roofHeight + 0.08, 0]} castShadow material={getStandardMaterial('hospital', isNightMode, { color: pal.hospital.cross })}>
         <boxGeometry args={[0.08, 0.18, 0.08]} />
-        <meshStandardMaterial color={pal.hospital.cross} />
       </mesh>
     </group>
   )
@@ -195,29 +155,27 @@ const HospitalClinic = ({ x, z, seed }: { x: number, z: number, seed: number }) 
 const SchoolBuilding = ({ x, z, seed }: { x: number, z: number, seed: number }) => {
   const height = 0.6 + seededRandom(seed) * 0.3
   const isNightMode = useStore(s => s.isNightMode)
-  const pal = isNightMode ? NIGHT_PALETTE : ZONE_PALETTE
+  const pal = getZonePalette(isNightMode)
 
   return (
     <group position={[x, 0, z]}>
       {/* Main building */}
-      <mesh position={[0, height / 2, 0]} castShadow receiveShadow>
+      <mesh position={[0, height / 2, 0]} castShadow receiveShadow material={getStandardMaterial('school', isNightMode, { roughness: 0.6 })}>
         <boxGeometry args={[0.7, height, 0.5]} />
-        <meshStandardMaterial color={pal.school.base} roughness={0.6} />
       </mesh>
       {/* Roof */}
-      <mesh position={[0, height + 0.05, 0]} castShadow>
+      <mesh position={[0, height + 0.05, 0]} castShadow material={getStandardMaterial('school', isNightMode, { color: pal.school.roof, roughness: 0.7 })}>
         <boxGeometry args={[0.74, 0.06, 0.54]} />
-        <meshStandardMaterial color={pal.school.roof} roughness={0.7} />
       </mesh>
       {/* Flag pole */}
       <mesh position={[0.3, height + 0.35, 0]}>
         <cylinderGeometry args={[0.01, 0.01, 0.6, 6]} />
-        <meshStandardMaterial color="#e0e0e0" />
+        <primitive object={getStandardMaterial('school', isNightMode, { color: '#e0e0e0' })} attach="material" />
       </mesh>
       {/* Flag */}
       <mesh position={[0.3, height + 0.55, 0.06]}>
         <boxGeometry args={[0.01, 0.12, 0.12]} />
-        <meshStandardMaterial color={pal.school.flag} />
+        <primitive object={getStandardMaterial('school', isNightMode, { color: pal.school.flag })} attach="material" />
       </mesh>
     </group>
   )
@@ -249,9 +207,8 @@ const RoamingCar = ({ seed }: { seed: number }) => {
 
   return (
     <group position={[0, 0.05, 0]} ref={ref}>
-      <mesh>
+      <mesh material={getStandardMaterial('road', isNightMode, { color: seededRandom(seed*4) > 0.5 ? '#eab308' : '#ffffff', roughness: 0.3 })}>
         <boxGeometry args={[0.08, 0.06, 0.16]} />
-        <meshStandardMaterial color={seededRandom(seed*4) > 0.5 ? '#eab308' : '#ffffff'} roughness={0.3} />
       </mesh>
       {/* Headlights */}
       {isNightMode && (
@@ -279,23 +236,26 @@ const RoamingCar = ({ seed }: { seed: number }) => {
   )
 }
 
-const RoadTile = ({ seed, elevation = 0 }: { seed: number, elevation?: number }) => (
-  <group>
-    <mesh position={[0, -elevation / 2 + 0.01, 0]} receiveShadow castShadow>
-      <boxGeometry args={[CELL_SIZE - 0.05, 0.02 + elevation, CELL_SIZE - 0.05]} />
-      <meshStandardMaterial color={ZONE_PALETTE.road.base} roughness={0.9} />
-    </mesh>
-    {/* 40% chance to spawn a roaming car on a road */}
-    {seededRandom(seed) > 0.6 && <RoamingCar seed={seed} />}
-  </group>
-)
+const RoadTile = ({ seed, elevation = 0 }: { seed: number, elevation?: number }) => {
+  const isNightMode = useStore(s => s.isNightMode)
+  const pal = getZonePalette(isNightMode)
+  return (
+    <group>
+      <mesh position={[0, -elevation / 2 + 0.01, 0]} receiveShadow castShadow material={getStandardMaterial('road', isNightMode, { roughness: 0.9 })}>
+        <boxGeometry args={[CELL_SIZE - 0.05, 0.02 + elevation, CELL_SIZE - 0.05]} />
+      </mesh>
+    </group>
+  )
+}
 
-const WaterTile = ({ elevation = 0 }: { elevation?: number }) => (
-  <mesh position={[0, -elevation / 2 + 0.015, 0]} receiveShadow castShadow>
-    <boxGeometry args={[CELL_SIZE - 0.05, 0.03 + elevation, CELL_SIZE - 0.05]} />
-    <meshStandardMaterial color={ZONE_PALETTE.water.base} roughness={0.1} metalness={0.8} />
-  </mesh>
-)
+const WaterTile = ({ elevation = 0 }: { elevation?: number }) => {
+  const isNightMode = useStore(s => s.isNightMode)
+  return (
+    <mesh position={[0, -elevation / 2 + 0.015, 0]} receiveShadow castShadow material={getStandardMaterial('water', isNightMode, { roughness: 0.1, metalness: 0.8 })}>
+      <boxGeometry args={[CELL_SIZE - 0.05, 0.03 + elevation, CELL_SIZE - 0.05]} />
+    </mesh>
+  )
+}
 
 
 /* ═══════ Single Cell Group ═══════ */
@@ -306,7 +266,7 @@ const CityCell = memo(function CityCell({ cell, offsetX, offsetZ, revealOrder, g
   const isHovered = useStore((s) => s.hoveredCell?.x === cell.x && s.hoveredCell?.y === cell.y)
   const setHoveredCell = useStore((s) => s.setHoveredCell)
   const isNightMode = useStore((s) => s.isNightMode)
-  const pal = isNightMode ? NIGHT_PALETTE : ZONE_PALETTE
+  const pal = getZonePalette(isNightMode)
   const seed = cell.x * 100 + cell.y * 10
   const elevation = cell.elevation || 0
 
@@ -326,28 +286,25 @@ const CityCell = memo(function CityCell({ cell, offsetX, offsetZ, revealOrder, g
     return () => window.clearTimeout(timeout)
   }, [generationId, revealOrder])
 
-  // Smooth hover floating
-  useFrame((_, delta) => {
-    if (!groupRef.current) return
-    const targetY = (isHovered ? 0.2 : 0) + elevation
-    easing.damp(groupRef.current.position, 'y', targetY, 0.15, delta)
+  // Register group with centralized AnimationManager
+  useEffect(() => {
+    registerAnimatedGroup(groupRef, { elevation, targetY: isHovered ? 0.2 : 0, targetScale: isVisible ? 1 : 0.01 })
+    return () => unregisterAnimatedGroup(groupRef)
+    // intentionally only on mount/unmount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
-    const targetScale = isVisible ? 1 : 0.01
-    easing.damp3(groupRef.current.scale, [targetScale, targetScale, targetScale], 0.2, delta)
-  })
+  // Update animation targets when hover/visibility/elevation change
+  useEffect(() => {
+    updateAnimatedGroup(groupRef, { elevation, targetY: isHovered ? 0.2 : 0, targetScale: isVisible ? 1 : 0.01 })
+  }, [isHovered, isVisible, elevation])
 
   // Render logic based on type
   const renderGeometry = () => {
     switch (cell.type) {
       case 'residential':
-        return (
-          <>
-            <ResidentialHouse x={-0.2} z={-0.2} scale={1} seed={seed} />
-            <ResidentialHouse x={0.25} z={-0.2} scale={0.8} seed={seed + 1} />
-            <ResidentialHouse x={-0.1} z={0.3} scale={0.9} seed={seed + 2} />
-            <ResidentialHouse x={0.3} z={0.3} scale={1.1} seed={seed + 3} />
-          </>
-        )
+        // residential content rendered via HousesInstancer
+        return null
       case 'commercial':
         return <CommercialSkyscraper x={0} z={0} seed={seed} />
       case 'hospital':
@@ -355,14 +312,8 @@ const CityCell = memo(function CityCell({ cell, offsetX, offsetZ, revealOrder, g
       case 'industrial':
         return <IndustrialFactory x={0} z={0} />
       case 'park':
-        return (
-          <>
-            <ParkTree x={-0.3} z={-0.3} scale={1} seed={seed} />
-            <ParkTree x={0.2} z={-0.2} scale={1.5} seed={seed+1} />
-            <ParkTree x={-0.1} z={0.4} scale={1.2} seed={seed+2} />
-            <ParkTree x={0.3} z={0.3} scale={0.8} seed={seed+3} />
-          </>
-        )
+        // Park content rendered via instanced TreesInstancer to reduce draw calls
+        return null
       case 'road':
         return <RoadTile seed={seed} elevation={elevation} />
       case 'water':
@@ -416,22 +367,19 @@ const CityCell = memo(function CityCell({ cell, offsetX, offsetZ, revealOrder, g
         {renderGeometry()}
 
         {cell.type !== 'road' && cell.type !== 'water' && cell.type !== 'park' ? (
-          <mesh position={[0, -elevation / 2 + 0.05, 0]} receiveShadow castShadow>
+          <mesh position={[0, -elevation / 2 + 0.05, 0]} receiveShadow castShadow material={getStandardMaterial('empty', isNightMode, { color: getBaseColor(), roughness: 0.9 })}>
             <boxGeometry args={[CELL_SIZE - 0.05, 0.1 + elevation, CELL_SIZE - 0.05]} />
-            <meshStandardMaterial color={getBaseColor()} roughness={0.9} />
           </mesh>
         ) : cell.type === 'park' ? (
-          <mesh position={[0, -elevation / 2 + 0.03, 0]} receiveShadow castShadow>
+          <mesh position={[0, -elevation / 2 + 0.03, 0]} receiveShadow castShadow material={getStandardMaterial('park', isNightMode, { color: pal.park.base, roughness: 1 })}>
             <boxGeometry args={[CELL_SIZE - 0.05, 0.06 + elevation, CELL_SIZE - 0.05]} />
-            <meshStandardMaterial color={pal.park.base} roughness={1} />
           </mesh>
         ) : null}
 
         {/* Highlight Overlay */}
         {highlightInfo && (
-          <mesh position={[0, elevation + 0.2, 0]}>
+          <mesh position={[0, elevation + 0.2, 0]} material={getStandardMaterial('overlay', isNightMode, { color: highlightInfo.type === 'bad' ? '#ef4444' : '#22c55e', opacity: 0.3, transparent: true, depthWrite: false })}>
             <boxGeometry args={[CELL_SIZE, 0.1, CELL_SIZE]} />
-            <meshStandardMaterial color={highlightInfo.type === 'bad' ? '#ef4444' : '#22c55e'} opacity={0.3} transparent depthWrite={false} />
           </mesh>
         )}
 
@@ -489,6 +437,18 @@ function AutoRotate() {
   )
 }
 
+function TelemetryToggle({ visible, onToggle }: { visible: boolean, onToggle: () => void }) {
+  return (
+    <button
+      onClick={onToggle}
+      title="Toggle telemetry (T)"
+      className="px-3 py-1 text-xs font-medium rounded-md bg-zinc-900/80 border border-zinc-800/50 text-zinc-200 hover:bg-zinc-800/80"
+    >
+      Telemetry {visible ? 'On' : 'Off'}
+    </button>
+  )
+}
+
 /* ═══════ Main Scene Assembly ═══════ */
 function CityScene() {
   const layoutData = useStore((s) => s.layoutData)
@@ -511,12 +471,73 @@ function CityScene() {
   const centerX = (width - CELL_SIZE) / 2
   const centerZ = (depth - CELL_SIZE) / 2
 
+  // Collect park tree instances to render with InstancedMesh
+  const treeInstances = useMemo(() => {
+    const out: Array<{ x: number; z: number; scale: number; seed: number; isPond?: boolean }> = []
+    for (let y = 0; y < rows; y++) {
+      for (let x = 0; x < cols; x++) {
+        const cell = layoutData[y][x]
+        if (cell.type === 'park') {
+          const seed = cell.x * 100 + cell.y * 10
+          const baseX = cell.x * CELL_SIZE
+          const baseZ = cell.y * CELL_SIZE
+          out.push({ x: baseX - 0.3, z: baseZ - 0.3, scale: 1, seed })
+          out.push({ x: baseX + 0.25, z: baseZ - 0.2, scale: 1.5, seed: seed + 1 })
+          out.push({ x: baseX - 0.1, z: baseZ + 0.4, scale: 1.2, seed: seed + 2 })
+          out.push({ x: baseX + 0.3, z: baseZ + 0.3, scale: 0.8, seed: seed + 3 })
+        }
+      }
+    }
+    return out
+  }, [layoutData, rows, cols])
+
+  // Collect house instances for residential cells
+  const houseInstances = useMemo(() => {
+    const out: Array<{ x: number; z: number; scale: number; seed: number }> = []
+    for (let y = 0; y < rows; y++) {
+      for (let x = 0; x < cols; x++) {
+        const cell = layoutData[y][x]
+        if (cell.type === 'residential') {
+          const seed = cell.x * 100 + cell.y * 10
+          const baseX = cell.x * CELL_SIZE
+          const baseZ = cell.y * CELL_SIZE
+          out.push({ x: baseX - 0.2, z: baseZ - 0.2, scale: 1, seed })
+          out.push({ x: baseX + 0.25, z: baseZ - 0.2, scale: 0.8, seed: seed + 1 })
+          out.push({ x: baseX - 0.1, z: baseZ + 0.3, scale: 0.9, seed: seed + 2 })
+          out.push({ x: baseX + 0.3, z: baseZ + 0.3, scale: 1.1, seed: seed + 3 })
+        }
+      }
+    }
+    return out
+  }, [layoutData, rows, cols])
+
+  // Collect car instances on road tiles
+  const carInstances = useMemo(() => {
+    const out: Array<{ x: number; z: number; speed: number; offset: number; isXAxis: boolean; color?: string }> = []
+    for (let y = 0; y < rows; y++) {
+      for (let x = 0; x < cols; x++) {
+        const cell = layoutData[y][x]
+        if (cell.type === 'road') {
+          const seed = cell.x * 100 + cell.y * 10
+          if (seededRandom(seed) > 0.6) {
+            const isXAxis = seededRandom(seed * 3) > 0.5
+            const speed = 0.5 + seededRandom(seed) * 1.5
+            const offset = seededRandom(seed * 2) * Math.PI * 2
+            const baseX = cell.x * CELL_SIZE
+            const baseZ = cell.y * CELL_SIZE
+            out.push({ x: baseX, z: baseZ, speed, offset, isXAxis, color: seededRandom(seed*4) > 0.5 ? '#eab308' : '#ffffff' })
+          }
+        }
+      }
+    }
+    return out
+  }, [layoutData, rows, cols])
+
   return (
     <group position={[-centerX, 0, -centerZ]}>
       {/* Scale Model Cutting Mat / Base */}
-      <mesh position={[centerX, -0.25, centerZ]} receiveShadow>
+      <mesh position={[centerX, -0.25, centerZ]} receiveShadow material={getStandardMaterial('empty', isNightMode, { color: isNightMode ? '#1e293b' : '#ffffff', roughness: 1 })}>
         <boxGeometry args={[width + 2, 0.5, depth + 2]} />
-        <meshStandardMaterial color={isNightMode ? '#1e293b' : '#ffffff'} roughness={1} />
       </mesh>
 
       {/* Grid Lines over the base */}
@@ -556,6 +577,13 @@ function CityScene() {
           />
         ))
       )}
+
+      {/* Instanced trees for all park cells */}
+      <TreesInstancer instances={treeInstances} />
+      {/* Instanced houses */}
+      <HousesInstancer instances={houseInstances} />
+      {/* Instanced roaming cars with single animation loop */}
+      <CarsInstancer instances={carInstances} />
     </group>
   )
 }
@@ -563,6 +591,15 @@ function CityScene() {
 export function Scene3D() {
   const layoutData = useStore((s) => s.layoutData)
   const isNightMode = useStore((s) => s.isNightMode)
+  const [telemetryVisible, setTelemetryVisible] = useState(true)
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key.toLowerCase() === 't') setTelemetryVisible(v => !v)
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [])
 
   if (!layoutData) return null
 
@@ -621,6 +658,7 @@ export function Scene3D() {
         {!isNightMode && <Environment preset="studio" environmentIntensity={0.8} />}
 
         <CityScene />
+        <AnimationManager />
         <AutoRotate />
       </R3FCanvas>
       
@@ -639,6 +677,15 @@ export function Scene3D() {
           <div className="flex items-center gap-2"><span className="w-2.5 h-2.5 rounded-full bg-red-600" />Red = Hospital</div>
         </div>
       </div>
+      {/* Telemetry Toggle Button */}
+      <div style={{ position: 'absolute', top: 12, right: 120, zIndex: 60, display: 'flex', gap: 8 }}>
+        <ExportControls />
+        <TelemetryToggle visible={telemetryVisible} onToggle={() => setTelemetryVisible(v => !v)} />
+      </div>
+      {/* Telemetry Overlay (FPS, draw calls, instance counts) */}
+      const telemetryEndpoint = (import.meta as any).env?.VITE_TELEMETRY_ENDPOINT || undefined
+      const telemetryInterval = Number((import.meta as any).env?.VITE_TELEMETRY_INTERVAL_MS) || 5000
+      <TelemetryOverlay visible={telemetryVisible} endpoint={telemetryEndpoint} logIntervalMs={telemetryInterval} />
 
     </div>
   )

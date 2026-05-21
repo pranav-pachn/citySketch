@@ -1,12 +1,15 @@
 import express from 'express'
 import cors from 'cors'
+import { resolve } from 'path'
 import rateLimit from 'express-rate-limit'
-import { env } from './src/config/env.js'
+import { env, CORS_ALLOWLIST, validateEnv } from './src/config/env.js'
 import { supabase } from './src/config/supabase.js'
 import { generateRouter } from './src/routes/generateRoutes.js'
 import { historyRouter } from './src/routes/historyRoutes.js'
 import { mapRouter } from './src/routes/mapContextRoutes.js'
 import { simulateRouter } from './src/routes/simulateRoutes.js'
+import { telemetryRouter } from './src/routes/telemetryRoutes.js'
+import { exportRouter } from './src/routes/exportRoutes.js'
 import { errorHandler } from './src/middlewares/errorHandler.js'
 import { OAuth2Client } from 'google-auth-library'
 
@@ -14,8 +17,21 @@ const app = express()
 const PORT = env.PORT
 
 // Middleware
-// Allow all origins for production readiness
-app.use(cors())
+// Use explicit CORS allowlist when configured, otherwise allow all origins (dev)
+if (CORS_ALLOWLIST && CORS_ALLOWLIST.length) {
+  app.use(
+    cors({
+      origin: (origin, callback) => {
+        if (!origin) return callback(null, true) // allow server-to-server or curl
+        if (CORS_ALLOWLIST.includes(origin)) return callback(null, true)
+        const msg = `Origin ${origin} not allowed by CORS`
+        return callback(new Error(msg), false)
+      },
+    })
+  )
+} else {
+  app.use(cors())
+}
 app.use((_req, res, next) => {
   // Google Identity popup flows rely on postMessage across windows.
   res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups')
@@ -59,6 +75,11 @@ app.use('/api', generateRouter)
 app.use('/api', historyRouter)
 app.use('/api', mapRouter)
 app.use('/api', simulateRouter)
+app.use('/api', telemetryRouter)
+app.use('/api', exportRouter)
+
+// Serve exported files for convenience (development)
+app.use('/exports', express.static(resolve(new URL('.', import.meta.url).pathname + '/../backend_ai/data/exports')))
 
 // Auth route
 app.post('/api/auth/google', async (req, res, next) => {
@@ -109,6 +130,7 @@ app.use(errorHandler)
 
 app.listen(PORT, async () => {
   console.log(`⚡ CitySketch backend running on http://localhost:${PORT}`)
+  validateEnv()
   if (!env.GOOGLE_CLIENT_ID || env.GOOGLE_CLIENT_ID === '<YOUR_GOOGLE_CLIENT_ID>') {
     console.warn('⚠️  WARNING: GOOGLE_CLIENT_ID is not set in root .env — Google Auth will fail')
   } else {

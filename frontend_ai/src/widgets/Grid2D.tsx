@@ -6,17 +6,43 @@ import { Building2, Home, Trees, Waves, Factory, Route, Stethoscope, GraduationC
 import type { GridCell } from '@/entities/types'
 import { calculateCellHighlights } from '@/shared/utils/scoring'
 import { ZONE_COLORS } from '@/shared/utils/colors'
+import { getZonePalette } from '@/shared/theme/zonePalette'
 
-const CELL_STYLES: Record<GridCell['type'], { color: string, icon: any, label: string, fullName: string }> = {
-  road:        { color: ZONE_COLORS.road.hex,         icon: Route,         label: 'RD',  fullName: 'Road / Transit' },
-  residential: { color: ZONE_COLORS.residential.hex,  icon: Home,          label: 'RES', fullName: 'Residential Zone' },
-  commercial:  { color: ZONE_COLORS.commercial.hex,   icon: Building2,     label: 'COM', fullName: 'Commercial Zone' },
-  park:        { color: ZONE_COLORS.park.hex,         icon: Trees,         label: 'PRK', fullName: 'Park / Green Space' },
-  hospital:    { color: ZONE_COLORS.hospital.hex,     icon: Stethoscope,   label: 'HSP', fullName: 'Hospital / Healthcare' },
-  industrial:  { color: ZONE_COLORS.industrial.hex,   icon: Factory,       label: 'IND', fullName: 'Industrial Zone' },
-  water:       { color: ZONE_COLORS.water.hex,        icon: Waves,         label: 'H2O', fullName: 'Water / River' },
-  school:      { color: ZONE_COLORS.school.hex,       icon: GraduationCap, label: 'SCH', fullName: 'School / Education' },
-  empty:       { color: ZONE_COLORS.empty.hex,        icon: null,          label: '',    fullName: 'Empty Lot' },
+const ICON_MAP: Record<GridCell['type'], any> = {
+  road: Route,
+  residential: Home,
+  commercial: Building2,
+  park: Trees,
+  hospital: Stethoscope,
+  industrial: Factory,
+  water: Waves,
+  school: GraduationCap,
+  empty: null,
+}
+
+const LABELS: Record<GridCell['type'], { label: string; fullName: string }> = {
+  road: { label: 'RD', fullName: 'Road / Transit' },
+  residential: { label: 'RES', fullName: 'Residential Zone' },
+  commercial: { label: 'COM', fullName: 'Commercial Zone' },
+  park: { label: 'PRK', fullName: 'Park / Green Space' },
+  hospital: { label: 'HSP', fullName: 'Hospital / Healthcare' },
+  industrial: { label: 'IND', fullName: 'Industrial Zone' },
+  water: { label: 'H2O', fullName: 'Water / River' },
+  school: { label: 'SCH', fullName: 'School / Education' },
+  empty: { label: '', fullName: 'Empty Lot' },
+}
+
+const ALL_TYPES: GridCell['type'][] = ['road','residential','commercial','park','hospital','industrial','water','school']
+
+function getCellStyle(type: GridCell['type'], isNightMode: boolean) {
+  const pal = getZonePalette(isNightMode)
+  const color = pal[type as keyof typeof pal]?.base ?? (ZONE_COLORS as any)[type]?.hex ?? '#cccccc'
+  return {
+    color,
+    icon: ICON_MAP[type],
+    label: LABELS[type].label,
+    fullName: LABELS[type].fullName,
+  }
 }
 
 interface Grid2DProps {
@@ -107,7 +133,7 @@ export function Grid2D({ onCellExplain }: Grid2DProps) {
             {layoutData.flat().map((cell, i) => {
               const isSelected = selectedCell?.x === cell.x && selectedCell?.y === cell.y
               const isHovered = hoveredCell?.x === cell.x && hoveredCell?.y === cell.y
-              const style = CELL_STYLES[cell.type]
+              const style = getCellStyle(cell.type, isNightMode)
               const Icon = style.icon
 
               const shouldAnimate = generationId > 0
@@ -193,12 +219,15 @@ export function Grid2D({ onCellExplain }: Grid2DProps) {
 
       {/* Zone Legend — top-left, always visible */}
       <div className="grid-legend-topbar">
-        {(Object.entries(CELL_STYLES) as [GridCell['type'], typeof CELL_STYLES[GridCell['type']]][]).filter(([k]) => k !== 'empty').map(([type, s]) => (
-          <div key={type} className="grid-legend-item" title={s.fullName}>
-            <span className="grid-legend-dot" style={{ background: s.color, boxShadow: `0 0 6px ${s.color}60` }} />
-            <span className="grid-legend-label">{s.label}</span>
-          </div>
-        ))}
+        {ALL_TYPES.map((type) => {
+          const s = getCellStyle(type, isNightMode)
+          return (
+            <div key={type} className="grid-legend-item" title={s.fullName}>
+              <span className="grid-legend-dot" style={{ background: s.color, boxShadow: `0 0 6px ${s.color}60` }} />
+              <span className="grid-legend-label">{s.label}</span>
+            </div>
+          )
+        })}
       </div>
     </motion.div>
   )

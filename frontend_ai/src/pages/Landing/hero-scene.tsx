@@ -2,6 +2,8 @@ import { useMemo, useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Float, Grid, Stars } from "@react-three/drei";
 import * as THREE from "three";
+import { useStore } from '@/entities/store/useStore'
+import { getStandardMaterial } from '@/shared/three/materials'
 
 function CityBlocks() {
   const blocks = useMemo(() => {
@@ -25,24 +27,18 @@ function CityBlocks() {
     return items;
   }, []);
 
+  const isNightMode = useStore(s => s.isNightMode)
+
   return (
     <group>
       {blocks.map((block, idx) => (
-        <mesh key={idx} position={[block.x * 0.48, block.h / 2, block.z * 0.48]} castShadow>
+        <mesh key={idx} position={[block.x * 0.48, block.h / 2, block.z * 0.48]} castShadow material={getStandardMaterial('heroBlock', isNightMode, { color: block.t, emissive: block.t, emissiveIntensity: 0.08, roughness: 0.22, metalness: 0.64 })}>
           <boxGeometry args={[0.34, block.h, 0.34]} />
-          <meshStandardMaterial
-            color={block.t}
-            emissive={block.t}
-            emissiveIntensity={0.08}
-            roughness={0.22}
-            metalness={0.64}
-          />
         </mesh>
       ))}
 
-      <mesh position={[0, 0.01, 0]} receiveShadow>
+      <mesh position={[0, 0.01, 0]} receiveShadow material={getStandardMaterial('heroBase', isNightMode, { color: '#0c131b', roughness: 0.92, metalness: 0.1 })}>
         <boxGeometry args={[4.8, 0.02, 3.6]} />
-        <meshStandardMaterial color="#0c131b" roughness={0.92} metalness={0.1} />
       </mesh>
     </group>
   );
@@ -51,6 +47,8 @@ function CityBlocks() {
 function ScanLine() {
   const lineRef = useRef<THREE.Mesh>(null);
   const tRef = useRef(0);
+
+  const isNightMode = useStore(s => s.isNightMode)
 
   useFrame((_, delta) => {
     tRef.current += delta * 0.42;
@@ -62,9 +60,8 @@ function ScanLine() {
   });
 
   return (
-    <mesh ref={lineRef} position={[0, 0.03, 0]}>
+    <mesh ref={lineRef} position={[0, 0.03, 0]} material={getStandardMaterial('scan', isNightMode, { color: '#d5ff66', emissive: '#d5ff66', emissiveIntensity: 0.42 })}>
       <boxGeometry args={[4.7, 0.01, 0.16]} />
-      <meshStandardMaterial color="#d5ff66" emissive="#d5ff66" emissiveIntensity={0.42} />
     </mesh>
   );
 }
