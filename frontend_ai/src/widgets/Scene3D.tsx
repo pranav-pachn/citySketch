@@ -5,8 +5,6 @@ import { useStore } from '@/entities/store/useStore'
 import type { GridCell } from '@/entities/types'
 import { calculateCellHighlights } from '@/shared/utils/scoring'
 import * as THREE from 'three'
-import { easing } from 'maath'
-import { ZONE_COLORS } from '@/shared/utils/colors'
 import { getZonePalette } from '@/shared/theme/zonePalette'
 import { getStandardMaterial } from '@/shared/three/materials'
 import TreesInstancer, { HousesInstancer, CarsInstancer } from '@/shared/three/instancers'
@@ -25,55 +23,6 @@ function seededRandom(seed: number): number {
 
 /* ═══════ Procedural Builders ═══════ */
 
-const ParkTree = ({ x, z, scale, seed }: { x: number, z: number, scale: number, seed: number }) => {
-  const isPond = seededRandom(seed * 4) > 0.8
-  const isNightMode = useStore(s => s.isNightMode)
-  const pal = getZonePalette(isNightMode)
-  if (isPond) {
-    return (
-      <mesh position={[x, 0.03, z]} receiveShadow rotation={[-Math.PI/2, 0, 0]} material={getStandardMaterial('water', isNightMode, { roughness: 0.1, metalness: 0.9 })}>
-        <circleGeometry args={[0.2 * scale, 12]} />
-      </mesh>
-    )
-  }
-
-  return (
-    <group position={[x, 0, z]} scale={scale}>
-      <mesh position={[0, 0.1, 0]} material={getStandardMaterial('park', isNightMode, { color: pal.park.trunk, roughness: 0.9 })}>
-        <cylinderGeometry args={[0.03, 0.04, 0.2, 5]} />
-      </mesh>
-      <mesh position={[0, 0.3, 0]} material={getStandardMaterial('park', isNightMode, { color: pal.park.foliage, roughness: 0.8 })}>
-        <dodecahedronGeometry args={[0.15, 0]} />
-      </mesh>
-    </group>
-  )
-}
-
-const ResidentialHouse = ({ x, z, scale, seed }: { x: number, z: number, scale: number, seed: number }) => {
-  const height = 0.2 + seededRandom(seed) * 0.15
-  const isNightMode = useStore(s => s.isNightMode)
-  const isLightOn = seededRandom(seed * 5) > 0.5
-  const pal = getZonePalette(isNightMode)
-
-  return (
-    <group position={[x, 0, z]} scale={scale}>
-      <mesh position={[0, height / 2, 0]} castShadow receiveShadow material={getStandardMaterial('residential', isNightMode, { roughness: 0.8 })}>
-        <boxGeometry args={[0.4, height, 0.4]} />
-      </mesh>
-      {/* Night window glow */}
-      {isNightMode && isLightOn && (
-        <mesh position={[0, height / 2, 0.21]}>
-          <planeGeometry args={[0.1, 0.1]} />
-          <meshBasicMaterial color="#fef08a" />
-        </mesh>
-      )}
-      <mesh position={[0, height + 0.1, 0]} rotation={[0, Math.PI / 4, 0]} castShadow material={getStandardMaterial('residential', isNightMode, { color: pal.residential.roof, roughness: 0.9 })}>
-        <coneGeometry args={[0.35, 0.2, 4]} />
-      </mesh>
-    </group>
-  )
-}
-
 const CommercialSkyscraper = ({ x, z, seed }: { x: number, z: number, seed: number }) => {
   const tier1Height = 0.8 + seededRandom(seed) * 1.0 // Varied sizes!
   const tier2Height = 0.4 + seededRandom(seed * 2) * 0.5
@@ -82,7 +31,6 @@ const CommercialSkyscraper = ({ x, z, seed }: { x: number, z: number, seed: numb
   const hasAntenna = seededRandom(seed * 5) > 0.3
 
   const isNightMode = useStore(s => s.isNightMode)
-  const pal = getZonePalette(isNightMode)
 
   // Use shared material pool instead of allocating per-instance
   const material = getStandardMaterial('commercial', isNightMode, { roughness: 0.1, metalness: 0.8, emissive: isNightMode ? '#fef08a' : undefined, emissiveIntensity: isNightMode ? 0.15 : 0 })
@@ -181,64 +129,8 @@ const SchoolBuilding = ({ x, z, seed }: { x: number, z: number, seed: number }) 
   )
 }
 
-const RoamingCar = ({ seed }: { seed: number }) => {
-  const ref = useRef<THREE.Group>(null)
+const RoadTile = ({ seed: _seed, elevation = 0 }: { seed: number, elevation?: number }) => {
   const isNightMode = useStore(s => s.isNightMode)
-  
-  // Random speed and starting offset
-  const speed = 0.5 + seededRandom(seed) * 1.5
-  const offset = seededRandom(seed * 2) * Math.PI * 2
-  const isXAxis = seededRandom(seed * 3) > 0.5
-
-  useFrame(({ clock }) => {
-    if (ref.current) {
-      // Loop smoothly back and forth on one block tile
-      const t = clock.elapsedTime * speed + offset
-      const pos = Math.sin(t) * 0.4
-      if (isXAxis) {
-        ref.current.position.x = pos
-        ref.current.rotation.y = Math.cos(t) > 0 ? Math.PI / 2 : -Math.PI / 2
-      } else {
-        ref.current.position.z = pos
-        ref.current.rotation.y = Math.cos(t) > 0 ? 0 : Math.PI
-      }
-    }
-  })
-
-  return (
-    <group position={[0, 0.05, 0]} ref={ref}>
-      <mesh material={getStandardMaterial('road', isNightMode, { color: seededRandom(seed*4) > 0.5 ? '#eab308' : '#ffffff', roughness: 0.3 })}>
-        <boxGeometry args={[0.08, 0.06, 0.16]} />
-      </mesh>
-      {/* Headlights */}
-      {isNightMode && (
-        <>
-          <mesh position={[0.02, 0, 0.08]}>
-            <boxGeometry args={[0.02, 0.02, 0.02]} />
-            <meshBasicMaterial color="#ffffff" />
-          </mesh>
-          <mesh position={[-0.02, 0, 0.08]}>
-            <boxGeometry args={[0.02, 0.02, 0.02]} />
-            <meshBasicMaterial color="#ffffff" />
-          </mesh>
-          {/* Taillights */}
-          <mesh position={[0.02, 0, -0.08]}>
-            <boxGeometry args={[0.02, 0.02, 0.02]} />
-            <meshBasicMaterial color="#ef4444" />
-          </mesh>
-          <mesh position={[-0.02, 0, -0.08]}>
-            <boxGeometry args={[0.02, 0.02, 0.02]} />
-            <meshBasicMaterial color="#ef4444" />
-          </mesh>
-        </>
-      )}
-    </group>
-  )
-}
-
-const RoadTile = ({ seed, elevation = 0 }: { seed: number, elevation?: number }) => {
-  const isNightMode = useStore(s => s.isNightMode)
-  const pal = getZonePalette(isNightMode)
   return (
     <group>
       <mesh position={[0, -elevation / 2 + 0.01, 0]} receiveShadow castShadow material={getStandardMaterial('road', isNightMode, { roughness: 0.9 })}>
@@ -592,6 +484,8 @@ export function Scene3D() {
   const layoutData = useStore((s) => s.layoutData)
   const isNightMode = useStore((s) => s.isNightMode)
   const [telemetryVisible, setTelemetryVisible] = useState(true)
+  const telemetryEndpoint = (import.meta as any).env?.VITE_TELEMETRY_ENDPOINT || undefined
+  const telemetryInterval = Number((import.meta as any).env?.VITE_TELEMETRY_INTERVAL_MS) || 5000
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -683,8 +577,6 @@ export function Scene3D() {
         <TelemetryToggle visible={telemetryVisible} onToggle={() => setTelemetryVisible(v => !v)} />
       </div>
       {/* Telemetry Overlay (FPS, draw calls, instance counts) */}
-      const telemetryEndpoint = (import.meta as any).env?.VITE_TELEMETRY_ENDPOINT || undefined
-      const telemetryInterval = Number((import.meta as any).env?.VITE_TELEMETRY_INTERVAL_MS) || 5000
       <TelemetryOverlay visible={telemetryVisible} endpoint={telemetryEndpoint} logIntervalMs={telemetryInterval} />
 
     </div>

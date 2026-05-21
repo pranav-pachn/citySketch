@@ -28,6 +28,8 @@ export interface UISlice {
   setNightMode: (night: boolean) => void
   isCanvasMaximized: boolean
   setCanvasMaximized: (max: boolean) => void
+  settingsOpen: boolean
+  setSettingsOpen: (open: boolean) => void
 }
 
 export const createUISlice: StateCreator<AppState, [], [], UISlice> = (set, get) => ({

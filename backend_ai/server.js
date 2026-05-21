@@ -23,7 +23,12 @@ if (CORS_ALLOWLIST && CORS_ALLOWLIST.length) {
     cors({
       origin: (origin, callback) => {
         if (!origin) return callback(null, true) // allow server-to-server or curl
-        if (CORS_ALLOWLIST.includes(origin)) return callback(null, true)
+        const matchesAllowlist = CORS_ALLOWLIST.some((entry) => {
+          if (entry === origin) return true
+          if (entry.endsWith('*')) return origin.startsWith(entry.slice(0, -1))
+          return false
+        })
+        if (matchesAllowlist) return callback(null, true)
         const msg = `Origin ${origin} not allowed by CORS`
         return callback(new Error(msg), false)
       },

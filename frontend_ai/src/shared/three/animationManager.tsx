@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, type RefObject } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { easing } from 'maath'
@@ -9,9 +9,9 @@ type AnimState = {
   targetScale: number
 }
 
-const registry = new Map<React.RefObject<THREE.Group>, AnimState>()
+const registry = new Map<RefObject<THREE.Group | null>, AnimState>()
 
-export function registerAnimatedGroup(ref: React.RefObject<THREE.Group>, initial: Partial<AnimState> = {}) {
+export function registerAnimatedGroup(ref: RefObject<THREE.Group | null>, initial: Partial<AnimState> = {}) {
   registry.set(ref, {
     elevation: initial.elevation ?? 0,
     targetY: initial.targetY ?? 0,
@@ -19,7 +19,7 @@ export function registerAnimatedGroup(ref: React.RefObject<THREE.Group>, initial
   })
 }
 
-export function updateAnimatedGroup(ref: React.RefObject<THREE.Group>, patch: Partial<AnimState>) {
+export function updateAnimatedGroup(ref: RefObject<THREE.Group | null>, patch: Partial<AnimState>) {
   const s = registry.get(ref)
   if (!s) return
   if (patch.elevation !== undefined) s.elevation = patch.elevation
@@ -27,7 +27,7 @@ export function updateAnimatedGroup(ref: React.RefObject<THREE.Group>, patch: Pa
   if (patch.targetScale !== undefined) s.targetScale = patch.targetScale
 }
 
-export function unregisterAnimatedGroup(ref: React.RefObject<THREE.Group>) {
+export function unregisterAnimatedGroup(ref: RefObject<THREE.Group | null>) {
   registry.delete(ref)
 }
 

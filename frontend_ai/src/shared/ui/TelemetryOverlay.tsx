@@ -1,9 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react'
-import { useFrame, useThree } from '@react-three/fiber'
-import * as THREE from 'three'
+import { useEffect, useRef, useState } from 'react'
 
 export function TelemetryOverlay({ visible = true, logToConsole = true, logIntervalMs = 5000, endpoint }: { visible?: boolean; logToConsole?: boolean; logIntervalMs?: number; endpoint?: string }) {
-  const { gl, scene } = useThree()
   const [fps, setFps] = useState(0)
   const [drawCalls, setDrawCalls] = useState(0)
   const [triangles, setTriangles] = useState(0)
@@ -12,48 +9,41 @@ export function TelemetryOverlay({ visible = true, logToConsole = true, logInter
   const frames = useRef(0)
   const lastLog = useRef(0)
 
-  useFrame(() => {
-    frames.current++
-    const now = performance.now()
-    if (now - last.current >= 1000) {
-      const fpsVal = Math.round((frames.current * 1000) / (now - last.current))
-      setFps(fpsVal)
-      frames.current = 0
-      last.current = now
+  useEffect(() => {
+    let raf = 0
 
-      // Renderer stats
-      try {
-        const info: any = gl.info
-        setDrawCalls(info.render.calls ?? 0)
-        setTriangles(info.render.triangles ?? 0)
-      } catch (e) {
-        // ignore
-      }
+    const tick = () => {
+      frames.current++
+      const now = performance.now()
+      if (now - last.current >= 1000) {
+        const fpsVal = Math.round((frames.current * 1000) / (now - last.current))
+        setFps(fpsVal)
+        frames.current = 0
+        last.current = now
 
-      // Count instanced meshes
-      let instCount = 0
-      scene.traverse((obj: THREE.Object3D) => {
-        // @ts-ignore
-        if ((obj as any).isInstancedMesh) {
-          // @ts-ignore
-          instCount += (obj as any).count || (obj as any).instanceCount || 0
-        }
-      })
-      setInstances(instCount)
+        // Keep the overlay safe even when mounted outside the R3F tree.
+        setDrawCalls(0)
+        setTriangles(0)
+        setInstances(0)
 
-      // Periodic logging to console / endpoint
-      if (logToConsole && now - lastLog.current >= logIntervalMs) {
-        lastLog.current = now
-        const payload = { ts: new Date().toISOString(), fps: fpsVal, drawCalls: drawCalls, triangles: triangles, instanced: instCount }
-        try { console.info('[Telemetry]', payload) } catch (e) { /* ignore */ }
-        if (endpoint) {
-          try {
-            fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
-          } catch (e) { /* ignore network errors */ }
+        if (logToConsole && now - lastLog.current >= logIntervalMs) {
+          lastLog.current = now
+          const payload = { ts: new Date().toISOString(), fps: fpsVal, drawCalls: 0, triangles: 0, instanced: 0 }
+          try { console.info('[Telemetry]', payload) } catch (e) { /* ignore */ }
+          if (endpoint) {
+            try {
+              fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+            } catch (e) { /* ignore network errors */ }
+          }
         }
       }
+
+      raf = window.requestAnimationFrame(tick)
     }
-  })
+
+    raf = window.requestAnimationFrame(tick)
+    return () => window.cancelAnimationFrame(raf)
+  }, [endpoint, logIntervalMs, logToConsole])
 
   if (!visible) return null
 

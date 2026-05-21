@@ -1,4 +1,3 @@
-import React from 'react'
 import { useStore } from '@/entities/store/useStore'
 
 export default function ExportControls() {
@@ -30,9 +29,9 @@ export default function ExportControls() {
       document.body.appendChild(a)
       a.click()
       a.remove()
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('Export PNG failed', err)
-      alert('Export failed: ' + (err?.message || err))
+      alert('Export failed: ' + (err instanceof Error ? err.message : String(err)))
     }
   }
 
