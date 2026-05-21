@@ -7,9 +7,6 @@ export function calculateScores(grid) {
   // Use the unified scoring calculation as a base
   const unified = unifiedCalculateScores(grid)
 
-  // Derive an overall numeric score (liveability) if present
-  const overall = unified?.metrics?.liveability?.value ?? null
-
   // Walkability & traffic & sustainability come from unified metrics where available
   const walkability = unified?.metrics?.walkability?.value ?? 0
   const traffic = unified?.metrics?.traffic?.value ?? 0
@@ -31,7 +28,7 @@ export function calculateScores(grid) {
     healthcare = 100
   }
 
-  const overallScore = overall !== null ? Math.round(overall) : Math.round(
+  const overallScore = Math.round(
     0.3 * walkability + 0.25 * healthcare + 0.25 * traffic + 0.2 * sustainability
   )
 
