@@ -401,6 +401,34 @@ body {
   cursor: not-allowed;
 }
 
+/* Prompt Bar Regenerate Button */
+.chat-regenerate {
+  width: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  border-radius: 12px;
+  background: rgba(59, 130, 246, 0.08);
+  color: #93c5fd;
+  cursor: pointer;
+  transition: transform 150ms, background 150ms, border-color 150ms, color 150ms;
+  flex-shrink: 0;
+}
+
+.chat-regenerate:hover:not(:disabled) {
+  transform: translateY(-1px);
+  background: rgba(59, 130, 246, 0.16);
+  border-color: rgba(59, 130, 246, 0.6);
+  color: #bfdbfe;
+}
+
+.chat-regenerate:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 /* ═══════════ CANVAS ═══════════ */
 .canvas {
   flex: 1;

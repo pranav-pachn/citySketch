@@ -1,11 +1,13 @@
 import { useRef, useEffect, useCallback } from 'react'
 import { useStore } from '@/entities/store/useStore'
-import { ArrowUp, Save } from 'lucide-react'
+import { ArrowUp, Save, RefreshCw } from 'lucide-react'
 
 export function ChatInput() {
   const prompt = useStore((s) => s.prompt)
   const setPrompt = useStore((s) => s.setPrompt)
   const submitPrompt = useStore((s) => s.submitPrompt)
+  const regeneratePrompt = useStore((s) => s.regeneratePrompt)
+  const layoutData = useStore((s) => s.layoutData)
   const isLoading = useStore((s) => s.isLoading)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
@@ -58,6 +60,16 @@ export function ChatInput() {
         >
           <Save size={16} strokeWidth={1.8} />
         </button>
+        {layoutData && (
+          <button
+            onClick={() => regeneratePrompt()}
+            disabled={isLoading}
+            className="chat-regenerate"
+            title="Regenerate the current layout with the same prompt"
+          >
+            <RefreshCw size={16} strokeWidth={1.8} className={isLoading ? 'animate-spin' : ''} />
+          </button>
+        )}
         <button
           onClick={() => submitPrompt(false)}
           disabled={isLoading || !prompt.trim()}
@@ -81,7 +93,7 @@ export function ChatInput() {
         ))}
       </div>
       <p className="chat-hint">
-        Press Enter to generate only · Use Save button to generate and save
+        Press Enter to generate only · Save to keep history · Regenerate to optimize the current layout
       </p>
     </div>
   )
