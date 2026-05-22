@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, ArrowRight, Eye, EyeOff } from "lucide-react";
+import { Sparkles, ArrowRight, Eye, EyeOff, Loader2 } from "lucide-react";
 import { Button } from '@/shared/ui/button';
-import { GoogleLogin } from "@react-oauth/google";
+import { GoogleLogin, useGoogleOneTapLogin } from "@react-oauth/google";
 import { useStore } from '@/entities/store/useStore';
 import { apiUrl } from '@/shared/api/api';
 
@@ -13,10 +13,12 @@ export function LoginPage() {
   const [tab, setTab] = useState<Tab>("signin");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
   const navigate = useNavigate();
   const setUser = useStore((s) => s.setUser);
 
   const handleGoogleSuccess = async (credentialResponse: any) => {
+    setIsAuthenticating(true);
     try {
       const res = await fetch(apiUrl("/api/auth/google"), {
         method: "POST",
@@ -32,8 +34,17 @@ export function LoginPage() {
     } catch (error) {
       console.error("Google Auth Error:", error);
       alert("Failed to sign in with Google. Please try again.");
+    } finally {
+      setIsAuthenticating(false);
     }
   };
+
+  // Enable One-Tap for frictionless entry
+  useGoogleOneTapLogin({
+    onSuccess: handleGoogleSuccess,
+    onError: () => console.log('One Tap failed'),
+    disabled: isAuthenticating,
+  });
 
   // For demo: form submit sets a mock user and navigates to /app
   const handleSubmit = (e: React.FormEvent) => {
@@ -71,8 +82,23 @@ export function LoginPage() {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.55, ease: "easeOut" }}
-          className="login-card"
+          className={`login-card ${isAuthenticating ? "opacity-60 pointer-events-none" : ""}`}
         >
+          {/* Loading overlay */}
+          <AnimatePresence>
+            {isAuthenticating && (
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-slate-950/20 backdrop-blur-[2px] rounded-[inherit]"
+              >
+                <Loader2 className="animate-spin text-blue-500 mb-2" size={32} />
+                <p className="text-xs font-medium text-slate-300 animate-pulse">Verifying account...</p>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           {/* Header */}
           <div className="login-card-header">
             <p className="login-eyebrow">Spatial intelligence for urban futures</p>
@@ -104,16 +130,18 @@ export function LoginPage() {
 
           {/* Google button */}
           <div className="flex justify-center">
-            <GoogleLogin
-              onSuccess={handleGoogleSuccess}
-              onError={() => {
-                console.log("Login Failed");
-              }}
-              theme="filled_black"
-              shape="pill"
-              text="continue_with"
-              width="355"
-            />
+            {!isAuthenticating && (
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => {
+                  console.log("Login Failed");
+                }}
+                theme="filled_black"
+                shape="pill"
+                text="continue_with"
+                width="355"
+              />
+            )}
           </div>
 
           {/* Divider */}

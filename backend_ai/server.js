@@ -32,10 +32,11 @@ if (CORS_ALLOWLIST && CORS_ALLOWLIST.length) {
         const msg = `Origin ${origin} not allowed by CORS`
         return callback(new Error(msg), false)
       },
+      maxAge: 86400, // Cache preflight response for 24 hours
     })
   )
 } else {
-  app.use(cors())
+  app.use(cors({ maxAge: 86400 }))
 }
 app.use((_req, res, next) => {
   // Google Identity popup flows rely on postMessage across windows.
