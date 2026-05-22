@@ -23,7 +23,23 @@ export const env = {
 }
 
 // CORS_ALLOWLIST: comma-separated domains (e.g. https://example.com, http://localhost:5173)
-export const CORS_ALLOWLIST = (process.env.CORS_ALLOWLIST || '').split(/[,\s]+/).filter(Boolean)
+const DEFAULT_CORS_ALLOWLIST = [
+  'http://localhost:*',
+  'http://127.0.0.1:*',
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+  'http://localhost:5173',
+  'https://city-sketch.vercel.app',
+  'https://citysketch.onrender.com',
+]
+
+// CORS_ALLOWLIST: comma-separated domains (e.g. https://example.com, http://localhost:5173)
+export const CORS_ALLOWLIST = Array.from(
+  new Set([
+    ...DEFAULT_CORS_ALLOWLIST,
+    ...(process.env.CORS_ALLOWLIST || '').split(/[,\s]+/).filter(Boolean),
+  ])
+)
 
 export function validateEnv() {
   if (!env.SUPABASE_URL || !env.SUPABASE_ANON_KEY) {
