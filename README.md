@@ -1,403 +1,149 @@
 # CitySketch — AI Urban Design Studio
 
-Fast, opinionated urban design from plain-English prompts — generate, evaluate, compare, and export city layouts (2D + 3D). Built as a pragmatic toolkit for prototyping planning ideas, teaching, and early product exploration.
-
-<p align="center">
-  <img alt="CitySketch screenshot" src=".github/screenshot-placeholder.png" width="720" />
-</p>
+Fast, opinionated urban-design prototyping from plain-English prompts. Generate, evaluate, compare, and export city layouts (2D + 3D) for rapid ideation, teaching, and demos.
 
 ---
 
-**Why CitySketch**
-- Rapidly explore design alternatives from natural-language prompts.
-- Built-in explainability and scoring (walkability, traffic, sustainability).
-- Compare multiple proposals side-by-side and export results (PNG / JSON / PDF).
-- Map-grounded mode: import OSM geometry and respect real roads/water.
+Why this README: focused, practical instructions for contributors and maintainers — install, run, test, and extend the system quickly.
+
+Key folders: [backend_ai](backend_ai) · [frontend_ai](frontend_ai)
 
 ---
 
-**Quick links**
-- Code: [backend_ai](backend_ai) and [frontend_ai](frontend_ai)
-- Run locally: see Quick Start
+## Quick Start — Local (2 minutes)
 
----
+Prerequisites
+- Node.js 18+ and npm
+- Git
 
-## Quick Start
-1. Clone and install dependencies:
+Install
 
 ```bash
 git clone <repo-url>
 cd Sketch.ai
-# backend
+
+# Backend
 cd backend_ai
 npm install
-# frontend (new terminal)
+
+# Frontend (new terminal)
 cd ../frontend_ai
 npm install
 ```
 
-2. Copy env template and set required keys:
+Environment
+- Copy env template(s):
 
 ```bash
-cp .env.example .env
-# edit .env to add SUPABASE / AI keys / GOOGLE_CLIENT_ID etc.
+# backend
+cp backend_ai/.env.example backend_ai/.env || echo "Create backend_ai/.env"
+
+# frontend
+cp frontend_ai/.env.example frontend_ai/.env || echo "Create frontend_ai/.env"
 ```
 
-3. Run (dev):
+Run (development)
 
 ```bash
-# terminal 1
+# terminal 1 — backend (Express)
 cd backend_ai
 npm run dev
 
-# terminal 2
+# terminal 2 — frontend (Vite)
 cd frontend_ai
 npm run dev
 ```
 
-Default: frontend http://localhost:5173 · backend http://localhost:3001
+Defaults: frontend → http://localhost:5173, backend → http://localhost:3001
+
+Build & Preview
+
+```bash
+cd frontend_ai
+npm run build
+npm run preview
+```
+
+Testing (backend)
+
+```bash
+cd backend_ai
+npm test
+```
 
 ---
 
-## Key Concepts (TL;DR)
-- Prompt → Parser → `CityGenerator` → layout grid (NxN) → scoring + explainability → multi-view UI.
-- The backend supports multiple LLM providers (OpenRouter/Gemini/Groq) with safe fallbacks.
-- History persists to Supabase when configured, otherwise to `backend_ai/data/history.json`.
+## What it is
+- Natural-language → structured JSON parser for urban requirements
+- Grid-based layout engine that places zones, roads, and support uses
+- Explainability + scoring (walkability, traffic, sustainability)
+- Multi-view UI: 2D canvas, 3D low-poly Three.js scene, blueprint exports, JSON export
+- Optional map-grounded mode using OpenStreetMap geometry
 
 ---
 
-## Features (Productized)
-- Generate: turn a prompt into a complete layout and evaluation report.
-- Regenerate: produce alternative layouts from the same prompt and compare (Compare view).
-- Export: download PNG snapshots of 2D/3D/Blueprint views, export structured JSON, or generate a PDF report with metrics and snapshot.
-- Manual edits: tweak cells, save snapshots, and re-evaluate.
-- Map import: rasterize OSM geometry into the generation grid and re-run the engine.
+## Highlights & Features
+- Prompt-driven generation and regeneration (multiple proposals)
+- Per-cell explanations and evaluation metrics
+- Exports: PNG (html2canvas), JSON, PDF reports
+- Map import (Overpass/OSM) → rasterize to generation grid
 
 ---
 
-## Example Prompt
+## Architecture (short)
+- backend_ai — Node.js + Express: API, prompt parsing, generator pipeline, history store (Supabase optional)
+- frontend_ai — Vite + React + Three.js: UI, canvas, 3D scene, export tools
+- Data: `backend_ai/data/history.json` fallback when Supabase not configured
 
-> "Design a 10-acre eco-friendly town with a central park, one hospital, balanced traffic, and a small commercial district."
-
-The system extracts intent, computes a grid size, and returns a structured layout plus evaluation data.
-
----
-
-## API (most-used)
-- POST `/api/generate` — { prompt, saveToHistory? }
-- POST `/api/generate-from-map` — { bbox, locationName, gridSize? }
-- GET `/api/history` — list saved snapshots
-- POST `/api/history` — save a snapshot
-
-Refer to `backend_ai/src/routes` for implementation details.
+See key entry points:
+- `backend_ai/src/controllers/generateController.js`
+- `backend_ai/src/services/generator/CityGenerator.js`
+- `frontend_ai/src/widgets/Canvas.tsx` and `frontend_ai/src/widgets/Scene3D.tsx`
 
 ---
 
-## Files & Where to Look
-- `backend_ai/src/controllers/generateController.js` — prompt parsing + generation pipeline
-- `backend_ai/src/services/generator/CityGenerator.js` — core layout algorithm
-- `frontend_ai/src/entities/store` — app state, generate/regenerate flows
-- `frontend_ai/src/widgets` — `Canvas`, `Grid2D`, `Scene3D`, `WorkspaceHeader` (export menu + regenerate)
+## Project layout (short)
 
----
-
-## Design & UX Notes
-- Regenerate creates a temporary history snapshot so users can compare the original and alternative layouts in the Compare view.
-- Exports are intentionally view-aware: 2D & Blueprint use `html2canvas`, 3D uses the WebGL canvas, and JSON export includes layout + evaluation.
-
----
-
-## Roadmap & Suggestions
-Short-term (high impact):
-- Add example prompt gallery and one-click demo cases.
-- Allow optional persistence of regenerated proposals to history.
-- Add CI for lint + type-check and a small E2E smoke test for generate → export flows.
-
-Mid-term:
-- Add user accounts and project spaces in Supabase.
-- Fine-grained simulation (traffic modeling) and export to common GIS formats.
+```
+./
+├─ backend_ai/        # API + generation engine
+├─ frontend_ai/       # Vite + React + Three.js app
+├─ data/              # sample data + history
+└─ README.md
+```
 
 ---
 
 ## Contributing
-- Open an issue with clear steps and expected behavior.
-- For PRs: target `main`, include a focused change, and add a brief test or manual verification note.
+- Open an issue describing the problem or proposed change.
+- For PRs: target `main`, keep changes focused, include a short test or manual verification steps.
+- Add CI for lint/type-check where appropriate; see `frontend_ai/package.json` for lint/build scripts.
+
+Suggested follow-ups (I can help): add `CONTRIBUTING.md`, add a prompt-gallery, add CI workflow for lint & type-check.
 
 ---
 
-## Maintainers
+## Maintainers & Contacts
 - Rahul S — https://github.com/rahulsp19
 - Pranav — https://github.com/pranav-pachn
 - Siddarth — https://github.com/lalithsiddartha69
 
+For quick questions, open an issue or tag a maintainer in PRs.
 
 ---
 
-If you want, I will:
-- add a small example prompt gallery with screenshots, or
-- add a `CONTRIBUTING.md` and CI workflow for `frontend_ai`.
+## License
+This repository uses the ISC license (check top-level license or `package.json`).
 
-CitySketch X Lite is a hackathon-ready urban planning prototype that converts natural-language requirements into structured layout decisions, visual maps, and evaluation metrics. Instead of forcing users to work in CAD or GIS tools first, it lets them describe a city concept in plain English and instantly see how that idea could translate into zones, roads, and urban trade-offs.
+---
 
-The system combines a text parser, a rule-based layout engine, a 2D grid renderer, a lightweight Three.js 3D view, and a score + explanation layer. It can also support **map-based simulation**, where real roads and water bodies from OpenStreetMap are projected into the generation grid before the layout engine fills the rest.
+If you want, I can also:
+- add a short `CONTRIBUTING.md` and PR template,
+- create a compact example prompt gallery with screenshots and runnable demo cases.
 
-***
+---
 
-## Why this project exists
-
-Designing a city layout usually needs specialized tools, domain expertise, and a lot of time. That makes early-stage ideation difficult for students, startup teams, and non-expert users who just want to explore a concept quickly.
-
-CitySketch X Lite solves that by making city planning:
-
-- **Fast** — type a prompt and get a layout in seconds.
-- **Visual** — inspect the same city in 2D and 3D.
-- **Explainable** — click a block to see why it was placed.
-- **Evaluative** — compare layouts using sustainability, traffic, and walkability scores.
-- **Extensible** — plug in map constraints, new zone types, or smarter generation rules later.
-
-***
-
-## Core workflow
-
-```text
-User Prompt
-   ↓
-AI / Rule Parser
-   ↓
-Structured JSON
-   ↓
-Layout Engine (Grid Logic)
-   ↓
-2D Map + 3D Visualization
-   ↓
-Scores + Explainability
-```
-
-### Example prompt
-
-```text
-Design a 10 acre eco friendly city with parks, hospitals, low traffic and commercial zones
-```
-
-### Example parsed structure
-
-```json
-{
-  "zones": [
-    { "type": "residential", "count": 10 },
-    { "type": "park", "count": 4 },
-    { "type": "hospital", "count": 2, "near_road": true },
-    { "type": "commercial", "count": 3, "near_road": true }
-  ],
-  "constraints": {
-    "traffic": "low",
-    "density": "medium"
-  },
-  "flags": {
-    "eco": true
-  },
-  "area_in_acres": 10,
-  "grid_size": 25
-}
-```
-
-***
-
-## Key features
-
-### 1. Natural-language smart input
-
-Users describe a city or township in everyday language. The parser extracts:
-
-- zone types,
-- land size,
-- density preference,
-- sustainability flags,
-- traffic constraints,
-- optional smart-city attributes.
-
-This can be powered by GPT or a rule-based keyword parser with strong fallback behavior.
-
-### 2. 2D layout engine
-
-The city is generated on a grid (for example 20×20 or 25×25). Each cell represents a land-use decision such as:
-
-- residential,
-- park,
-- hospital,
-- commercial,
-- school,
-- road,
-- water.
-
-Simple urban heuristics drive placement, such as parks near residential areas and hospitals near roads.
-
-### 3. 3D visualization
-
-The grid is converted into a lightweight Three.js scene with colored boxes. The purpose is not realism — it is clarity, spatial understanding, and demo impact.
-
-### 4. Urban score panel
-
-Generated layouts are evaluated using fast, explainable heuristic metrics:
-
-- Sustainability score
-- Traffic score
-- Walkability score
-- Density score
-
-### 5. Explainability panel
-
-Every meaningful block can explain itself:
-
-- “Park placed near residential for accessibility.”
-- “Hospital placed near main road for emergency access.”
-- “Commercial zone aligned with road edge for visibility and access.”
-
-### 6. Map-based simulation
-
-Instead of generating a layout from scratch, the user can import a real-world area from a map. Roads and water bodies are fetched from OpenStreetMap and projected into the generation grid before the engine fills the remaining cells.
-
-This enables “what if we redesigned this neighborhood?” style simulations.
-
-***
-
-## What makes it stand out
-
-| Capability | Traditional concept sketch | CitySketch X Lite |
-|---|---|---|
-| Natural-language planning | Manual interpretation | Prompt → structured layout |
-| 2D visualization | Usually manual | Auto-generated |
-| 3D view | Requires extra modeling | Instant low-poly scene |
-| Explainability | Rare | Built-in per block |
-| Score system | Manual reasoning | Automated heuristic scoring |
-| Real map grounding | Separate GIS workflow | Optional map import mode |
-
-***
-
-## Tech stack
-
-### Frontend
-- React
-- Tailwind CSS
-- HTML Canvas or CSS Grid for 2D map
-- Three.js for 3D visualization
-- Leaflet / React-Leaflet for map mode
-
-### Backend
-- Node.js / Express (optional but recommended for map mode and external API calls)
-
-### Data / APIs
-- OpenAI API or rule-based parser for prompt interpretation
-- Geoapify for tiles and geocoding
-- Overpass API / OpenStreetMap for real-world road and water data
-
-***
-
-## Project structure
-
-```text
-CitySketch-X-Lite/
-├── src/
-│   ├── components/
-│   │   ├── PromptInput.jsx
-│   │   ├── Map2DCanvas.jsx
-│   │   ├── View3D.jsx
-│   │   ├── ScorePanel.jsx
-│   │   ├── ExplainPanel.jsx
-│   │   └── MapImportModal.jsx
-│   ├── engine/
-│   │   ├── parser.js
-│   │   ├── layoutEngine.js
-│   │   ├── scoreEngine.js
-│   │   ├── explainEngine.js
-│   │   └── geoToGrid.js
-│   ├── data/
-│   │   └── templates.js
-│   ├── App.jsx
-│   └── main.jsx
-├── server/
-│   ├── api/
-│   │   └── generate-from-map.js
-│   └── server.js
-├── public/
-├── README.md
-└── package.json
-```
-
-***
-
-## How it works
-
-## 1. Prompt parsing
-
-The parser reads the user prompt and normalizes it into JSON. It should detect synonyms such as:
-
-- `healthcare` → hospital
-- `green spaces` → park
-- `high density housing` → residential + density = high
-- `balanced traffic` → road strategy = medium/balanced
-
-## 2. Grid generation
-
-The generator initializes an `N x N` array and places:
-
-1. roads,
-2. fixed constraints,
-3. residential clusters,
-4. support zones such as parks, hospitals, schools, and commercial areas,
-5. fallback fill zones for unused cells.
-
-## 3. Scoring
-
-Once the grid is generated, the system computes fast evaluation metrics based on cell counts, adjacency, and distance.
-
-## 4. Explainability
-
-Each cell stores a short explanation string derived from its local context. That text appears in the UI when the user clicks on the block.
-
-## 5. 3D conversion
-
-Each 2D cell becomes a Three.js cube with a color and height that reflect the zone type.
-
-***
-
-## Map-based simulation flow
-
-```text
-User clicks “Import from Map”
-        ↓
-Fullscreen map opens
-        ↓
-User searches / locates / zooms to target site
-        ↓
-Blue crosshair defines selected area
-        ↓
-Bounding box sent to backend
-        ↓
-Overpass API fetches roads + water from OSM
-        ↓
-GPS geometry rasterized to grid
-        ↓
-City generator fills remaining cells
-        ↓
-Result shown in 2D / 3D / Blueprint views
-```
-
-### Why this matters
-
-This turns CitySketch from a generic generator into a location-aware planning prototype. If a river, lake, or arterial road exists in the selected site, the layout respects that geography instead of inventing it.
-
-***
-
-## Sample prompts
-
-```text
-Design a 5-acre eco-friendly township with park, hospital, and low traffic
-```
-
-```text
-Build a smart urban area with healthcare, green spaces, high density housing and balanced traffic
-```
+EOF
 
 ```text
 Create a 15-acre mixed-use smart district with commercial zones, parks, schools, and low traffic residential pockets
