@@ -1,6 +1,17 @@
 import { apiUrl } from './api'
 import type { GridCell, HistoryItem, EvaluationData } from '@/entities/types'
 
+export interface LocationResult {
+  id: number
+  name: string
+  displayName?: string
+  lat: number
+  lon: number
+  boundingBox: [number, number, number, number] | null
+  type: string
+  importance?: number
+}
+
 interface GenerateResponse {
   id: string
   prompt: string
@@ -15,7 +26,7 @@ interface GenerateResponse {
 }
 
 export const apiClient = {
-  async searchLocations(query: string): Promise<any[]> {
+  async searchLocations(query: string): Promise<LocationResult[]> {
     const res = await fetch(apiUrl(`/api/search?q=${encodeURIComponent(query)}`))
     if (!res.ok) {
       const err = await res.json().catch(() => ({}))
@@ -40,11 +51,18 @@ export const apiClient = {
     return res.json()
   },
 
-  async generateFromMap(bbox: [number, number, number, number], locationName: string, gridSize?: number): Promise<GenerateResponse> {
+  async generateFromMap(
+    bbox: [number, number, number, number],
+    locationName: string,
+    gridSize?: number,
+    prompt?: string,
+    candidates?: number,
+    saveToHistory = true,
+  ): Promise<GenerateResponse> {
     const res = await fetch(apiUrl('/api/generate-from-map'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ bbox, locationName, gridSize }),
+      body: JSON.stringify({ bbox, locationName, gridSize, prompt, candidates, saveToHistory }),
     })
     if (!res.ok) {
       const err = await res.json().catch(() => ({}))

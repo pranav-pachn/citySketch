@@ -1,11 +1,10 @@
-import axios from 'axios';
-
 /**
  * Geocoder service using Nominatim API (OpenStreetMap)
  */
 export class Geocoder {
   constructor() {
     this.baseUrl = 'https://nominatim.openstreetmap.org/search';
+    this.userAgent = 'CitySketch-AI-Urban-Design-Studio/1.0';
   }
 
   /**
@@ -17,30 +16,58 @@ export class Geocoder {
     if (!query) return [];
 
     try {
-      const response = await axios.get(this.baseUrl, {
-        params: {
-          q: query,
-          format: 'json',
-          addressdetails: 1,
-          limit: 5,
-        },
-        headers: {
-          'User-Agent': 'CitySketch-AI-Urban-Design-Studio',
-        },
-      });
+      const url = new URL(this.baseUrl)
+      url.searchParams.set('q', query)
+      url.searchParams.set('format', 'json')
+      url.searchParams.set('addressdetails', '1')
+      url.searchParams.set('limit', '5')
 
-      return response.data.map((item) => ({
-        id: item.place_id,
-        name: item.display_name,
-        lat: parseFloat(item.lat),
-        lon: parseFloat(item.lon),
-        boundingBox: item.boundingbox.map(parseFloat), // [minlat, maxlat, minlon, maxlon]
-        type: item.type,
-        importance: item.importance,
-      }));
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 5000)
+
+      const response = await fetch(url, {
+        headers: {
+          'Accept-Language': 'en',
+          'User-Agent': this.userAgent,
+        },
+        signal: controller.signal,
+      })
+
+      clearTimeout(timeoutId)
+
+      if (!response.ok) {
+        throw new Error(`Geocoding request failed with HTTP ${response.status}`)
+      }
+
+      const data = await response.json()
+
+      return (Array.isArray(data) ? data : []).map((item) => {
+        const bounding = Array.isArray(item.boundingbox)
+          ? item.boundingbox.map((value) => parseFloat(value))
+          : null
+
+        return {
+          id: item.place_id,
+          name: item.display_name,
+          displayName: item.display_name,
+          lat: parseFloat(item.lat),
+          lon: parseFloat(item.lon),
+          boundingBox: bounding && bounding.length === 4
+            ? [bounding[0], bounding[2], bounding[1], bounding[3]]
+            : null,
+          type: item.type,
+          importance: item.importance,
+        }
+      })
     } catch (error) {
-      console.error('Geocoding error:', error.message);
-      throw new Error('Failed to fetch location data');
+      const message = error?.name === 'AbortError'
+        ? 'Location search timed out'
+        : error?.message || 'Failed to fetch location data'
+      console.error('Geocoding error:', message)
+      const geocodeError = new Error(message)
+      geocodeError.statusCode = 503
+      geocodeError.isOperational = true
+      throw geocodeError
     }
   }
 
@@ -51,21 +78,25 @@ export class Geocoder {
    */
   async reverse(lat, lon) {
     try {
-      const response = await axios.get('https://nominatim.openstreetmap.org/reverse', {
-        params: {
-          lat,
-          lon,
-          format: 'json',
-        },
-        headers: {
-          'User-Agent': 'CitySketch-AI-Urban-Design-Studio',
-        },
-      });
+      const url = new URL('https://nominatim.openstreetmap.org/reverse')
+      url.searchParams.set('lat', String(lat))
+      url.searchParams.set('lon', String(lon))
+      url.searchParams.set('format', 'json')
 
-      return response.data;
+      const response = await fetch(url, {
+        headers: {
+          'User-Agent': this.userAgent,
+        },
+      })
+
+      if (!response.ok) {
+        throw new Error(`Reverse geocoding failed with HTTP ${response.status}`)
+      }
+
+      return response.json();
     } catch (error) {
-      console.error('Reverse geocoding error:', error.message);
-      return null;
+      console.error('Reverse geocoding error:', error.message)
+      return null
     }
   }
 }

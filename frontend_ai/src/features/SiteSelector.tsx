@@ -2,7 +2,8 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { MapContainer, TileLayer, useMap, useMapEvents } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import { X, Navigation, Check, Search, Loader2, MapPin, ZoomIn, ZoomOut, LocateFixed } from 'lucide-react'
+import { X, Navigation, Check, Search, Loader2, MapPin, ZoomIn, ZoomOut, LocateFixed, Clock3 } from 'lucide-react'
+import { apiClient, type LocationResult } from '@/shared/api/apiClient'
 
 /* ─── Fix default Leaflet icon paths (vite/webpack break them) ──────────── */
 // @ts-ignore
@@ -12,8 +13,6 @@ L.Icon.Default.mergeOptions({
   iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 })
-
-const GEOAPIFY_KEY = import.meta.env.VITE_GEOAPIFY_KEY || ''
 
 /* ─── Map context returned to the parent ────────────────────────────────── */
 export interface MapSiteContext {
@@ -29,12 +28,11 @@ interface SiteSelectorProps {
   onConfirm: (ctx: MapSiteContext) => void
 }
 
-/* ─── Autocomplete result from Geoapify ─────────────────────────────────── */
-interface GeoResult {
-  formatted: string
-  lat: number
-  lon: number
-  bbox?: { lat1: number; lon1: number; lat2: number; lon2: number }
+const RECENT_SEARCHES_KEY = 'citySketch.recentLocations'
+
+function normalizeBoundingBox(boundingBox: LocationResult['boundingBox']) {
+  if (!boundingBox || boundingBox.length !== 4) return null
+  return boundingBox
 }
 
 /* ─── Inner component to track map bounds ───────────────────────────────── */
@@ -76,14 +74,42 @@ export function SiteSelector({ onClose, onConfirm }: SiteSelectorProps) {
 
   // Search state
   const [query, setQuery] = useState('')
-  const [results, setResults] = useState<GeoResult[]>([])
+  const [results, setResults] = useState<LocationResult[]>([])
+  const [recentSearches, setRecentSearches] = useState<LocationResult[]>([])
   const [isSearching, setIsSearching] = useState(false)
   const [showResults, setShowResults] = useState(false)
+  const [searchError, setSearchError] = useState('')
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const searchBoxRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
 
   // Geolocation
   const [isLocating, setIsLocating] = useState(false)
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(RECENT_SEARCHES_KEY)
+      if (!raw) return
+      const parsed = JSON.parse(raw)
+      if (Array.isArray(parsed)) {
+        setRecentSearches(parsed.slice(0, 5))
+      }
+    } catch {
+      setRecentSearches([])
+    }
+  }, [])
+
+  const saveRecentSearch = useCallback((location: LocationResult) => {
+    setRecentSearches((current) => {
+      const next = [location, ...current.filter((item) => item.id !== location.id)].slice(0, 5)
+      try {
+        localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(next))
+      } catch {
+        // Ignore storage quota errors in private browsing modes.
+      }
+      return next
+    })
+  }, [])
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -96,61 +122,26 @@ export function SiteSelector({ onClose, onConfirm }: SiteSelectorProps) {
     return () => document.removeEventListener('mousedown', onClick)
   }, [])
 
-  /* ── Search (Geoapify with Nominatim fallback) ── */
+  /* ── Search ── */
   const doSearch = useCallback(async (text: string) => {
-    if (!text.trim()) return
+    const trimmed = text.trim()
+    if (trimmed.length < 3) return
 
     setIsSearching(true)
+    setSearchError('')
     try {
-      let items: GeoResult[] = []
-
-      if (GEOAPIFY_KEY) {
-        const url = `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(text)}&limit=5&apiKey=${GEOAPIFY_KEY}`
-        const res = await fetch(url)
-        const data = await res.json()
-
-        items = (data.features || []).map((f: any) => ({
-          formatted: f.properties.formatted,
-          lat: f.properties.lat,
-          lon: f.properties.lon,
-          bbox: f.bbox ? { lon1: f.bbox[0], lat1: f.bbox[1], lon2: f.bbox[2], lat2: f.bbox[3] } : undefined,
-        }))
-      } else {
-        // Free OpenStreetMap Nominatim search fallback (no key required!)
-        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(text)}&limit=5`
-        const res = await fetch(url, {
-          headers: {
-            'Accept-Language': 'en',
-            'User-Agent': 'CitySketch/1.0 (contact: prana@example.com)'
-          }
-        })
-        const data = await res.json()
-
-        items = (data || []).map((item: any) => {
-          const lat = parseFloat(item.lat)
-          const lon = parseFloat(item.lon)
-          let bbox: any = undefined
-          if (item.boundingbox && item.boundingbox.length === 4) {
-            bbox = {
-              lat1: parseFloat(item.boundingbox[0]), // latMin
-              lon1: parseFloat(item.boundingbox[2]), // lonMin
-              lat2: parseFloat(item.boundingbox[1]), // latMax
-              lon2: parseFloat(item.boundingbox[3]), // lonMax
-            }
-          }
-          return {
-            formatted: item.display_name,
-            lat,
-            lon,
-            bbox,
-          }
-        })
-      }
-
-      setResults(items)
+      const items = await apiClient.searchLocations(trimmed)
+      setResults(items.slice(0, 5))
       setShowResults(items.length > 0)
+      if (items.length === 0) {
+        setSearchError('No locations found. Try a different search term.')
+      }
     } catch (err) {
-      console.error('Geocode search failed:', err)
+      const message = err instanceof Error ? err.message : 'Failed to search locations'
+      console.error('Geocode search failed:', message)
+      setSearchError(message)
+      setResults([])
+      setShowResults(true)
     } finally {
       setIsSearching(false)
     }
@@ -159,22 +150,29 @@ export function SiteSelector({ onClose, onConfirm }: SiteSelectorProps) {
   const handleQueryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value
     setQuery(val)
+    setSearchError('')
 
     if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current)
     if (val.trim().length >= 3) {
-      searchTimeoutRef.current = setTimeout(() => doSearch(val), 350)
+      searchTimeoutRef.current = setTimeout(() => doSearch(val), 500)
     } else {
       setResults([])
-      setShowResults(false)
+      setShowResults(val.trim().length === 0)
     }
   }
 
-  const handleResultPick = (r: GeoResult) => {
+  const handleResultPick = (r: LocationResult) => {
     setCenter([r.lat, r.lon])
-    setLocationName(r.formatted)
-    setQuery(r.formatted)
+    setLocationName(r.name)
+    setQuery(r.name)
     setShowResults(false)
+    setSearchError('')
     setZoom(16)
+    const normalizedBbox = normalizeBoundingBox(r.boundingBox)
+    if (normalizedBbox) {
+      setBbox(normalizedBbox)
+    }
+    saveRecentSearch(r)
   }
 
   /* ── Browser geolocation ── */
@@ -205,10 +203,21 @@ export function SiteSelector({ onClose, onConfirm }: SiteSelectorProps) {
     })
   }
 
+  const handleClear = () => {
+    setQuery('')
+    setResults([])
+    setShowResults(true)
+    setSearchError('')
+    inputRef.current?.focus()
+  }
+
+  const dropdownItems = query.trim().length === 0 ? recentSearches : results
+  const showRecentSection = query.trim().length === 0 && recentSearches.length > 0
+
   return (
     <div className="fixed inset-0 z-[200] flex flex-col bg-zinc-950 text-white" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
       {/* ── Header ── */}
-      <div className="relative z-[1500] flex h-16 shrink-0 items-center justify-between border-b border-zinc-800/80 bg-zinc-950/95 px-5 backdrop-blur-xl">
+      <div className="relative z-[1500] flex flex-col gap-3 border-b border-zinc-800/80 bg-zinc-950/95 px-4 py-4 backdrop-blur-xl sm:h-16 sm:flex-row sm:items-center sm:justify-between sm:px-5 sm:py-0">
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-cyan-500 shadow-lg shadow-blue-600/20">
             <Navigation size={18} className="text-white" />
@@ -220,39 +229,77 @@ export function SiteSelector({ onClose, onConfirm }: SiteSelectorProps) {
         </div>
 
         {/* Search */}
-        <div ref={searchBoxRef} className="relative mx-6 hidden min-w-0 w-full max-w-[500px] flex-1 sm:block">
+        <div ref={searchBoxRef} className="relative w-full min-w-0 flex-1 sm:mx-6 sm:max-w-[500px]">
           <div className="relative">
             <input
+              ref={inputRef}
               type="text"
               value={query}
               onChange={handleQueryChange}
               placeholder="Search city, neighborhood, or landmark…"
-              className="h-11 w-full rounded-xl border border-zinc-700/80 bg-zinc-900/90 pl-11 pr-11 text-sm text-white outline-none transition placeholder:text-zinc-500 focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/40"
-              onFocus={() => results.length > 0 && setShowResults(true)}
+              className="h-12 w-full rounded-xl border border-zinc-700/80 bg-zinc-900/90 pl-11 pr-20 text-sm text-white outline-none transition placeholder:text-zinc-500 focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/40"
+              onFocus={() => {
+                if (query.trim().length === 0 && recentSearches.length > 0) {
+                  setShowResults(true)
+                } else if (results.length > 0) {
+                  setShowResults(true)
+                }
+              }}
             />
             <Search
               className="pointer-events-none absolute left-3.5 top-1/2 z-10 -translate-y-1/2 text-zinc-500"
               size={16}
             />
+            {query.length > 0 && (
+              <button
+                type="button"
+                onClick={handleClear}
+                className="absolute right-3 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-zinc-500 transition hover:bg-zinc-800 hover:text-white"
+                aria-label="Clear search"
+              >
+                <X size={16} />
+              </button>
+            )}
             {isSearching && (
               <Loader2
-                className="pointer-events-none absolute right-3.5 top-1/2 z-10 -translate-y-1/2 animate-spin text-zinc-500"
+                className="pointer-events-none absolute right-10 top-1/2 z-10 -translate-y-1/2 animate-spin text-zinc-500"
                 size={16}
               />
             )}
           </div>
 
+          {searchError && (
+            <div className="mt-2 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-red-200">
+              {searchError}
+            </div>
+          )}
+
           {/* Autocomplete dropdown */}
           {showResults && (
-            <div className="absolute top-full left-0 right-0 mt-1.5 max-h-[260px] overflow-y-auto rounded-xl border border-zinc-700/80 bg-zinc-900/98 shadow-2xl backdrop-blur-xl">
-              {results.map((r, i) => (
+            <div className="absolute top-full left-0 right-0 mt-2 max-h-[320px] overflow-y-auto rounded-2xl border border-zinc-700/80 bg-zinc-900/98 shadow-2xl backdrop-blur-xl">
+              {showRecentSection && (
+                <div className="flex items-center gap-2 px-4 pt-4 pb-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-500">
+                  <Clock3 size={12} />
+                  Recent Searches
+                </div>
+              )}
+
+              {dropdownItems.length === 0 && !searchError && (
+                <div className="px-4 py-4 text-sm text-zinc-500">Start typing to search for a city or neighborhood.</div>
+              )}
+
+              {dropdownItems.map((r) => (
                 <button
-                  key={i}
-                  className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm text-zinc-300 transition hover:bg-zinc-800/80 hover:text-white"
+                  key={r.id}
+                  type="button"
+                  className="flex min-h-11 w-full items-center gap-3 px-4 py-3 text-left text-sm text-zinc-300 transition hover:bg-zinc-800/80 hover:text-white"
                   onClick={() => handleResultPick(r)}
                 >
                   <MapPin size={14} className="shrink-0 text-blue-400" />
-                  <span className="truncate">{r.formatted}</span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate">{r.name}</span>
+                    <span className="mt-1 block text-[10px] uppercase tracking-[0.18em] text-zinc-500">{r.type.replace('_', ' ')}</span>
+                  </span>
                 </button>
               ))}
             </div>
@@ -261,7 +308,7 @@ export function SiteSelector({ onClose, onConfirm }: SiteSelectorProps) {
 
         <button
           onClick={onClose}
-          className="flex h-9 w-9 items-center justify-center rounded-xl border border-zinc-700/60 bg-zinc-900 text-zinc-400 transition hover:bg-zinc-800 hover:text-white"
+          className="flex h-11 w-11 items-center justify-center rounded-xl border border-zinc-700/60 bg-zinc-900 text-zinc-400 transition hover:bg-zinc-800 hover:text-white"
         >
           <X size={18} />
         </button>
@@ -276,14 +323,8 @@ export function SiteSelector({ onClose, onConfirm }: SiteSelectorProps) {
           zoomControl={false}
         >
           <TileLayer
-            url={GEOAPIFY_KEY
-              ? `https://maps.geoapify.com/v1/tile/dark-matter-brown/{z}/{x}/{y}.png?apiKey=${GEOAPIFY_KEY}`
-              : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
-            }
-            attribution={GEOAPIFY_KEY
-              ? 'Powered by <a href="https://www.geoapify.com/" target="_blank">Geoapify</a> | © OpenStreetMap'
-              : '© OpenStreetMap contributors, © CARTO'
-            }
+            url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+            attribution="© OpenStreetMap contributors, © CARTO"
           />
           <MapController center={center} zoom={zoom} onBoundsChange={setBbox} />
         </MapContainer>
@@ -312,21 +353,21 @@ export function SiteSelector({ onClose, onConfirm }: SiteSelectorProps) {
         {/* Right-side map controls */}
         <div className="absolute right-4 top-1/2 z-[1000] flex -translate-y-1/2 flex-col gap-2">
           <button
-            className="flex h-10 w-10 items-center justify-center rounded-xl border border-zinc-700/60 bg-zinc-900/90 text-zinc-300 shadow-lg backdrop-blur transition hover:bg-zinc-800 hover:text-white"
+            className="flex h-11 w-11 items-center justify-center rounded-xl border border-zinc-700/60 bg-zinc-900/90 text-zinc-300 shadow-lg backdrop-blur transition hover:bg-zinc-800 hover:text-white"
             onClick={() => setZoom(z => Math.min(z + 1, 19))}
             title="Zoom in"
           >
             <ZoomIn size={18} />
           </button>
           <button
-            className="flex h-10 w-10 items-center justify-center rounded-xl border border-zinc-700/60 bg-zinc-900/90 text-zinc-300 shadow-lg backdrop-blur transition hover:bg-zinc-800 hover:text-white"
+            className="flex h-11 w-11 items-center justify-center rounded-xl border border-zinc-700/60 bg-zinc-900/90 text-zinc-300 shadow-lg backdrop-blur transition hover:bg-zinc-800 hover:text-white"
             onClick={() => setZoom(z => Math.max(z - 1, 5))}
             title="Zoom out"
           >
             <ZoomOut size={18} />
           </button>
           <button
-            className="flex h-10 w-10 items-center justify-center rounded-xl border border-zinc-700/60 bg-zinc-900/90 text-zinc-300 shadow-lg backdrop-blur transition hover:bg-zinc-800 hover:text-white"
+            className="flex h-11 w-11 items-center justify-center rounded-xl border border-zinc-700/60 bg-zinc-900/90 text-zinc-300 shadow-lg backdrop-blur transition hover:bg-zinc-800 hover:text-white"
             onClick={handleLocateMe}
             disabled={isLocating}
             title="Use my location"
@@ -359,7 +400,7 @@ export function SiteSelector({ onClose, onConfirm }: SiteSelectorProps) {
       {/* Footer hint */}
       <div className="shrink-0 border-t border-zinc-800/60 bg-zinc-900/40 px-6 py-3 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-zinc-500">
         <span>Zoom &amp; pan to align the blue box with the area you want to redesign. Real roads and waterways will be pulled into your layout.</span>
-        <span className="font-semibold text-zinc-400">Map Service: {GEOAPIFY_KEY ? 'Geoapify (Active)' : 'OSM Nominatim (Fallback)'}</span>
+        <span className="font-semibold text-zinc-400">Map Service: OSM-backed backend search</span>
       </div>
     </div>
   )

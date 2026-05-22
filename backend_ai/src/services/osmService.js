@@ -1,11 +1,152 @@
-import axios from 'axios';
-
 /**
  * OSM Service to fetch data from Overpass API
  */
 export class OSMService {
   constructor() {
     this.overpassUrl = 'https://overpass-api.de/api/interpreter';
+    this.userAgent = 'CitySketch-AI-Urban-Design-Studio/1.0';
+    this.cache = new Map();
+    this.lastRequestAt = 0;
+    this.maxCacheEntries = 128;
+  }
+
+  normalizeBoundingBox(bbox) {
+    const [minLat, minLon, maxLat, maxLon] = bbox.map((value) => Number(value))
+    return [minLat, minLon, maxLat, maxLon]
+  }
+
+  getCacheKey(bbox) {
+    return this.normalizeBoundingBox(bbox).map((value) => value.toFixed(4)).join(',')
+  }
+
+  getCached(cacheKey) {
+    const entry = this.cache.get(cacheKey)
+    if (!entry) return null
+    if (entry.expiresAt <= Date.now()) {
+      this.cache.delete(cacheKey)
+      return null
+    }
+
+    this.cache.delete(cacheKey)
+    this.cache.set(cacheKey, entry)
+    return entry.value
+  }
+
+  setCached(cacheKey, value) {
+    this.cache.set(cacheKey, {
+      value,
+      expiresAt: Date.now() + (30 * 60 * 1000),
+    })
+
+    while (this.cache.size > this.maxCacheEntries) {
+      const oldestKey = this.cache.keys().next().value
+      if (oldestKey === undefined) break
+      this.cache.delete(oldestKey)
+    }
+  }
+
+  async throttleRequest() {
+    const elapsed = Date.now() - this.lastRequestAt
+    const waitMs = Math.max(0, 2000 - elapsed)
+    if (waitMs > 0) {
+      await new Promise((resolve) => setTimeout(resolve, waitMs))
+    }
+    this.lastRequestAt = Date.now()
+  }
+
+  buildQuery(bboxStr) {
+    return `
+      [out:json][timeout:25];
+      (
+        way["highway"](${bboxStr});
+        way["natural"="water"](${bboxStr});
+        relation["natural"="water"](${bboxStr});
+        way["waterway"](${bboxStr});
+        way["building"](${bboxStr});
+        relation["building"](${bboxStr});
+        way["leisure"="park"](${bboxStr});
+        way["landuse"="grass"](${bboxStr});
+        way["landuse"="forest"](${bboxStr});
+        way["landuse"="meadow"](${bboxStr});
+        way["natural"="wood"](${bboxStr});
+        way["landuse"](${bboxStr});
+      );
+      out body;
+      >;
+      out skel qt;
+    `
+  }
+
+  async postOverpass(query, attempt = 0) {
+    await this.throttleRequest()
+
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 25000)
+
+    try {
+      const response = await fetch(this.overpassUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'User-Agent': this.userAgent,
+        },
+        body: `data=${encodeURIComponent(query)}`,
+        signal: controller.signal,
+      })
+
+      const rawBody = await response.text()
+
+      if (response.status === 429 && attempt < 2) {
+        const backoffMs = attempt === 0 ? 2000 : 4000
+        await new Promise((resolve) => setTimeout(resolve, backoffMs))
+        return this.postOverpass(query, attempt + 1)
+      }
+
+      if (!response.ok) {
+        const error = new Error(`Overpass request failed with HTTP ${response.status}`)
+        error.statusCode = response.status
+        error.rawBody = rawBody
+        throw error
+      }
+
+      let parsed
+      try {
+        parsed = JSON.parse(rawBody)
+      } catch (parseError) {
+        const error = new Error('Malformed Overpass JSON')
+        error.statusCode = 503
+        error.rawBody = rawBody
+        throw error
+      }
+
+      if (!parsed || !Array.isArray(parsed.elements)) {
+        const error = new Error('Empty Overpass response')
+        error.statusCode = 503
+        error.rawBody = rawBody
+        throw error
+      }
+
+      return parsed
+    } catch (error) {
+      if (error?.name === 'AbortError') {
+        const timeoutError = new Error('Overpass request timed out after 25 seconds')
+        timeoutError.code = 'osm_unavailable'
+        timeoutError.statusCode = 503
+        throw timeoutError
+      }
+
+      if (error?.statusCode === 429 || (error?.statusCode >= 500 && error?.statusCode < 600)) {
+        const unavailable = new Error('OSM data is temporarily unavailable')
+        unavailable.code = 'osm_unavailable'
+        unavailable.statusCode = 503
+        unavailable.rawBody = error.rawBody
+        throw unavailable
+      }
+
+      throw error
+    } finally {
+      clearTimeout(timeoutId)
+    }
   }
 
   /**
@@ -14,49 +155,42 @@ export class OSMService {
    * @returns {Promise<Object>} - OSM data in JSON format
    */
   async fetchMapData(bbox) {
-    const [minLat, minLon, maxLat, maxLon] = bbox;
-    const bboxStr = `${minLat},${minLon},${maxLat},${maxLon}`;
+    const normalizedBbox = this.normalizeBoundingBox(bbox)
+    const [minLat, minLon, maxLat, maxLon] = normalizedBbox
+    const bboxStr = `${minLat},${minLon},${maxLat},${maxLon}`
+    const cacheKey = this.getCacheKey(normalizedBbox)
 
-    const query = `
-      [out:json][timeout:25];
-      (
-        // Fetch roads
-        way["highway"](${bboxStr});
-        // Fetch water
-        way["natural"="water"](${bboxStr});
-        relation["natural"="water"](${bboxStr});
-        way["waterway"](${bboxStr});
-        // Fetch buildings
-        way["building"](${bboxStr});
-        relation["building"](${bboxStr});
-        // Fetch parks and green areas
-        way["leisure"="park"](${bboxStr});
-        way["landuse"="grass"](${bboxStr});
-        way["landuse"="forest"](${bboxStr});
-        way["landuse"="meadow"](${bboxStr});
-        way["natural"="wood"](${bboxStr});
-        // Fetch landuse
-        way["landuse"](${bboxStr});
-      );
-      out body;
-      >;
-      out skel qt;
-    `;
+    const cached = this.getCached(cacheKey)
+    if (cached) {
+      return cached
+    }
+
+    const query = this.buildQuery(bboxStr)
 
     try {
-      const response = await axios.post(this.overpassUrl, `data=${encodeURIComponent(query)}`, {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-      });
-
-      return this.processOSMData(response.data);
+      const response = await this.postOverpass(query)
+      const processed = this.processOSMData(response)
+      this.setCached(cacheKey, processed)
+      return processed
     } catch (error) {
-      console.error('Overpass API error:', error.message);
-      if (error.response && error.response.status === 429) {
-        throw new Error('OSM API rate limit exceeded. Please try again later.');
+      console.error('Overpass API error:', error.message)
+      if (error.code === 'osm_unavailable') {
+        const unavailable = new Error(error.message || 'OSM data unavailable')
+        unavailable.code = 'osm_unavailable'
+        unavailable.statusCode = 503
+        unavailable.rawBody = error.rawBody
+        throw unavailable
       }
-      throw new Error('Failed to fetch OSM data');
+
+      if (error.statusCode === 400) {
+        throw error
+      }
+
+      const unavailable = new Error('OSM data unavailable')
+      unavailable.code = 'osm_unavailable'
+      unavailable.statusCode = 503
+      unavailable.rawBody = error.rawBody
+      throw unavailable
     }
   }
 
@@ -74,7 +208,6 @@ export class OSMService {
     });
 
     const ways = [];
-    const relations = [];
 
     // Second pass: process ways and relations
     elements.forEach(element => {
@@ -93,8 +226,12 @@ export class OSMService {
     });
 
     return {
-      bbox: data.osm3s?.copyright ? data.osm3s.copyright : null,
+      nodes,
       ways,
+      meta: {
+        timestamp: data.osm3s?.timestamp_osm_base || null,
+        copyright: data.osm3s?.copyright || null,
+      },
     };
   }
 

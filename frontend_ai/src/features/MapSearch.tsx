@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useStore } from '../entities/store/useStore';
-import { Search, MapPin, Loader2 } from 'lucide-react';
-import { apiClient } from '../shared/api/apiClient';
+import { Search, MapPin, Loader2, X } from 'lucide-react';
+import { apiClient, type LocationResult } from '../shared/api/apiClient';
 
 export const MapSearch: React.FC = () => {
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<any[]>([]);
+  const [results, setResults] = useState<LocationResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const { submitMapContext } = useStore();
@@ -19,7 +19,7 @@ export const MapSearch: React.FC = () => {
     setIsLoading(true);
     try {
       const data = await apiClient.searchLocations(searchQuery);
-      setResults(data);
+      setResults(data.slice(0, 5));
       setIsDropdownOpen(true);
     } catch (error) {
       console.error('Search error:', error);
@@ -39,7 +39,14 @@ export const MapSearch: React.FC = () => {
   const handleSelectLocation = async (location: any) => {
     setIsDropdownOpen(false);
     setQuery(location.name);
+    if (!location.boundingBox) return;
     await submitMapContext(location.boundingBox, location.name);
+  };
+
+  const handleClear = () => {
+    setQuery('');
+    setResults([]);
+    setIsDropdownOpen(false);
   };
 
   return (
@@ -50,7 +57,7 @@ export const MapSearch: React.FC = () => {
         </div>
         <input
           type="text"
-          className="w-full pl-10 pr-10 py-2.5 bg-slate-900/50 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all text-sm"
+          className="w-full rounded-xl border border-slate-800 bg-slate-900/50 py-2.5 pl-10 pr-10 text-sm text-white transition-all placeholder:text-slate-500 focus:border-blue-500/50 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
           placeholder="Search for a real-world location..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
@@ -60,6 +67,16 @@ export const MapSearch: React.FC = () => {
           <div className="absolute right-3 top-1/2 -translate-y-1/2">
             <Loader2 size={16} className="animate-spin text-blue-500" />
           </div>
+        )}
+        {query && !isLoading && (
+          <button
+            type="button"
+            onClick={handleClear}
+            className="absolute right-3 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-800 hover:text-white"
+            aria-label="Clear search"
+          >
+            <X size={14} />
+          </button>
         )}
       </div>
 

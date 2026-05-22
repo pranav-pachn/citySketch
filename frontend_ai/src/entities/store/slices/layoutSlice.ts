@@ -84,12 +84,12 @@ export const createLayoutSlice: StateCreator<AppState, [], [], LayoutSlice> = (s
   },
 
   submitMapContext: async (bbox, locationName, gridSize = 20) => {
-    const { setIsLoading, addToast, addHistory, setActiveHistoryId, generationId } = get()
+    const { setIsLoading, addToast, addHistory, setActiveHistoryId, generationId, prompt } = get()
     setIsLoading(true)
     // Small UI-friendly delay so loading state is visible and feels intentional
     await new Promise((r) => setTimeout(r, 500))
     try {
-      const data = await apiClient.generateFromMap(bbox, locationName, gridSize)
+      const data = await apiClient.generateFromMap(bbox, locationName, gridSize, prompt)
       set({
         layoutData: data.layoutData || data.layout,
         evaluation: data.evaluation,

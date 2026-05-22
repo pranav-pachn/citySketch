@@ -232,6 +232,23 @@ function buildSummary(metrics, scores) {
   return summary;
 }
 
+function buildGeoSummary(metrics, scores) {
+  const lockedCells = metrics.counts?.locked || 0;
+  const roadCount = metrics.counts?.road || 0;
+  const waterCount = metrics.counts?.water || 0;
+
+  if (lockedCells === 0 && roadCount === 0 && waterCount === 0) {
+    return null;
+  }
+
+  const fragments = [];
+  if (roadCount > 0) fragments.push(`${roadCount} preserved road cells`);
+  if (waterCount > 0) fragments.push(`${waterCount} water cells`);
+  if (lockedCells > 0) fragments.push(`${lockedCells} locked OSM features`);
+
+  return `Real-world geography shaped this layout through ${fragments.join(', ')} and a connectivity score of ${scores.connectivityScore ?? 0}.`;
+}
+
 /**
  * Full insight generation pipeline.
  *
@@ -244,6 +261,11 @@ function buildSummary(metrics, scores) {
 export function generateInsights(grid) {
   // Step 1: Analyze raw spatial metrics
   const metrics = analyzeLayout(grid);
+  const lockedCount = Array.isArray(grid)
+    ? grid.reduce((sum, row) => sum + (Array.isArray(row) ? row.filter((cell) => cell?.isLocked).length : 0), 0)
+    : 0
+  metrics.counts = metrics.counts || {}
+  metrics.counts.locked = lockedCount
 
   // Step 2: Compute weighted scores
   const scores = calculateScores(grid);
@@ -256,6 +278,7 @@ export function generateInsights(grid) {
 
   // Step 5: Build a natural language summary
   const summary = buildSummary(metrics, scores);
+  const geoSummary = buildGeoSummary(metrics, scores);
 
   return {
     metrics: {
@@ -276,6 +299,12 @@ export function generateInsights(grid) {
       healthcare: scores.healthcare,
       traffic: scores.traffic,
       sustainability: scores.sustainability,
+      roadAccessibility: scores.roadAccessibility,
+      parkAccess: scores.parkAccess,
+      waterProximity: scores.waterProximity,
+      densityEfficiency: scores.densityEfficiency,
+      zoningBalance: scores.zoningBalance,
+      connectivityScore: scores.connectivityScore,
       
       // Enhanced score data with labels and distances
       distances: scores.distances,
@@ -284,5 +313,6 @@ export function generateInsights(grid) {
     explanations,
     suggestions,
     summary,
+    geoSummary,
   };
 }
