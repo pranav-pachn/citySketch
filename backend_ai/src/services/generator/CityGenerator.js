@@ -23,6 +23,11 @@ export class CityGenerator {
       trafficLevel: config.trafficLevel || 'balanced',
       eco: config.eco || false,
     };
+    this.lockedCells = config.lockedCells || new Set();
+  }
+
+  isLocked(x, y) {
+    return this.lockedCells.has(`${x},${y}`);
   }
 
   clamp(value, min, max) {
@@ -31,6 +36,7 @@ export class CityGenerator {
 
   setTileIfNotWater(x, y, type) {
     if (x < 0 || x >= this.width || y < 0 || y >= this.height) return;
+    if (this.isLocked(x, y)) return;
     if (this.grid[y][x] !== 'water') this.grid[y][x] = type;
   }
 
@@ -210,7 +216,9 @@ export class CityGenerator {
       this.waterMeta = { type: 'river_vertical', startCol, width: riverWidth };
       for (let y = 0; y < this.height; y++) {
         for (let w = 0; w < riverWidth; w++) {
-          this.grid[y][startCol + w] = 'water';
+          if (!this.isLocked(startCol + w, y)) {
+            this.grid[y][startCol + w] = 'water';
+          }
         }
       }
     } else if (this.config.waterStyle === 'river_horizontal') {
@@ -219,18 +227,28 @@ export class CityGenerator {
       this.waterMeta = { type: 'river_horizontal', startRow, width: riverWidth };
       for (let x = 0; x < this.width; x++) {
         for (let w = 0; w < riverWidth; w++) {
-          this.grid[startRow + w][x] = 'water';
+          if (!this.isLocked(x, startRow + w)) {
+            this.grid[startRow + w][x] = 'water';
+          }
         }
       }
     } else if (this.config.waterStyle === 'coastal_left') {
-      for (let y = 0; y < this.height; y++) { this.grid[y][0] = 'water'; this.grid[y][1] = 'water'; }
+      for (let y = 0; y < this.height; y++) { 
+        if (!this.isLocked(0, y)) this.grid[y][0] = 'water'; 
+        if (!this.isLocked(1, y)) this.grid[y][1] = 'water'; 
+      }
     } else if (this.config.waterStyle === 'coastal_right') {
-      for (let y = 0; y < this.height; y++) { this.grid[y][this.width-1] = 'water'; this.grid[y][this.width-2] = 'water'; }
+      for (let y = 0; y < this.height; y++) { 
+        if (!this.isLocked(this.width-1, y)) this.grid[y][this.width-1] = 'water'; 
+        if (!this.isLocked(this.width-2, y)) this.grid[y][this.width-2] = 'water'; 
+      }
     } else if (this.config.waterStyle === 'lake_center') {
       const cx = Math.floor(this.width/2);
       const cy = Math.floor(this.height/2);
-      this.grid[cy-1][cx-1] = 'water'; this.grid[cy-1][cx] = 'water';
-      this.grid[cy][cx-1] = 'water'; this.grid[cy][cx] = 'water';
+      if (!this.isLocked(cx-1, cy-1)) this.grid[cy-1][cx-1] = 'water'; 
+      if (!this.isLocked(cx, cy-1)) this.grid[cy-1][cx] = 'water';
+      if (!this.isLocked(cx-1, cy)) this.grid[cy][cx-1] = 'water'; 
+      if (!this.isLocked(cx, cy)) this.grid[cy][cx] = 'water';
     }
   }
 
@@ -302,14 +320,14 @@ export class CityGenerator {
     const stepHorizontal = () => {
       while (x !== toX) {
         x += toX > x ? 1 : -1;
-        this.grid[y][x] = 'road';
+        if (!this.isLocked(x, y)) this.grid[y][x] = 'road';
       }
     };
 
     const stepVertical = () => {
       while (y !== toY) {
         y += toY > y ? 1 : -1;
-        this.grid[y][x] = 'road';
+        if (!this.isLocked(x, y)) this.grid[y][x] = 'road';
       }
     };
 
@@ -359,8 +377,8 @@ export class CityGenerator {
       const vSpine = Math.floor(this.width / 2);
       
       // Always: center cross roads (Guide Section 5 — mandatory)
-      for (let x = 0; x < this.width; x++) if (this.grid[hSpine][x] !== 'water') this.grid[hSpine][x] = 'road';
-      for (let y = 0; y < this.height; y++) if (this.grid[y][vSpine] !== 'water') this.grid[y][vSpine] = 'road';
+      for (let x = 0; x < this.width; x++) if (this.grid[hSpine][x] !== 'water' && !this.isLocked(x, hSpine)) this.grid[hSpine][x] = 'road';
+      for (let y = 0; y < this.height; y++) if (this.grid[y][vSpine] !== 'water' && !this.isLocked(vSpine, y)) this.grid[y][vSpine] = 'road';
 
       // Balanced traffic: add quarter-line arteries (Guide Section 5)
       if (trafficLevel === 'balanced') {
@@ -370,12 +388,12 @@ export class CityGenerator {
         const q3Col = Math.floor(this.width * 3 / 4);
 
         for (let x = 0; x < this.width; x++) {
-          if (this.grid[q1Row][x] !== 'water') this.grid[q1Row][x] = 'road';
-          if (this.grid[q3Row][x] !== 'water') this.grid[q3Row][x] = 'road';
+          if (this.grid[q1Row][x] !== 'water' && !this.isLocked(x, q1Row)) this.grid[q1Row][x] = 'road';
+          if (this.grid[q3Row][x] !== 'water' && !this.isLocked(x, q3Row)) this.grid[q3Row][x] = 'road';
         }
         for (let y = 0; y < this.height; y++) {
-          if (this.grid[y][q1Col] !== 'water') this.grid[y][q1Col] = 'road';
-          if (this.grid[y][q3Col] !== 'water') this.grid[y][q3Col] = 'road';
+          if (this.grid[y][q1Col] !== 'water' && !this.isLocked(q1Col, y)) this.grid[y][q1Col] = 'road';
+          if (this.grid[y][q3Col] !== 'water' && !this.isLocked(q3Col, y)) this.grid[y][q3Col] = 'road';
         }
       }
       
@@ -384,13 +402,13 @@ export class CityGenerator {
         for (let i = 0; i < this.height; i += 4) {
           // Draw full horizontal row
           for (let x = 0; x < this.width; x++) {
-            if (this.grid[i][x] !== 'water') this.grid[i][x] = 'road';
+            if (this.grid[i][x] !== 'water' && !this.isLocked(x, i)) this.grid[i][x] = 'road';
           }
         }
         for (let i = 0; i < this.width; i += 4) {
           // Draw full vertical column
           for (let y = 0; y < this.height; y++) {
-            if (this.grid[y][i] !== 'water') this.grid[y][i] = 'road';
+            if (this.grid[y][i] !== 'water' && !this.isLocked(i, y)) this.grid[y][i] = 'road';
           }
         }
       }
@@ -485,7 +503,7 @@ export class CityGenerator {
       for(let y = cy-radius; y <= cy+radius && coreCount > 0; y++) {
         for(let x = cx-radius; x <= cx+radius && coreCount > 0; x++) {
           if (y >= 0 && y < this.height && x >= 0 && x < this.width) {
-            if (this.grid[y][x] === 'empty') {
+            if (this.grid[y][x] === 'empty' && !this.isLocked(x, y)) {
                // Bug 3 fix: allow center-proximity as fallback so commercial cores
                // aren't starved on first pass when no primaryZone neighbours exist yet
                const centerDist = Math.abs(x - cx) + Math.abs(y - cy);
@@ -514,7 +532,7 @@ export class CityGenerator {
 
     for (let y = 0; y < this.height; y++) {
       for (let x = 0; x < this.width; x++) {
-        if (this.grid[y][x] !== 'empty') continue;
+        if (this.grid[y][x] !== 'empty' || this.isLocked(x, y)) continue;
 
         const centerDist = Math.abs(x - cx) + Math.abs(y - cy);
         let score = 0;
@@ -551,7 +569,7 @@ export class CityGenerator {
 
     for (let y = 0; y < this.height; y++) {
       for (let x = 0; x < this.width; x++) {
-        if (this.grid[y][x] !== 'empty') continue;
+        if (this.grid[y][x] !== 'empty' || this.isLocked(x, y)) continue;
 
         // Guide Section 4 — Hospital: adjacent to main road, avoid deep interior
         const adjacentRoad = this.isAdjacentTo(x, y, 'road') ? 1 : 0;
@@ -627,7 +645,7 @@ export class CityGenerator {
     for (let y = 0; y < this.height && attempts < 1000; y++) {
       for (let x = 0; x < this.width && attempts < 1000; x++) {
         attempts++;
-        if (this.grid[y][x] !== 'empty') continue;
+        if (this.grid[y][x] !== 'empty' || this.isLocked(x, y)) continue;
 
         const nearResidential = this.isAdjacentTo(x, y, 'residential') ? 1 : 0;
         const nearPark = this.isAdjacentTo(x, y, 'park') ? 1 : 0;
@@ -695,7 +713,7 @@ export class CityGenerator {
       const cx = Math.floor(this.width / 3), cy = Math.floor(this.height/2);
       for(let y=cy-1; y<=cy+1; y++) {
         for(let x=cx-1; x<=cx+1; x++) {
-          if (this.grid[y]?.[x] === 'empty' && parkCount > 0) { this.grid[y][x] = 'park'; parkCount--; }
+          if (this.grid[y]?.[x] === 'empty' && !this.isLocked(x, y) && parkCount > 0) { this.grid[y][x] = 'park'; parkCount--; }
         }
       }
     } else if (this.config.parkStyle === 'bordering') {
@@ -715,7 +733,7 @@ export class CityGenerator {
 
       for(let y=0; y<this.height && parkCount > 0; y++) {
         for(let x=0; x<this.width && parkCount > 0; x++) {
-          if (this.grid[y][x] === 'empty' && this.isAdjacentTo(x, y, 'residential') && Math.random() < firstPassProb) {
+          if (this.grid[y][x] === 'empty' && !this.isLocked(x, y) && this.isAdjacentTo(x, y, 'residential') && Math.random() < firstPassProb) {
             this.grid[y][x] = 'park';
             parkCount--;
           }
@@ -724,7 +742,7 @@ export class CityGenerator {
       // Second pass: scatter remaining parks near roads
       for(let y=0; y<this.height && parkCount > 0; y++) {
         for(let x=0; x<this.width && parkCount > 0; x++) {
-          if (this.grid[y][x] === 'empty' && this.isAdjacentTo(x, y, 'road') && Math.random() < secondPassProb) {
+          if (this.grid[y][x] === 'empty' && !this.isLocked(x, y) && this.isAdjacentTo(x, y, 'road') && Math.random() < secondPassProb) {
             this.grid[y][x] = 'park';
             parkCount--;
           }
@@ -733,7 +751,7 @@ export class CityGenerator {
       // Third pass: fill quota from any remaining empty cell
       for(let y=0; y<this.height && parkCount > 0; y++) {
         for(let x=0; x<this.width && parkCount > 0; x++) {
-          if (this.grid[y][x] === 'empty' && Math.random() < thirdPassProb) {
+          if (this.grid[y][x] === 'empty' && !this.isLocked(x, y) && Math.random() < thirdPassProb) {
             this.grid[y][x] = 'park';
             parkCount--;
           }
@@ -744,7 +762,7 @@ export class CityGenerator {
       if (this.config.eco && parkCount > 0) {
         for(let y=0; y<this.height && parkCount > 0; y++) {
           for(let x=0; x<this.width && parkCount > 0; x++) {
-            if (this.grid[y][x] === 'empty' && (this.isAdjacentTo(x, y, 'residential') || this.isAdjacentTo(x,y,'road')) && Math.random() < 0.75) {
+            if (this.grid[y][x] === 'empty' && !this.isLocked(x, y) && (this.isAdjacentTo(x, y, 'residential') || this.isAdjacentTo(x,y,'road')) && Math.random() < 0.75) {
               this.grid[y][x] = 'park';
               parkCount--;
             }
@@ -756,7 +774,7 @@ export class CityGenerator {
       if (this.config.eco && parkCount > 0) {
         for(let y=0; y<this.height && parkCount > 0; y++) {
           for(let x=0; x<this.width && parkCount > 0; x++) {
-            if (this.grid[y][x] === 'road') {
+            if (this.grid[y][x] === 'road' && !this.isLocked(x, y)) {
               // Only convert roads that aren't critical connectors (single neighbor or edge)
               const roadNeighbors = this.getCardinalNeighbors(x, y).filter(n => n.type === 'road').length;
               if (roadNeighbors <= 1 && Math.random() < 0.4) {
@@ -780,7 +798,7 @@ export class CityGenerator {
       const x = Math.floor(Math.random() * this.width);
       const y = Math.floor(Math.random() * this.height);
 
-      if (this.grid[y][x] !== 'empty') continue;
+      if (this.grid[y][x] !== 'empty' || this.isLocked(x, y)) continue;
 
       const nearForest = this.isAdjacentTo(x, y, 'park');
       const nearRoad = this.isAdjacentTo(x, y, 'road');
@@ -812,7 +830,7 @@ export class CityGenerator {
     // First pass: fill with primaryFillType near roads
     for (let y = 0; y < this.height; y++) {
       for (let x = 0; x < this.width; x++) {
-        if (this.grid[y][x] !== 'empty') {
+        if (this.grid[y][x] !== 'empty' || this.isLocked(x, y)) {
           if (this.grid[y][x] === 'residential') residentialCount++;
           continue;
         }
@@ -830,7 +848,7 @@ export class CityGenerator {
     // Second pass: fill remaining empty with residential regardless of primaryZone
     for (let y = 0; y < this.height; y++) {
       for (let x = 0; x < this.width; x++) {
-        if (this.grid[y][x] !== 'empty') continue;
+        if (this.grid[y][x] !== 'empty' || this.isLocked(x, y)) continue;
         const nearResidential = this.isAdjacentTo(x, y, 'residential');
         const nearIndustrial = this.isAdjacentTo(x, y, 'industrial');
         let chance = nearResidential ? fillRate * 0.6 : fillRate * 0.12;
@@ -874,6 +892,7 @@ export class CityGenerator {
       for (let x = 0; x < this.width && residentialCount < minResidential; x++) {
         if (
           this.grid[y][x] === 'empty' &&
+          !this.isLocked(x, y) &&
           this.isAdjacentTo(x, y, 'road') &&
           !this.isAdjacentTo(x, y, 'industrial')
         ) {
@@ -885,7 +904,7 @@ export class CityGenerator {
 
     for (let y = 0; y < this.height && residentialCount < minResidential; y++) {
       for (let x = 0; x < this.width && residentialCount < minResidential; x++) {
-        if (this.grid[y][x] === 'empty' && !this.isAdjacentTo(x, y, 'industrial')) {
+        if (this.grid[y][x] === 'empty' && !this.isLocked(x, y) && !this.isAdjacentTo(x, y, 'industrial')) {
           this.grid[y][x] = 'residential';
           residentialCount++;
         }
@@ -894,7 +913,7 @@ export class CityGenerator {
 
     for (let y = 0; y < this.height && residentialCount < minResidential; y++) {
       for (let x = 0; x < this.width && residentialCount < minResidential; x++) {
-        if (this.grid[y][x] === 'empty') {
+        if (this.grid[y][x] === 'empty' && !this.isLocked(x, y)) {
           this.grid[y][x] = 'residential';
           residentialCount++;
         }
@@ -920,7 +939,7 @@ export class CityGenerator {
     // Keep a small buffer between industry and housing.
     for (let y = 0; y < this.height; y++) {
       for (let x = 0; x < this.width; x++) {
-        if (this.grid[y][x] !== 'residential') continue;
+        if (this.grid[y][x] !== 'residential' || this.isLocked(x, y)) continue;
         if (!this.isAdjacentTo(x, y, 'industrial')) continue;
 
         const replacement = 'park';
@@ -929,14 +948,14 @@ export class CityGenerator {
     }
 
     for (const c of conversions) {
-      if (this.grid[c.y][c.x] === 'water') continue;
+      if (this.grid[c.y][c.x] === 'water' || this.isLocked(c.x, c.y)) continue;
       this.grid[c.y][c.x] = c.replacement;
     }
 
     // Keep hospital zones connected to roads and away from industry pressure.
     for (let y = 0; y < this.height; y++) {
       for (let x = 0; x < this.width; x++) {
-        if (this.grid[y][x] !== 'hospital') continue;
+        if (this.grid[y][x] !== 'hospital' || this.isLocked(x, y)) continue;
 
         if (!this.isAdjacentTo(x, y, 'road')) {
           const nearestRoad = this.findNearestRoad(x, y);
@@ -954,7 +973,7 @@ export class CityGenerator {
     // Keep school zones connected to roads and away from industry.
     for (let y = 0; y < this.height; y++) {
       for (let x = 0; x < this.width; x++) {
-        if (this.grid[y][x] !== 'school') continue;
+        if (this.grid[y][x] !== 'school' || this.isLocked(x, y)) continue;
 
         if (this.isAdjacentTo(x, y, 'industrial')) {
           this.grid[y][x] = 'park';
@@ -965,7 +984,7 @@ export class CityGenerator {
     // Ensure industrial zones always have a road path.
     for (let y = 0; y < this.height; y++) {
       for (let x = 0; x < this.width; x++) {
-        if (this.grid[y][x] !== 'industrial') continue;
+        if (this.grid[y][x] !== 'industrial' || this.isLocked(x, y)) continue;
         if (this.isAdjacentTo(x, y, 'road')) continue;
 
         const nearestRoad = this.findNearestRoad(x, y);

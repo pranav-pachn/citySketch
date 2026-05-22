@@ -275,6 +275,13 @@ const CityCell = memo(function CityCell({ cell, offsetX, offsetZ, revealOrder, g
           </mesh>
         )}
 
+        {/* Real-world Context Glow (OSM) */}
+        {cell.isLocked && (
+          <mesh position={[0, -elevation / 2 - 0.05, 0]} material={getStandardMaterial('overlay', isNightMode, { color: '#3b82f6', opacity: 0.2, transparent: true, depthWrite: false })}>
+            <boxGeometry args={[CELL_SIZE + 0.1, 0.05, CELL_SIZE + 0.1]} />
+          </mesh>
+        )}
+
         {/* 3D Tooltip when Hovered */}
         {isHovered && cell.type !== 'empty' && (
           <Html position={[0, cell.type === 'commercial' || cell.type === 'hospital' ? 2.5 : 1, 0]} center style={{ pointerEvents: 'none' }}>
@@ -288,6 +295,12 @@ const CityCell = memo(function CityCell({ cell, offsetX, offsetZ, revealOrder, g
                 <div className={`w-2.5 h-2.5 rounded-full ${tailwindColorMap[cell.type] || 'bg-zinc-500'}`} />
                 <span className={`capitalize font-semibold text-sm ${isNightMode ? 'text-blue-300' : 'text-blue-700'}`}>{displayZoneName} Zone</span>
               </div>
+              {cell.isLocked && (
+                <div className="mt-1 flex items-center gap-1.5 text-[9px] font-bold text-blue-500 uppercase tracking-tighter">
+                  <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+                  Real-World Geometry
+                </div>
+              )}
               {highlightInfo && highlightInfo.reason && (
                 <div className={`mt-2 pt-1.5 border-t ${highlightInfo.type === 'bad' ? 'border-red-500/30 text-red-500' : 'border-green-500/30 text-green-600'} text-[10px] leading-tight font-medium`}>
                   {highlightInfo.reason}

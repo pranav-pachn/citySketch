@@ -8,6 +8,7 @@ export interface GridCell {
   label?: string
   elevation?: number
   explanation?: string
+  isLocked?: boolean
 }
 
 export interface Explanation {

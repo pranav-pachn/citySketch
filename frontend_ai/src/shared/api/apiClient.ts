@@ -15,6 +15,15 @@ interface GenerateResponse {
 }
 
 export const apiClient = {
+  async searchLocations(query: string): Promise<any[]> {
+    const res = await fetch(apiUrl(`/api/search?q=${encodeURIComponent(query)}`))
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}))
+      throw new Error(err.error || 'Failed to search locations')
+    }
+    return res.json()
+  },
+
   async generateCity(prompt: string, saveToHistory: boolean, parsed?: any): Promise<GenerateResponse> {
     const body: any = { prompt, saveToHistory }
     if (parsed) body.parsed = parsed

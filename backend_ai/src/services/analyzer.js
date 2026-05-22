@@ -178,7 +178,7 @@ export function analyzeLayout(grid) {
   const cols = grid[0]?.length || 0;
   const totalCells = rows * cols;
 
-  // Collect cells by type
+  // Collect cells by type and count locked cells
   const residential = collectCellsByType(grid, 'residential');
   const parks = collectCellsByType(grid, 'park');
   const hospitals = collectCellsByType(grid, 'hospital');
@@ -187,6 +187,15 @@ export function analyzeLayout(grid) {
   const schools = collectCellsByType(grid, 'school');
   const water = collectCellsByType(grid, 'water');
   const industrial = collectCellsByType(grid, 'industrial');
+
+  let lockedCount = 0;
+  for (let y = 0; y < grid.length; y++) {
+    const row = grid[y];
+    if (!Array.isArray(row)) continue;
+    for (let x = 0; x < row.length; x++) {
+      if (row[x]?.isLocked) lockedCount++;
+    }
+  }
 
   // Compute average distances from residential to key services
   const hospitalDistance = avgDistanceToType(grid, residential, 'hospital');
@@ -254,6 +263,7 @@ export function analyzeLayout(grid) {
       school: schools.length,
       water: water.length,
       industrial: industrial.length,
+      locked: lockedCount,
     },
 
     // Cluster analysis (used by suggester for placement recommendations)

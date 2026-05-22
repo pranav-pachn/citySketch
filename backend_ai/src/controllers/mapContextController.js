@@ -3,82 +3,103 @@ import { addLocalHistoryItem } from '../services/historyStore.js'
 import { supabase } from '../config/supabase.js'
 import { generateInsights } from '../services/explainer.js'
 import { asyncHandler } from '../middlewares/errorHandler.js'
+import { geocoder } from '../services/geocoder.js'
+import { osmService } from '../services/osmService.js'
+import { rasterizer } from '../services/rasterizer.js'
 
+/**
+ * Search for locations using geocoder
+ */
+export const searchLocations = asyncHandler(async (req, res) => {
+  const { q } = req.query;
+  if (!q) {
+    return res.status(400).json({ error: 'Search query is required' });
+  }
+
+  const results = await geocoder.search(q);
+  res.json(results);
+});
+
+/**
+ * Generate urban layout based on real OSM data
+ */
 export const generateFromMap = asyncHandler(async (req, res) => {
   const { bbox, gridSize = 20, prompt = 'Map-based generation', locationName = '' } = req.body || {}
 
   if (!bbox || bbox.length !== 4) {
-    return res.status(400).json({ error: 'bbox is required as [south, west, north, east]' })
+    return res.status(400).json({ error: 'bbox is required as [minlat, minlon, maxlat, maxlon]' })
   }
 
-  const [south, west, north, east] = bbox
+  // bbox is [minlat, minlon, maxlat, maxlon] from our geocoder
+  const [minLat, minLon, maxLat, maxLon] = bbox
 
   try {
-    // ─── Step 1: Fetch real-world data from Overpass API ─────────────────
-    const osmData = await fetchOSMFeatures(south, west, north, east)
+    // 1. Fetch real-world data from OSM
+    const osmData = await osmService.fetchMapData(bbox);
 
-    // ─── Step 2: Convert OSM features to a seed grid ────────────────────
+    // 2. Rasterize OSM features to a grid
     const N = Math.max(10, Math.min(40, gridSize))
-    const seedGrid = buildSeedGrid(N, osmData, south, west, north, east)
+    const seedGrid = rasterizer.rasterize(osmData, bbox, N);
 
-    // ─── Step 3: Run CityGenerator with the seed grid ───────────────────
-    // Spec §7: Context-aware placement — hospitals near real roads,
-    //          parks near residential clusters, schools near homes.
+    // 3. Initialize CityGenerator
     const engine = new CityGenerator({
       gridSize: N,
-      waterStyle: 'none',        // Water is already seeded from OSM
+      waterStyle: 'none',
       primaryZone: 'residential',
       density: 'medium',
       parkStyle: 'scattered',
       roadStyle: 'grid',
-      hospitalZone: true,         // Spec §7: place near real road cells
-      schoolZone: true,           // Spec §7: place near residential
+      hospitalZone: true,
+      schoolZone: true,
       trafficLevel: 'balanced',
-      eco: true,                  // Spec §7: boost parks near residential
-    })
+      eco: true,
+    });
 
-    // Inject the seed grid before generation — water and roads from real world
+    // 4. Inject seed grid and mark as locked
+    // We'll modify CityGenerator to respect locked cells
+    engine.lockedCells = new Set();
     for (let y = 0; y < N; y++) {
       for (let x = 0; x < N; x++) {
-        if (seedGrid[y][x] === 'water' || seedGrid[y][x] === 'road') {
-          engine.grid[y][x] = seedGrid[y][x]
+        const type = seedGrid[y][x];
+        if (type !== 'empty') {
+          engine.grid[y][x] = type;
+          engine.lockedCells.add(`${x},${y}`);
         }
       }
     }
 
-    // Run the generator (it will skip over pre-filled cells)
-    const grid = engine.generate()
+    // 5. Run the generator
+    const grid = engine.generate();
 
-    // ─── Step 3.5: Add explanations to map-seeded cells ─────────────────
+    // 6. Add context-aware explanations
     for (let y = 0; y < N; y++) {
       for (let x = 0; x < N; x++) {
         const cell = grid[y]?.[x]
         if (!cell || typeof cell !== 'object') continue
-        if (cell.type === 'road' && seedGrid[y]?.[x] === 'road' && !cell.explanation) {
-          cell.explanation = 'Real-world road imported from OpenStreetMap data.'
-        }
-        if (cell.type === 'water' && seedGrid[y]?.[x] === 'water' && !cell.explanation) {
-          cell.explanation = 'Real-world water body imported from OpenStreetMap data.'
+        
+        if (engine.lockedCells.has(`${x},${y}`)) {
+          const originalType = seedGrid[y][x];
+          cell.explanation = `Real-world ${originalType} imported from OpenStreetMap.`;
+          cell.isLocked = true;
         }
       }
     }
 
-    // ─── Step 4: Build response ─────────────────────────────────────────
-    const mapPrompt = locationName
-      ? `Map simulation: ${locationName}`
-      : `Map simulation at [${south.toFixed(4)}, ${west.toFixed(4)}]`
+    // 7. Generate Insights and Scoring
+    const evaluation = generateInsights(grid);
+    const mapPrompt = locationName 
+      ? `Urban design for ${locationName}` 
+      : `Map-based design at [${minLat.toFixed(4)}, ${minLon.toFixed(4)}]`;
 
-    const evaluation = generateInsights(grid)
-
-    let payload = null
-
+    // 8. Store results
+    let payload = null;
     try {
       const { data, error } = await supabase
         .from('city_layouts')
         .insert({
           prompt: mapPrompt,
           grid: grid,
-          ai_model: 'map-osm-seed'
+          ai_model: 'osm-hybrid-engine'
         })
         .select()
         .single()
@@ -88,36 +109,33 @@ export const generateFromMap = asyncHandler(async (req, res) => {
       payload = {
         id: data.id,
         prompt: mapPrompt,
-        layoutData: grid,
         layout: grid,
         score: evaluation.scores.overall,
         breakdown: evaluation.scores,
         suggestions: evaluation.suggestions,
         timestamp: new Date(data.created_at).getTime(),
-        ai_model: 'map-osm-seed',
+        ai_model: 'osm-hybrid-engine',
         saved: true,
         evaluation,
         mapContext: {
           bbox,
           gridSize: N,
-          osmFeatures: osmData.summary,
           locationName,
         },
       }
     } catch (dbError) {
-      console.warn('Supabase insert failed for map gen, using local fallback:', dbError.message || dbError)
+      console.warn('Supabase insert failed, using fallback:', dbError.message);
       const fallbackItem = {
         id: crypto.randomUUID(),
         prompt: mapPrompt,
-        layoutData: grid,
+        layout: grid,
         timestamp: Date.now(),
-        ai_model: 'map-osm-seed',
+        ai_model: 'osm-hybrid-engine',
         evaluation,
       }
       await addLocalHistoryItem(fallbackItem)
       payload = {
         ...fallbackItem,
-        layout: grid,
         score: evaluation.scores.overall,
         breakdown: evaluation.scores,
         suggestions: evaluation.suggestions,
@@ -125,7 +143,6 @@ export const generateFromMap = asyncHandler(async (req, res) => {
         mapContext: {
           bbox,
           gridSize: N,
-          osmFeatures: osmData.summary,
           locationName,
         },
       }
@@ -137,143 +154,3 @@ export const generateFromMap = asyncHandler(async (req, res) => {
     res.status(500).json({ error: error.message || 'Failed to generate from map' })
   }
 })
-
-// ─── Overpass API Helper ──────────────────────────────────────────────────────
-
-async function fetchOSMFeatures(south, west, north, east) {
-  const query = `
-    [out:json][timeout:15];
-    (
-      way["highway"~"primary|secondary|tertiary|trunk|motorway"](${south},${west},${north},${east});
-      way["waterway"](${south},${west},${north},${east});
-      way["natural"="water"](${south},${west},${north},${east});
-      relation["natural"="water"](${south},${west},${north},${east});
-    );
-    out body;
-    >;
-    out skel qt;
-  `
-
-  try {
-    const controller = new AbortController()
-    const timeout = setTimeout(() => controller.abort(), 12000)
-
-    const response = await fetch(
-      `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`,
-      { signal: controller.signal }
-    )
-    clearTimeout(timeout)
-
-    if (!response.ok) {
-      console.warn('Overpass API returned non-OK status:', response.status)
-      return { nodes: {}, roads: [], waterways: [], summary: { roads: 0, waterways: 0 } }
-    }
-
-    const data = await response.json()
-
-    // Index nodes by ID for coordinate lookup
-    const nodes = {}
-    let roadCount = 0
-    let waterwayCount = 0
-    const roads = []
-    const waterways = []
-
-    for (const element of data.elements || []) {
-      if (element.type === 'node') {
-        nodes[element.id] = { lat: element.lat, lon: element.lon }
-      }
-    }
-
-    for (const element of data.elements || []) {
-      if (element.type !== 'way') continue
-      const coords = (element.nodes || [])
-        .map(id => nodes[id])
-        .filter(Boolean)
-
-      if (!coords.length) continue
-
-      const tags = element.tags || {}
-      if (tags.highway) {
-        roads.push(coords)
-        roadCount++
-      }
-      if (tags.waterway || tags.natural === 'water') {
-        waterways.push(coords)
-        waterwayCount++
-      }
-    }
-
-    return {
-      nodes,
-      roads,
-      waterways,
-      summary: { roads: roadCount, waterways: waterwayCount },
-    }
-  } catch (err) {
-    console.warn('Overpass API fetch failed (timeout or network):', err.message)
-    return { nodes: {}, roads: [], waterways: [], summary: { roads: 0, waterways: 0 } }
-  }
-}
-
-// ─── Geo → Grid Converter ─────────────────────────────────────────────────────
-
-function buildSeedGrid(N, osmData, south, west, north, east) {
-  const grid = Array.from({ length: N }, () => Array(N).fill('empty'))
-
-  const latRange = north - south
-  const lonRange = east - west
-
-  // Convert a lat/lon to grid cell
-  const toCell = (lat, lon) => {
-    const row = Math.floor(((north - lat) / latRange) * N)
-    const col = Math.floor(((lon - west) / lonRange) * N)
-    return {
-      y: Math.max(0, Math.min(N - 1, row)),
-      x: Math.max(0, Math.min(N - 1, col)),
-    }
-  }
-
-  // Rasterize waterways
-  for (const coords of osmData.waterways) {
-    for (let i = 0; i < coords.length - 1; i++) {
-      const a = toCell(coords[i].lat, coords[i].lon)
-      const b = toCell(coords[i + 1].lat, coords[i + 1].lon)
-      rasterizeLine(grid, a.x, a.y, b.x, b.y, 'water', N)
-    }
-  }
-
-  // Rasterize roads
-  for (const coords of osmData.roads) {
-    for (let i = 0; i < coords.length - 1; i++) {
-      const a = toCell(coords[i].lat, coords[i].lon)
-      const b = toCell(coords[i + 1].lat, coords[i + 1].lon)
-      // Don't overwrite water with road
-      rasterizeLine(grid, a.x, a.y, b.x, b.y, 'road', N, 'water')
-    }
-  }
-
-  return grid
-}
-
-// Bresenham's line algorithm for rasterizing geographic features onto grid
-function rasterizeLine(grid, x0, y0, x1, y1, type, N, protectedType = null) {
-  const dx = Math.abs(x1 - x0)
-  const dy = Math.abs(y1 - y0)
-  const sx = x0 < x1 ? 1 : -1
-  const sy = y0 < y1 ? 1 : -1
-  let err = dx - dy
-
-  while (true) {
-    if (x0 >= 0 && x0 < N && y0 >= 0 && y0 < N) {
-      if (!protectedType || grid[y0][x0] !== protectedType) {
-        grid[y0][x0] = type
-      }
-    }
-
-    if (x0 === x1 && y0 === y1) break
-
-    const e2 = 2 * err
-    if (e2 > -dy) { err -= dy; x0 += sx }
-    if (e2 < dx) { err += dx; y0 += sy }
-  }
-}

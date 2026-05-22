@@ -177,6 +177,15 @@ function buildExplanations(metrics, scores) {
     ));
   }
 
+  // ─── OSM Integration ───────────────────────────────────────────────────
+  const lockedCells = metrics.counts?.locked || 0;
+  if (lockedCells > 0) {
+    explanations.push(insight(
+      `Generated layout successfully integrated with ${lockedCells} real-world geographic constraints from OpenStreetMap. New zoning respects existing roads and water bodies.`,
+      'good'
+    ));
+  }
+
   return explanations;
 }
 

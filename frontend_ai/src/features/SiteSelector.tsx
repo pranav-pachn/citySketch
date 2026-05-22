@@ -357,8 +357,9 @@ export function SiteSelector({ onClose, onConfirm }: SiteSelectorProps) {
       </div>
 
       {/* Footer hint */}
-      <div className="shrink-0 border-t border-zinc-800/60 bg-zinc-900/40 px-6 py-3 text-center text-[11px] text-zinc-500">
-        Zoom &amp; pan to align the blue box with the area you want to redesign. Real roads and waterways will be pulled into your layout.
+      <div className="shrink-0 border-t border-zinc-800/60 bg-zinc-900/40 px-6 py-3 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-zinc-500">
+        <span>Zoom &amp; pan to align the blue box with the area you want to redesign. Real roads and waterways will be pulled into your layout.</span>
+        <span className="font-semibold text-zinc-400">Map Service: {GEOAPIFY_KEY ? 'Geoapify (Active)' : 'OSM Nominatim (Fallback)'}</span>
       </div>
     </div>
   )

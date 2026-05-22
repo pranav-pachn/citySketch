@@ -1,6 +1,7 @@
 import { useStore } from '@/entities/store/useStore'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, Clock, Settings, Trash2, PanelLeftClose, PanelLeft, X } from 'lucide-react'
+import { Plus, Clock, Settings, Trash2, PanelLeftClose, PanelLeft, X, Map } from 'lucide-react'
+import { MapSearch } from '@/features/MapSearch'
 
 function formatRelativeDate(ts: number): string {
   const now = Date.now()
@@ -53,6 +54,15 @@ export function Sidebar() {
               <PanelLeftClose size={16} strokeWidth={1.5} />
             </button>
           </div>
+        </div>
+
+        {/* Map Search Section */}
+        <div className="px-3 py-4 border-b border-slate-800/50">
+          <div className="flex items-center gap-2 mb-3 px-1">
+            <Map size={14} className="text-blue-500" />
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Real-World Context</span>
+          </div>
+          <MapSearch />
         </div>
 
         {/* History */}

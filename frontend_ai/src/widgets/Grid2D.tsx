@@ -2,7 +2,7 @@ import { useMemo, useEffect, useState } from 'react'
 import { useStore } from '@/entities/store/useStore'
 import { motion } from 'framer-motion'
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch'
-import { Building2, Home, Trees, Waves, Factory, Route, Stethoscope, GraduationCap } from 'lucide-react'
+import { Building2, Home, Trees, Waves, Factory, Route, Stethoscope, GraduationCap, Lock } from 'lucide-react'
 import type { GridCell } from '@/entities/types'
 import { calculateCellHighlights } from '@/shared/utils/scoring'
 import { ZONE_COLORS } from '@/shared/utils/colors'
@@ -171,6 +171,13 @@ export function Grid2D({ onCellExplain }: Grid2DProps) {
                        className="cell-indicator" 
                        style={{ backgroundColor: style.color, opacity: isSelected ? 1 : 0.6 }} 
                      />
+                  )}
+
+                  {/* Real-world Lock Indicator */}
+                  {cell.isLocked && (
+                    <div className="absolute top-1.5 right-1.5 text-blue-500 opacity-70" title="Real-world context (OpenStreetMap)">
+                      <Lock size={10} strokeWidth={2.5} />
+                    </div>
                   )}
                   
                   {/* Icon & Label */}
