@@ -5,13 +5,14 @@ import { Scene3D } from './Scene3D'
 import { BlueprintView } from './BlueprintView'
 import { CodeView } from '@/features/CodeView'
 import { CompareView } from './CompareView'
-import { Sparkles } from 'lucide-react'
+import { Sparkles, MapPin } from 'lucide-react'
 import { InsightsPanel } from './InsightsPanel'
 import { ScorePanel } from './ScorePanel'
 import type { GridCell } from '@/entities/types'
 
 interface CanvasProps {
   onCellExplain?: (cellType: GridCell['type']) => void
+  onImportFromMap?: () => void
 }
 
 function LoadingSkeleton() {
@@ -32,7 +33,7 @@ function LoadingSkeleton() {
   )
 }
 
-export function Canvas({ onCellExplain }: CanvasProps) {
+export function Canvas({ onCellExplain, onImportFromMap }: CanvasProps) {
   const viewMode = useStore((s) => s.viewMode)
   const layoutData = useStore((s) => s.layoutData)
   const isLoading = useStore((s) => s.isLoading)
@@ -60,6 +61,20 @@ export function Canvas({ onCellExplain }: CanvasProps) {
             Type a prompt below to generate a 2D city grid.<br />
             Try: "A coastal city with a central park and commercial district"
           </p>
+          <div className="mt-8 flex flex-col items-center gap-3 w-full max-w-xs">
+            <div className="flex items-center gap-2 w-full text-zinc-500">
+              <div className="h-px flex-1 bg-zinc-800" />
+              <span className="text-[10px] font-bold tracking-wider uppercase">or</span>
+              <div className="h-px flex-1 bg-zinc-800" />
+            </div>
+            <button
+              onClick={onImportFromMap}
+              className="mt-1 flex items-center justify-center gap-2 w-full rounded-xl border border-zinc-700 bg-zinc-900/60 px-5 py-3 text-sm font-semibold text-zinc-200 shadow-md transition hover:border-blue-500/50 hover:bg-zinc-800 hover:text-blue-400 cursor-pointer"
+            >
+              <MapPin size={16} className="text-blue-400" />
+              Import from OpenStreetMap
+            </button>
+          </div>
         </motion.div>
       )}
 

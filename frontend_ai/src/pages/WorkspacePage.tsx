@@ -98,7 +98,10 @@ export default function App() {
               <Minimize2 size={18} />
             </button>
           )}
-          <Canvas onCellExplain={handleCellExplain} />
+          <Canvas
+            onCellExplain={handleCellExplain}
+            onImportFromMap={() => setShowMapSelector(true)}
+          />
           {/* 🧠 AI Explanation Panel: persistent right-side, Figma/Notion AI-style */}
           {isExplanationOpen && (
             <ExplanationPanel
@@ -113,7 +116,7 @@ export default function App() {
           <button
             onClick={() => setShowMapSelector(true)}
             disabled={isLoading}
-            className="absolute right-3 -top-12 z-30 flex cursor-pointer items-center gap-2 rounded-xl border border-zinc-700/60 bg-zinc-900/90 px-3.5 py-2 text-xs font-semibold text-zinc-300 shadow-lg backdrop-blur transition hover:border-blue-500/50 hover:bg-zinc-800 hover:text-blue-400 disabled:cursor-not-allowed disabled:opacity-40"
+            className="absolute right-5 -top-12 z-30 flex cursor-pointer items-center gap-2 rounded-xl border border-zinc-700/60 bg-zinc-900/90 px-3.5 py-2 text-xs font-semibold text-zinc-300 shadow-lg backdrop-blur transition hover:border-blue-500/50 hover:bg-zinc-800 hover:text-blue-400 disabled:cursor-not-allowed disabled:opacity-40"
             title="Select a real-world location to simulate"
           >
             <MapPin size={14} />

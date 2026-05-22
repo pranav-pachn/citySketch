@@ -96,22 +96,56 @@ export function SiteSelector({ onClose, onConfirm }: SiteSelectorProps) {
     return () => document.removeEventListener('mousedown', onClick)
   }, [])
 
-  /* ── Geoapify autocomplete search ── */
+  /* ── Search (Geoapify with Nominatim fallback) ── */
   const doSearch = useCallback(async (text: string) => {
-    if (!text.trim() || !GEOAPIFY_KEY) return
+    if (!text.trim()) return
 
     setIsSearching(true)
     try {
-      const url = `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(text)}&limit=5&apiKey=${GEOAPIFY_KEY}`
-      const res = await fetch(url)
-      const data = await res.json()
+      let items: GeoResult[] = []
 
-      const items: GeoResult[] = (data.features || []).map((f: any) => ({
-        formatted: f.properties.formatted,
-        lat: f.properties.lat,
-        lon: f.properties.lon,
-        bbox: f.bbox ? { lon1: f.bbox[0], lat1: f.bbox[1], lon2: f.bbox[2], lat2: f.bbox[3] } : undefined,
-      }))
+      if (GEOAPIFY_KEY) {
+        const url = `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(text)}&limit=5&apiKey=${GEOAPIFY_KEY}`
+        const res = await fetch(url)
+        const data = await res.json()
+
+        items = (data.features || []).map((f: any) => ({
+          formatted: f.properties.formatted,
+          lat: f.properties.lat,
+          lon: f.properties.lon,
+          bbox: f.bbox ? { lon1: f.bbox[0], lat1: f.bbox[1], lon2: f.bbox[2], lat2: f.bbox[3] } : undefined,
+        }))
+      } else {
+        // Free OpenStreetMap Nominatim search fallback (no key required!)
+        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(text)}&limit=5`
+        const res = await fetch(url, {
+          headers: {
+            'Accept-Language': 'en',
+            'User-Agent': 'CitySketch/1.0 (contact: prana@example.com)'
+          }
+        })
+        const data = await res.json()
+
+        items = (data || []).map((item: any) => {
+          const lat = parseFloat(item.lat)
+          const lon = parseFloat(item.lon)
+          let bbox: any = undefined
+          if (item.boundingbox && item.boundingbox.length === 4) {
+            bbox = {
+              lat1: parseFloat(item.boundingbox[0]), // latMin
+              lon1: parseFloat(item.boundingbox[2]), // lonMin
+              lat2: parseFloat(item.boundingbox[1]), // latMax
+              lon2: parseFloat(item.boundingbox[3]), // lonMax
+            }
+          }
+          return {
+            formatted: item.display_name,
+            lat,
+            lon,
+            bbox,
+          }
+        })
+      }
 
       setResults(items)
       setShowResults(items.length > 0)
@@ -244,9 +278,12 @@ export function SiteSelector({ onClose, onConfirm }: SiteSelectorProps) {
           <TileLayer
             url={GEOAPIFY_KEY
               ? `https://maps.geoapify.com/v1/tile/dark-matter-brown/{z}/{x}/{y}.png?apiKey=${GEOAPIFY_KEY}`
-              : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+              : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
             }
-            attribution='Powered by <a href="https://www.geoapify.com/" target="_blank">Geoapify</a> | © OpenStreetMap'
+            attribution={GEOAPIFY_KEY
+              ? 'Powered by <a href="https://www.geoapify.com/" target="_blank">Geoapify</a> | © OpenStreetMap'
+              : '© OpenStreetMap contributors, © CARTO'
+            }
           />
           <MapController center={center} zoom={zoom} onBoundsChange={setBbox} />
         </MapContainer>
