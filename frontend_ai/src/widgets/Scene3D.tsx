@@ -505,7 +505,7 @@ export function Scene3D() {
       <R3FCanvas
         camera={{ position: [camDist * 0.7, camDist * 0.6, camDist * 0.7], fov: 35 }}
         shadows
-        gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping }}
+        gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping, preserveDrawingBuffer: true }}
       >
         <color attach="background" args={[isNightMode ? '#040814' : '#09090b']} />
         <fog attach="fog" args={[isNightMode ? '#040814' : '#09090b', maxDim * 2, maxDim * 4]} />
