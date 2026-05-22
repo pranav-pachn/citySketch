@@ -610,7 +610,7 @@ export function LandingPage() {
             <div className="footer-nav-group">
               <span className="footer-nav-heading">Access</span>
               <a href="#get-started" className="footer-nav-link">Early access</a>
-              <a href="/login" className="footer-nav-link">Sign in</a>
+              <Link to="/login" className="footer-nav-link">Sign in</Link>
             </div>
           </nav>
 
