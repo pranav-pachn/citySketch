@@ -87,6 +87,13 @@ app.use('/api', exportRouter)
 app.use('/exports', express.static(resolve(new URL('.', import.meta.url).pathname + '/../backend_ai/data/exports')))
 
 // Auth route
+app.get('/api/auth/google', (_req, res) => {
+  res.status(405).json({
+    error: 'Method Not Allowed',
+    message: 'Use POST /api/auth/google with a Google ID token in the request body.',
+  })
+})
+
 app.post('/api/auth/google', async (req, res, next) => {
   const { token } = req.body
 
