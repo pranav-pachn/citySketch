@@ -42,7 +42,7 @@ export const searchLocations = asyncHandler(async (req, res) => {
  * Generate urban layout based on real OSM data
  */
 export const generateFromMap = asyncHandler(async (req, res) => {
-  const { bbox, gridSize = 20, prompt = 'Map-based generation', locationName = '', candidates = 1, saveToHistory = true } = req.body || {}
+  const { bbox, locationName = '', gridSize = 20, prompt = 'Map-based generation', candidates = 1, saveToHistory = true, corners } = req.body || {}
 
   if (bbox && bbox.length === 4) {
     const areaKm2 = Math.abs((bbox[2] - bbox[0]) * (bbox[3] - bbox[1])) * 111 * 111 * Math.cos((((bbox[0] + bbox[2]) / 2) * Math.PI) / 180)
@@ -67,7 +67,16 @@ export const generateFromMap = asyncHandler(async (req, res) => {
   if (bbox && bbox.length === 4) {
     try {
       osmData = await osmService.fetchMapData(bbox)
-      const rasterized = rasterizer.rasterize(osmData, bbox, N)
+      
+      // If corners are not provided (legacy support), derive them from bbox
+      const effectiveCorners = corners || [
+        { lat: bbox[2], lng: bbox[1] }, // Top-Left (North-West)
+        { lat: bbox[2], lng: bbox[3] }, // Top-Right (North-East)
+        { lat: bbox[0], lng: bbox[3] }, // Bottom-Right (South-East)
+        { lat: bbox[0], lng: bbox[1] }, // Bottom-Left (South-West)
+      ]
+
+      const rasterized = rasterizer.rasterize(osmData, effectiveCorners, N)
       baseGrid = rasterized.grid
       lockedCells = rasterized.lockedCells
     } catch (error) {

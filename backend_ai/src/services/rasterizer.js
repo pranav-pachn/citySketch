@@ -2,8 +2,13 @@
  * Rasterizer service to convert OSM geometry into a normalized grid
  */
 export class Rasterizer {
-  rasterize(osmData, bbox, gridSize = 20) {
-    const [minLat, minLon, maxLat, maxLon] = bbox;
+  rasterize(osmData, corners, gridSize = 20) {
+    const lats = corners.map((c) => c.lat)
+    const lons = corners.map((c) => c.lng)
+    const minLat = Math.min(...lats)
+    const maxLat = Math.max(...lats)
+    const minLon = Math.min(...lons)
+    const maxLon = Math.max(...lons)
 
     const grid = Array.from({ length: gridSize }, (_, y) =>
       Array.from({ length: gridSize }, (_, x) => ({
@@ -18,15 +23,32 @@ export class Rasterizer {
     );
 
     const lockedCells = new Set();
-    const latStep = (maxLat - minLat) / gridSize;
-    const lonStep = (maxLon - minLon) / gridSize;
     const priority = { empty: 0, park: 1, building: 2, road: 3, water: 4 };
 
     const isMajorRoad = (tags) => ['primary', 'secondary', 'trunk', 'motorway'].includes(tags?.highway);
 
+    // Vector projection math for rotated boxes
+    const centerLat = (minLat + maxLat) / 2;
+    const cosLat = Math.cos((centerLat * Math.PI) / 180);
+
+    const tl = { x: corners[0].lng * cosLat, y: corners[0].lat };
+    const tr = { x: corners[1].lng * cosLat, y: corners[1].lat };
+    const bl = { x: corners[3].lng * cosLat, y: corners[3].lat };
+
+    const u = { x: tr.x - tl.x, y: tr.y - tl.y };
+    const v = { x: bl.x - tl.x, y: bl.y - tl.y };
+    const uLen2 = u.x * u.x + u.y * u.y;
+    const vLen2 = v.x * v.x + v.y * v.y;
+
     const cellForCoord = (coord) => {
-      const x = Math.floor((coord.lon - minLon) / lonStep);
-      const y = (gridSize - 1) - Math.floor((coord.lat - minLat) / latStep);
+      const p = { x: coord.lon * cosLat, y: coord.lat };
+      const d = { x: p.x - tl.x, y: p.y - tl.y };
+      
+      const uPct = uLen2 > 0 ? (d.x * u.x + d.y * u.y) / uLen2 : 0;
+      const vPct = vLen2 > 0 ? (d.x * v.x + d.y * v.y) / vLen2 : 0;
+
+      const x = Math.floor(uPct * gridSize);
+      const y = Math.floor(vPct * gridSize);
       return { x, y };
     };
 

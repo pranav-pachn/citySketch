@@ -17,7 +17,7 @@ export interface LayoutSlice {
   evaluation: EvaluationData | null
   setEvaluation: (data: EvaluationData | null) => void
   submitPrompt: (saveToHistory?: boolean) => Promise<void>
-  submitMapContext: (bbox: [number, number, number, number], locationName: string, gridSize?: number) => Promise<void>
+  submitMapContext: (bbox: [number, number, number, number], locationName: string, gridSize?: number, corners?: {lat: number, lng: number}[]) => Promise<void>
   saveCurrentLayout: () => Promise<void>
   newSession: () => void
   regeneratePrompt: () => Promise<void>
@@ -83,13 +83,13 @@ export const createLayoutSlice: StateCreator<AppState, [], [], LayoutSlice> = (s
     }
   },
 
-  submitMapContext: async (bbox, locationName, gridSize = 20) => {
+  submitMapContext: async (bbox, locationName, gridSize = 20, corners) => {
     const { setIsLoading, addToast, addHistory, setActiveHistoryId, generationId, prompt } = get()
     setIsLoading(true)
     // Small UI-friendly delay so loading state is visible and feels intentional
     await new Promise((r) => setTimeout(r, 500))
     try {
-      const data = await apiClient.generateFromMap(bbox, locationName, gridSize, prompt)
+      const data = await apiClient.generateFromMap(bbox, locationName, gridSize, prompt, undefined, true, corners)
       set({
         layoutData: data.layoutData || data.layout,
         evaluation: data.evaluation,

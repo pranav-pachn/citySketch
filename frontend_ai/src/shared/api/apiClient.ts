@@ -58,11 +58,12 @@ export const apiClient = {
     prompt?: string,
     candidates?: number,
     saveToHistory = true,
+    corners?: { lat: number, lng: number }[],
   ): Promise<GenerateResponse> {
     const res = await fetch(apiUrl('/api/generate-from-map'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ bbox, locationName, gridSize, prompt, candidates, saveToHistory }),
+      body: JSON.stringify({ bbox, locationName, gridSize, prompt, candidates, saveToHistory, corners }),
     })
     if (!res.ok) {
       const err = await res.json().catch(() => ({}))

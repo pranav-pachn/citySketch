@@ -57,7 +57,7 @@ export const MapSearch: React.FC = () => {
         </div>
         <input
           type="text"
-          className="w-full rounded-xl border border-slate-800 bg-slate-900/50 py-2.5 pl-10 pr-10 text-sm text-white transition-all placeholder:text-slate-500 focus:border-blue-500/50 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+          className="w-full rounded-xl border border-slate-800 bg-slate-900/50 py-2.5 pl-10 pr-10 text-sm text-white transition-all placeholder:text-slate-500 outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/50"
           placeholder="Search for a real-world location..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}

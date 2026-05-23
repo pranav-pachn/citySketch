@@ -18,7 +18,8 @@ L.Icon.Default.mergeOptions({
 export interface MapSiteContext {
   lat: number
   lng: number
-  bbox: [number, number, number, number] // [south, west, north, east]
+  bbox: [number, number, number, number] // fallback [south, west, north, east]
+  corners?: { lat: number, lng: number }[] // new rotated corners
   locationName: string
   zoom: number
 }
@@ -40,15 +41,26 @@ function MapController({
   center,
   zoom,
   onBoundsChange,
+  setMapInstance,
 }: {
   center: [number, number]
   zoom: number
   onBoundsChange: (bbox: [number, number, number, number]) => void
+  setMapInstance: (map: L.Map) => void
 }) {
   const map = useMap()
 
   useEffect(() => {
+    setMapInstance(map)
+  }, [map, setMapInstance])
+
+  useEffect(() => {
     map.setView(center, zoom)
+    // Fix for Leaflet blank map issue when container size isn't fully resolved yet
+    const timeoutId = setTimeout(() => {
+      map.invalidateSize()
+    }, 100)
+    return () => clearTimeout(timeoutId)
   }, [center, zoom, map])
 
   useMapEvents({
@@ -71,6 +83,13 @@ export function SiteSelector({ onClose, onConfirm }: SiteSelectorProps) {
   const [zoom, setZoom] = useState(15)
   const [bbox, setBbox] = useState<[number, number, number, number] | null>(null)
   const [locationName, setLocationName] = useState('')
+  const [mapInstance, setMapInstance] = useState<L.Map | null>(null)
+
+  // Selector state
+  const [boxWidth, setBoxWidth] = useState(300)
+  const [boxHeight, setBoxHeight] = useState(300)
+  const [angle, setAngle] = useState(0)
+  const overlayRef = useRef<HTMLDivElement>(null)
 
   // Search state
   const [query, setQuery] = useState('')
@@ -82,6 +101,7 @@ export function SiteSelector({ onClose, onConfirm }: SiteSelectorProps) {
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const searchBoxRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const currentSearchId = useRef(0)
 
   // Geolocation
   const [isLocating, setIsLocating] = useState(false)
@@ -127,23 +147,30 @@ export function SiteSelector({ onClose, onConfirm }: SiteSelectorProps) {
     const trimmed = text.trim()
     if (trimmed.length < 3) return
 
+    const searchId = ++currentSearchId.current
     setIsSearching(true)
     setSearchError('')
+
     try {
       const items = await apiClient.searchLocations(trimmed)
+      if (searchId !== currentSearchId.current) return
+
       setResults(items.slice(0, 5))
-      setShowResults(items.length > 0)
+      setShowResults(true)
       if (items.length === 0) {
         setSearchError('No locations found. Try a different search term.')
       }
     } catch (err) {
+      if (searchId !== currentSearchId.current) return
       const message = err instanceof Error ? err.message : 'Failed to search locations'
       console.error('Geocode search failed:', message)
       setSearchError(message)
       setResults([])
       setShowResults(true)
     } finally {
-      setIsSearching(false)
+      if (searchId === currentSearchId.current) {
+        setIsSearching(false)
+      }
     }
   }, [])
 
@@ -151,13 +178,13 @@ export function SiteSelector({ onClose, onConfirm }: SiteSelectorProps) {
     const val = e.target.value
     setQuery(val)
     setSearchError('')
+    setShowResults(true)
 
     if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current)
     if (val.trim().length >= 3) {
       searchTimeoutRef.current = setTimeout(() => doSearch(val), 500)
     } else {
       setResults([])
-      setShowResults(val.trim().length === 0)
     }
   }
 
@@ -191,13 +218,109 @@ export function SiteSelector({ onClose, onConfirm }: SiteSelectorProps) {
     )
   }
 
+  /* ── Selector Interactions ── */
+  const handleRotate = useCallback((e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const rect = overlayRef.current?.getBoundingClientRect()
+    if (!rect) return
+    const cx = rect.left + rect.width / 2
+    const cy = rect.top + rect.height / 2
+
+    const onMouseMove = (moveEvent: MouseEvent) => {
+      const dx = moveEvent.clientX - cx
+      const dy = moveEvent.clientY - cy
+      let a = Math.atan2(dy, dx) * (180 / Math.PI)
+      setAngle(a + 90)
+    }
+
+    const onMouseUp = () => {
+      window.removeEventListener('mousemove', onMouseMove)
+      window.removeEventListener('mouseup', onMouseUp)
+    }
+
+    window.addEventListener('mousemove', onMouseMove)
+    window.addEventListener('mouseup', onMouseUp)
+  }, [])
+
+  const handleResize = useCallback((e: React.MouseEvent, corner: 'tl' | 'tr' | 'bl' | 'br') => {
+    e.preventDefault()
+    e.stopPropagation()
+    const startX = e.clientX
+    const startY = e.clientY
+    const startW = boxWidth
+    const startH = boxHeight
+
+    const onMouseMove = (moveEvent: MouseEvent) => {
+      const dx = moveEvent.clientX - startX
+      const dy = moveEvent.clientY - startY
+      
+      const rad = -angle * Math.PI / 180
+      const localDx = dx * Math.cos(rad) - dy * Math.sin(rad)
+      const localDy = dx * Math.sin(rad) + dy * Math.cos(rad)
+
+      let newW = startW
+      let newH = startH
+      if (corner === 'br') { newW += localDx * 2; newH += localDy * 2; }
+      if (corner === 'bl') { newW -= localDx * 2; newH += localDy * 2; }
+      if (corner === 'tr') { newW += localDx * 2; newH -= localDy * 2; }
+      if (corner === 'tl') { newW -= localDx * 2; newH -= localDy * 2; }
+
+      setBoxWidth(Math.max(100, Math.min(newW, 1200)))
+      setBoxHeight(Math.max(100, Math.min(newH, 1200)))
+    }
+
+    const onMouseUp = () => {
+      window.removeEventListener('mousemove', onMouseMove)
+      window.removeEventListener('mouseup', onMouseUp)
+    }
+
+    window.addEventListener('mousemove', onMouseMove)
+    window.addEventListener('mouseup', onMouseUp)
+  }, [boxWidth, boxHeight, angle])
+
   /* ── Confirm ── */
   const handleConfirm = () => {
-    if (!bbox) return
+    if (!bbox || !mapInstance || !overlayRef.current) return
+
+    const rect = overlayRef.current.getBoundingClientRect()
+    const mapRect = mapInstance.getContainer().getBoundingClientRect()
+
+    // We can calculate the exact 4 corners by applying the rotation matrix
+    // Or simpler: project from the center using width/height/angle
+    const cx = rect.left + rect.width / 2 - mapRect.left
+    const cy = rect.top + rect.height / 2 - mapRect.top
+    const hw = boxWidth / 2
+    const hh = boxHeight / 2
+
+    const rad = angle * Math.PI / 180
+    const cos = Math.cos(rad)
+    const sin = Math.sin(rad)
+
+    const getCorner = (lx: number, ly: number) => {
+      const px = cx + (lx * cos - ly * sin)
+      const py = cy + (lx * sin + ly * cos)
+      const pt = L.point(px, py)
+      return mapInstance.containerPointToLatLng(pt)
+    }
+
+    const tl = getCorner(-hw, -hh)
+    const tr = getCorner(hw, -hh)
+    const br = getCorner(hw, hh)
+    const bl = getCorner(-hw, hh)
+
+    const corners = [
+      { lat: tl.lat, lng: tl.lng },
+      { lat: tr.lat, lng: tr.lng },
+      { lat: br.lat, lng: br.lng },
+      { lat: bl.lat, lng: bl.lng }
+    ]
+
     onConfirm({
       lat: center[0],
       lng: center[1],
-      bbox,
+      bbox, // fallback axis-aligned encompassing
+      corners,
       locationName: locationName || `${center[0].toFixed(4)}, ${center[1].toFixed(4)}`,
       zoom,
     })
@@ -238,13 +361,7 @@ export function SiteSelector({ onClose, onConfirm }: SiteSelectorProps) {
               onChange={handleQueryChange}
               placeholder="Search city, neighborhood, or landmark…"
               className="h-12 w-full rounded-xl border border-zinc-700/80 bg-zinc-900/90 pl-11 pr-20 text-sm text-white outline-none transition placeholder:text-zinc-500 focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/40"
-              onFocus={() => {
-                if (query.trim().length === 0 && recentSearches.length > 0) {
-                  setShowResults(true)
-                } else if (results.length > 0) {
-                  setShowResults(true)
-                }
-              }}
+              onFocus={() => setShowResults(true)}
             />
             <Search
               className="pointer-events-none absolute left-3.5 top-1/2 z-10 -translate-y-1/2 text-zinc-500"
@@ -268,7 +385,7 @@ export function SiteSelector({ onClose, onConfirm }: SiteSelectorProps) {
             )}
           </div>
 
-          {searchError && (
+          {searchError && !isSearching && (
             <div className="mt-2 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-red-200">
               {searchError}
             </div>
@@ -284,8 +401,14 @@ export function SiteSelector({ onClose, onConfirm }: SiteSelectorProps) {
                 </div>
               )}
 
-              {dropdownItems.length === 0 && !searchError && (
-                <div className="px-4 py-4 text-sm text-zinc-500">Start typing to search for a city or neighborhood.</div>
+              {dropdownItems.length === 0 && !searchError && !isSearching && (
+                <div className="px-4 py-4 text-sm text-zinc-500">
+                  {query.trim().length > 0 && query.trim().length < 3 
+                    ? 'Keep typing to search...' 
+                    : query.trim().length >= 3 
+                      ? 'No locations found.' 
+                      : 'Start typing to search for a city or neighborhood.'}
+                </div>
               )}
 
               {dropdownItems.map((r) => (
@@ -298,7 +421,11 @@ export function SiteSelector({ onClose, onConfirm }: SiteSelectorProps) {
                   <MapPin size={14} className="shrink-0 text-blue-400" />
                   <span className="min-w-0 flex-1">
                     <span className="block truncate">{r.name}</span>
-                    <span className="mt-1 block text-[10px] uppercase tracking-[0.18em] text-zinc-500">{r.type.replace('_', ' ')}</span>
+                    {r.type && (
+                      <span className="mt-1 block text-[10px] uppercase tracking-[0.18em] text-zinc-500">
+                        {r.type.replace(/_/g, ' ')}
+                      </span>
+                    )}
                   </span>
                 </button>
               ))}
@@ -315,7 +442,7 @@ export function SiteSelector({ onClose, onConfirm }: SiteSelectorProps) {
       </div>
 
       {/* ── Map ── */}
-      <div className="relative flex-1">
+      <div className="relative flex-1 overflow-hidden bg-zinc-950">
         <MapContainer
           center={center}
           zoom={zoom}
@@ -326,26 +453,69 @@ export function SiteSelector({ onClose, onConfirm }: SiteSelectorProps) {
             url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
             attribution="© OpenStreetMap contributors, © CARTO"
           />
-          <MapController center={center} zoom={zoom} onBoundsChange={setBbox} />
+          <MapController center={center} zoom={zoom} onBoundsChange={setBbox} setMapInstance={setMapInstance} />
         </MapContainer>
 
-        {/* Center crosshair overlay — spec §3.5: 50% of viewport */}
-        <div className="pointer-events-none absolute inset-0 z-[1000] flex items-center justify-center">
-          <div className="relative rounded-2xl border-2 border-dashed border-blue-400/40 bg-blue-500/[0.03] shadow-[0_0_60px_rgba(59,130,246,0.08)]" style={{ width: '50%', height: '50%' }}>
-            <div className="absolute -left-px -top-px h-5 w-5 rounded-tl-xl border-l-[3px] border-t-[3px] border-blue-400" />
-            <div className="absolute -right-px -top-px h-5 w-5 rounded-tr-xl border-r-[3px] border-t-[3px] border-blue-400" />
-            <div className="absolute -bottom-px -left-px h-5 w-5 rounded-bl-xl border-b-[3px] border-l-[3px] border-blue-400" />
-            <div className="absolute -bottom-px -right-px h-5 w-5 rounded-br-xl border-b-[3px] border-r-[3px] border-blue-400" />
-            {/* Crosshair lines */}
-            <div className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-blue-400/15" />
-            <div className="absolute left-0 top-1/2 h-px w-full -translate-y-1/2 bg-blue-400/15" />
+        {/* Resizable/Rotatable Overlay */}
+        <div className="pointer-events-none absolute inset-0 z-[1000] flex items-center justify-center overflow-hidden">
+          <div 
+            ref={overlayRef}
+            className="relative flex items-center justify-center pointer-events-auto"
+            style={{ 
+              width: boxWidth, 
+              height: boxHeight,
+              transform: `rotate(${angle}deg)`,
+              transition: 'none' // disable transition during drag
+            }}
+          >
+            <div className="absolute inset-0 rounded-2xl border-2 border-dashed border-blue-400/80 bg-blue-500/10 shadow-[0_0_60px_rgba(59,130,246,0.15)] pointer-events-none backdrop-blur-[1px]" />
+            
             {/* Center pin */}
-            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-              <div className="h-3 w-3 rounded-full border-2 border-blue-400 bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.6)]" />
+            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+              <div className="h-2 w-2 rounded-full bg-blue-400 shadow-[0_0_12px_rgba(59,130,246,0.8)]" />
             </div>
-            {/* Area estimate label */}
-            <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 rounded-lg bg-zinc-900/90 px-3 py-1 text-[11px] font-medium text-blue-300 backdrop-blur pointer-events-none">
-              {bbox ? `≈ ${((Math.abs(bbox[2] - bbox[0]) * Math.abs(bbox[3] - bbox[1])) * 111 * 111 * Math.cos((bbox[0] + bbox[2]) / 2 * Math.PI / 180)).toFixed(1)} km² selected` : 'Select area'}
+
+            {/* Rotation Handle */}
+            <div 
+              className="absolute -top-10 left-1/2 -translate-x-1/2 flex flex-col items-center cursor-crosshair group"
+              onMouseDown={handleRotate}
+            >
+              <div className="w-[2px] h-6 bg-blue-400/60 group-hover:bg-blue-400 transition-colors" />
+              <div className="w-5 h-5 rounded-full border-2 border-blue-400 bg-zinc-900 shadow-lg group-hover:bg-blue-500 transition-colors flex items-center justify-center" />
+            </div>
+
+            {/* Resize Handles */}
+            <div 
+              className="absolute -top-2 -left-2 w-5 h-5 cursor-nwse-resize group"
+              onMouseDown={(e) => handleResize(e, 'tl')}
+            >
+              <div className="w-full h-full rounded-tl-xl border-l-[4px] border-t-[4px] border-blue-400/60 group-hover:border-blue-400 transition-colors" />
+            </div>
+            <div 
+              className="absolute -top-2 -right-2 w-5 h-5 cursor-nesw-resize group"
+              onMouseDown={(e) => handleResize(e, 'tr')}
+            >
+              <div className="w-full h-full rounded-tr-xl border-r-[4px] border-t-[4px] border-blue-400/60 group-hover:border-blue-400 transition-colors" />
+            </div>
+            <div 
+              className="absolute -bottom-2 -left-2 w-5 h-5 cursor-nesw-resize group"
+              onMouseDown={(e) => handleResize(e, 'bl')}
+            >
+              <div className="w-full h-full rounded-bl-xl border-b-[4px] border-l-[4px] border-blue-400/60 group-hover:border-blue-400 transition-colors" />
+            </div>
+            <div 
+              className="absolute -bottom-2 -right-2 w-5 h-5 cursor-nwse-resize group"
+              onMouseDown={(e) => handleResize(e, 'br')}
+            >
+              <div className="w-full h-full rounded-br-xl border-b-[4px] border-r-[4px] border-blue-400/60 group-hover:border-blue-400 transition-colors" />
+            </div>
+
+            {/* Area estimate label (un-rotates to stay readable) */}
+            <div 
+              className="absolute -bottom-10 left-1/2 -translate-x-1/2 rounded-lg bg-zinc-900/90 px-3 py-1.5 text-[11px] font-medium text-blue-300 backdrop-blur pointer-events-none whitespace-nowrap border border-zinc-700/50 shadow-xl"
+              style={{ transform: `translateX(-50%) rotate(${-angle}deg)` }}
+            >
+              Adjust boundaries & rotation
             </div>
           </div>
         </div>
@@ -387,7 +557,7 @@ export function SiteSelector({ onClose, onConfirm }: SiteSelectorProps) {
             )}
             <button
               onClick={handleConfirm}
-              disabled={!bbox}
+              disabled={!bbox || !mapInstance}
               className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-blue-600/25 transition hover:shadow-blue-600/40 hover:brightness-110 active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <Check size={18} />
@@ -399,7 +569,7 @@ export function SiteSelector({ onClose, onConfirm }: SiteSelectorProps) {
 
       {/* Footer hint */}
       <div className="shrink-0 border-t border-zinc-800/60 bg-zinc-900/40 px-6 py-3 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-zinc-500">
-        <span>Zoom &amp; pan to align the blue box with the area you want to redesign. Real roads and waterways will be pulled into your layout.</span>
+        <span>Use handles to resize and rotate. Real roads and waterways inside the blue box will be mapped exactly to your layout grid.</span>
         <span className="font-semibold text-zinc-400">Map Service: OSM-backed backend search</span>
       </div>
     </div>
