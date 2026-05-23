@@ -6,7 +6,6 @@ import { Canvas } from '@/widgets/Canvas'
 import { ChatInput } from '@/features/ChatInput'
 import { CellDetail } from '@/features/CellDetail'
 import { Toasts } from '@/shared/ui/Toast'
-import SettingsModal from '@/widgets/SettingsModal'
 import { ExplanationPanel } from '@/widgets/ExplanationPanel'
 import { Minimize2, MapPin } from 'lucide-react'
 import { getExplanation } from '@/shared/utils/explain.js'
@@ -125,7 +124,6 @@ export default function App() {
         </div>
       </main>
       <Toasts />
-      <SettingsModal />
 
       {/* Map Site Selector Modal */}
       {showMapSelector && (

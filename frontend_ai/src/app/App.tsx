@@ -3,7 +3,7 @@ import { useEffect } from 'react'
 import { LandingPage } from '@/pages/Landing/landing-page'
 import { LoginPage } from '@/pages/Login/LoginPage'
 import Workspace from '@/pages/WorkspacePage'
-
+import { SettingsPage } from '@/pages/Settings/SettingsPage'
 
 export default function App() {
   useEffect(() => {
@@ -26,6 +26,7 @@ export default function App() {
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/app" element={<Workspace />} />
+      <Route path="/settings" element={<SettingsPage />} />
       <Route path="/canvas" element={<Navigate to="/app" replace />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

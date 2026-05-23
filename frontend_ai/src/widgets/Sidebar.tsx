@@ -114,7 +114,7 @@ export function Sidebar() {
               <span>Clear history</span>
             </button>
           )}
-          <button className="sidebar-footer-btn" onClick={() => (useStore.getState() as any).setSettingsOpen(true)}>
+          <button className="sidebar-footer-btn" onClick={() => window.location.href = '/settings'}>
             <Settings size={15} strokeWidth={1.5} />
             <span>Settings</span>
           </button>
